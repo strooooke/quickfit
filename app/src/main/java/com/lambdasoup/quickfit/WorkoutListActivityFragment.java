@@ -1,15 +1,49 @@
 package com.lambdasoup.quickfit;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.content.IntentSender;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.Scopes;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.fitness.Fitness;
+import com.google.android.gms.fitness.FitnessActivities;
+import com.google.android.gms.fitness.data.DataPoint;
+import com.google.android.gms.fitness.data.DataSource;
+import com.google.android.gms.fitness.data.DataType;
+import com.google.android.gms.fitness.data.Device;
+import com.google.android.gms.fitness.data.Session;
+import com.google.android.gms.fitness.request.SessionInsertRequest;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class WorkoutListActivityFragment extends Fragment {
+
+    private static final String TAG = WorkoutListActivityFragment.class.getSimpleName();
+    private GoogleApiClient mClient;
+    private static final int REQUEST_OAUTH = 1;
+
+    /**
+     *  Track whether an authorization activity is stacking over the current activity, i.e. when
+     *  a known auth error is being resolved, such as showing the account chooser or presenting a
+     *  consent dialog. This avoids common duplications as might happen on screen rotations, etc.
+     */
+    private static final String AUTH_PENDING = "auth_state_pending";
+    private boolean authInProgress = false;
+
 
     public WorkoutListActivityFragment() {
     }
@@ -17,6 +51,105 @@ public class WorkoutListActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_workout_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_workout_list, container, false);
+        view.findViewById(R.id.button_add_workout).setOnClickListener(v -> onAddWorkout());
+        return view;
     }
+
+    private void onAddWorkout() {
+        buildFitnessClient();
+        mClient.connect();
+    }
+
+    private void buildFitnessClient() {
+        // Create the Google API Client
+        mClient = new GoogleApiClient.Builder(getActivity())
+                .addApi(Fitness.SESSIONS_API)
+                .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
+                .addConnectionCallbacks(
+                        new GoogleApiClient.ConnectionCallbacks() {
+                            @Override
+                            public void onConnected(Bundle bundle) {
+                                Log.i(TAG, "Connected!!!");
+
+
+                                long now = System.currentTimeMillis();
+                                Session session = new Session.Builder()
+                                        .setActivity(FitnessActivities.BASKETBALL)
+                                        .setName("Test").setStartTime(now, TimeUnit.MILLISECONDS)
+                                        .setEndTime(now + 100_000, TimeUnit.MILLISECONDS)
+                                        .setActiveTime(100_000, TimeUnit.MILLISECONDS)
+                                        .build();
+
+                                DataSource datasource = new DataSource.Builder()
+                                        .setAppPackageName(getActivity())
+                                        .setDataType(DataType.AGGREGATE_CALORIES_EXPENDED)
+                                        .setType(DataSource.TYPE_RAW)
+                                        .setDevice(Device.getLocalDevice(getActivity()))
+                                        .build();
+
+                                SessionInsertRequest insertRequest = new SessionInsertRequest.Builder()
+                                        .setSession(session)
+                                        .addAggregateDataPoint(DataPoint.create(datasource).setTimestamp(now, TimeUnit.MILLISECONDS).setFloatValues(333.3f).setTimeInterval(now, now + 100_000, TimeUnit.MILLISECONDS))
+                                        .build();
+
+                                PendingResult<Status> res = Fitness.SessionsApi.insertSession(mClient, insertRequest);
+                                res.setResultCallback(status -> Log.i(TAG, "insertion result: " + status.toString()));
+
+                                //mClient.disconnect();
+                            }
+
+                            @Override
+                            public void onConnectionSuspended(int i) {
+                                // If your connection to the sensor gets lost at some point,
+                                // you'll be able to determine the reason and react to it here.
+                                if (i == GoogleApiClient.ConnectionCallbacks.CAUSE_NETWORK_LOST) {
+                                    Log.i(TAG, "Connection lost.  Cause: Network Lost.");
+                                } else if (i == GoogleApiClient.ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
+                                    Log.i(TAG, "Connection lost.  Reason: Service Disconnected");
+                                }
+                            }
+                        }
+                )
+                .addOnConnectionFailedListener(
+                        result -> {
+                            Log.i(TAG, "Connection failed. Cause: " + result.toString());
+                            if (!result.hasResolution()) {
+                                // Show the localized error dialog
+                                GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(),
+                                        getActivity(), 0).show();
+                                return;
+                            }
+                            // The failure has a resolution. Resolve it.
+                            // Called typically when the app is not yet authorized, and an
+                            // authorization dialog is displayed to the user.
+                            if (!authInProgress) {
+                                try {
+                                    Log.i(TAG, "Attempting to resolve failed connection");
+                                    authInProgress = true;
+                                    result.startResolutionForResult(getActivity(),
+                                            REQUEST_OAUTH);
+                                } catch (IntentSender.SendIntentException e) {
+                                    Log.e(TAG,
+                                            "Exception while starting resolution activity", e);
+                                }
+                            }
+                        }
+                )
+                .build();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_OAUTH) {
+            authInProgress = false;
+            if (resultCode == Activity.RESULT_OK) {
+                // Make sure the app is not already connected or attempting to connect
+                if (!mClient.isConnecting() && !mClient.isConnected()) {
+                    mClient.connect();
+                }
+            }
+        }
+    }
+
 }
