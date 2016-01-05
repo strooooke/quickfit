@@ -1,0 +1,9 @@
+QuickFit
+===========
+
+QuickFit is an Android app which lets you add preconfigured workouts to Google Fit with a single click.
+
+License
+-------
+
+This app is licensed under the Apache 2.0 License.
