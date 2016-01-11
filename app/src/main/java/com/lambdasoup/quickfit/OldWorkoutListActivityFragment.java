@@ -46,9 +46,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class WorkoutListActivityFragment extends Fragment {
+public class OldWorkoutListActivityFragment extends Fragment {
 
-    private static final String TAG = WorkoutListActivityFragment.class.getSimpleName();
+    private static final String TAG = OldWorkoutListActivityFragment.class.getSimpleName();
     private GoogleApiClient mClient;
     private static final int REQUEST_OAUTH = 1;
 
@@ -61,15 +61,16 @@ public class WorkoutListActivityFragment extends Fragment {
     private boolean authInProgress = false;
 
 
-    public WorkoutListActivityFragment() {
+    public OldWorkoutListActivityFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_workout_list, container, false);
-        view.findViewById(R.id.button_add_workout).setOnClickListener(v -> onAddWorkout());
-        return view;
+        //View view = inflater.inflate(R.layout.fragment_workout_list, container, false);
+        //view.findViewById(R.id.button_add_workout).setOnClickListener(v -> onAddWorkout());
+        //return view;
+        return null;
     }
 
     private void onAddWorkout() {
