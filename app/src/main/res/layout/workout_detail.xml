@@ -13,38 +13,51 @@
   ~ See the License for the specific language governing permissions and
   ~    limitations under the License.
   -->
-
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/workout_detail"
-    android:layout_height="wrap_content"
-    android:layout_width="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <Spinner
-        android:id="@+id/activity_type_spinner"
+    <data>
+
+        <variable
+            name="workout"
+            type="com.lambdasoup.quickfit.WorkoutDetailFragment.WorkoutViewModel" />
+    </data>
+
+    <RelativeLayout
+
+        android:id="@+id/workout_detail"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content">
 
-    <EditText
-        android:id="@+id/duration_mins"
-        style="?android:attr/textAppearanceMedium"
-        android:layout_width="48dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/activity_type_spinner"
-        android:padding="4dp"
-        android:inputType="number"
-        tools:context="com.lambdasoup.quickfit.WorkoutDetailFragment" />
-    <TextView
-        android:id="@+id/duration_mins_label"
-        style="?android:attr/textAppearanceMedium"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/duration_mins"
-        android:layout_alignBaseline="@id/duration_mins"
-        android:labelFor="@id/duration_mins"
-        android:padding="16dp"
-        android:text="@string/duration_mins_label"
-        tools:context="com.lambdasoup.quickfit.WorkoutDetailFragment" />
-</RelativeLayout>
+        <Spinner
+            android:id="@+id/activity_type_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:selection="@{workout.activityTypeIndex}"/>
 
+        <EditText
+            android:id="@+id/duration_mins"
+            style="?android:attr/textAppearanceMedium"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/activity_type_spinner"
+            android:inputType="number"
+            android:padding="4dp"
+            android:text="@{workout.durationInMinutes}"
+            tools:context="com.lambdasoup.quickfit.WorkoutDetailFragment" />
+
+        <TextView
+            android:id="@+id/duration_mins_label"
+            style="?android:attr/textAppearanceMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/duration_mins"
+            android:layout_toEndOf="@id/duration_mins"
+            android:labelFor="@id/duration_mins"
+            android:padding="16dp"
+            android:text="@string/duration_mins_label"
+            tools:context="com.lambdasoup.quickfit.WorkoutDetailFragment" />
+    </RelativeLayout>
+
+</layout>

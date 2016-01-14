@@ -18,16 +18,22 @@ package com.lambdasoup.quickfit;
 
 import android.app.Activity;
 import android.database.Cursor;
+import android.databinding.BaseObservable;
+import android.databinding.Bindable;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+
+import com.lambdasoup.quickfit.databinding.WorkoutDetailBinding;
 
 /**
  * A fragment representing a single Workout detail screen.
@@ -43,7 +49,8 @@ public class WorkoutDetailFragment extends Fragment implements LoaderManager.Loa
     public static final String ARG_ITEM_ID = "item_id";
 
 
-    private WorkoutDetail item;
+    WorkoutViewModel item;
+    private WorkoutDetailBinding binding;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -66,13 +73,39 @@ public class WorkoutDetailFragment extends Fragment implements LoaderManager.Loa
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.workout_detail, container, false);
+        item = new WorkoutViewModel();
+        binding = WorkoutDetailBinding.inflate(inflater, container, false);
+        binding.setWorkout(item);
+        View rootView = binding.getRoot();
+
 
         ArrayAdapter<FitActivity> activitiesAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, FitActivity.all(getResources()));
         activitiesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         activitiesAdapter.sort((left, right) -> left.displayName.compareToIgnoreCase(right.displayName));
+        binding.activityTypeSpinner.setAdapter(activitiesAdapter);
 
-        ((Spinner) rootView.findViewById(R.id.activity_type_spinner)).setAdapter(activitiesAdapter);
+        binding.activityTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                item.setActivityTypeIndex(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        binding.durationMins.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable edit) {
+                item.setDurationInMinutes(Integer.parseInt(edit.toString()));
+            }
+        });
 
         return rootView;
     }
@@ -89,12 +122,18 @@ public class WorkoutDetailFragment extends Fragment implements LoaderManager.Loa
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         cursor.moveToFirst();
-        item = new WorkoutDetail(
-                cursor.getString(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE)),
-                cursor.getInt(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.DURATION_MINUTES))
+        item.setActivityTypeIndex(
+                ((ArrayAdapter<FitActivity>) binding.activityTypeSpinner.getAdapter())
+                        .getPosition(
+                                FitActivity.fromKey(
+                                        cursor.getString(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE)),
+                                        getResources()
+                                )
+                        )
         );
-        // TODO: binding
+        item.setDurationInMinutes(cursor.getInt(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.DURATION_MINUTES)));
 
+        // TODO: label?
         Activity activity = this.getActivity();
         CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
         if (appBarLayout != null) {
@@ -104,32 +143,39 @@ public class WorkoutDetailFragment extends Fragment implements LoaderManager.Loa
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        // TODO: ???
     }
 
-    static class WorkoutDetail {
-        private String activityType;
+    public static class WorkoutViewModel extends BaseObservable {
         private int durationInMinutes;
+        private int activityTypeIndex;
 
-        public WorkoutDetail(String activityType, int durationInMinutes) {
-            this.activityType = activityType;
-            this.durationInMinutes = durationInMinutes;
+        @Bindable
+        public int getActivityTypeIndex() {
+            return activityTypeIndex;
         }
 
-        public String getActivityType() {
-            return activityType;
+        public void setActivityTypeIndex(int activityTypeIndex) {
+            this.activityTypeIndex = activityTypeIndex;
+            notifyPropertyChanged(com.lambdasoup.quickfit.BR.activityTypeIndex);
         }
 
-        public void setActivityType(String activityType) {
-            this.activityType = activityType;
-        }
-
-        public int getDurationInMinutes() {
-            return durationInMinutes;
+        @Bindable
+        public String getDurationInMinutes() {
+            return Integer.toString(durationInMinutes);
         }
 
         public void setDurationInMinutes(int durationInMinutes) {
             this.durationInMinutes = durationInMinutes;
+            notifyPropertyChanged(com.lambdasoup.quickfit.BR.durationInMinutes);
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("WorkoutViewModel{");
+            sb.append("durationInMinutes=").append(durationInMinutes);
+            sb.append(", activityTypeIndex=").append(activityTypeIndex);
+            sb.append('}');
+            return sb.toString();
         }
     }
 }

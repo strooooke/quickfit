@@ -17,6 +17,7 @@
 package com.lambdasoup.quickfit;
 
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 
 import com.google.android.gms.fitness.FitnessActivities;
@@ -25,14 +26,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-/**
- * Created by jl on 08.01.16.
- */
-public class FitActivity {
-    public final String key;
-    public final String displayName;
 
-    private FitActivity(String key, String displayName) {
+public class FitActivity {
+    @NonNull public final String key;
+    @NonNull public final String displayName;
+
+    private FitActivity(@NonNull String key, @NonNull String displayName) {
         this.key = key;
         this.displayName = displayName;
     }
@@ -46,7 +45,26 @@ public class FitActivity {
         return displayName;
     }
 
-    public static FitActivity fromKey(String key, Resources resources) {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FitActivity that = (FitActivity) o;
+
+        if (!key.equals(that.key)) return false;
+        return displayName.equals(that.displayName);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = key.hashCode();
+        result = 31 * result + displayName.hashCode();
+        return result;
+    }
+
+    public static FitActivity fromKey(@NonNull String key, @NonNull Resources resources) {
         Integer resId = RES_ID_BY_KEY.get(key);
         if (resId == null) {
             throw new IllegalArgumentException("Unknown key " + key);
@@ -54,7 +72,7 @@ public class FitActivity {
         return new FitActivity(key, resources.getString(resId));
     }
 
-    public static FitActivity[] all(Resources resources) {
+    public static FitActivity[] all(@NonNull Resources resources) {
         FitActivity[] all = new FitActivity[RES_ID_BY_KEY.size()];
         int i = 0;
         for (Map.Entry<String, Integer> entry : RES_ID_BY_KEY.entrySet()) {

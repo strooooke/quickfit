@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
@@ -34,6 +35,8 @@ import android.view.MenuItem;
  */
 public class WorkoutDetailActivity extends AppCompatActivity {
 
+    private static final String TAG = WorkoutDetailActivity.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,8 +45,10 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show());
+        fab.setOnClickListener(view -> {Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
+            Log.d(TAG, ((WorkoutDetailFragment) getSupportFragmentManager().findFragmentById(R.id.workout_detail_container)).item.toString());
+        });
 
         // Show the Up button in the action bar.
         ActionBar actionBar = getSupportActionBar();
