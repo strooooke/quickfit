@@ -71,6 +71,7 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.workout_detail_container, fragment)
                         .commit();
+
             } else {
                 Intent intent = new Intent(this, WorkoutDetailActivity.class);
                 intent.putExtra(WorkoutDetailFragment.ARG_ITEM_ID, workoutId);

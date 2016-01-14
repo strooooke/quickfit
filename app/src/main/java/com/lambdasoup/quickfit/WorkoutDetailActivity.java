@@ -45,9 +45,9 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(view -> {Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show();
-            Log.d(TAG, ((WorkoutDetailFragment) getSupportFragmentManager().findFragmentById(R.id.workout_detail_container)).item.toString());
+        fab.setOnClickListener(view -> {
+            ((WorkoutDetailFragment) getSupportFragmentManager().findFragmentById(R.id.workout_detail_container)).save();
+            finish();
         });
 
         // Show the Up button in the action bar.

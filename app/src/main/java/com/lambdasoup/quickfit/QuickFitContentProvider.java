@@ -34,9 +34,11 @@ public class QuickFitContentProvider extends ContentProvider {
 
     private QuickFitDbHelper database;
 
-    public static final String AUTHORITY = "com.lambdasoup.quickfit.provider";
+    private static final String AUTHORITY = "com.lambdasoup.quickfit.provider";
 
-    public static final String PATH_WORKOUTS = "workouts";
+    private static final String PATH_WORKOUTS = "workouts";
+
+    public static final Uri URI_WORKOUTS = new Uri.Builder().scheme("content").authority(AUTHORITY).path(PATH_WORKOUTS).build();
 
     private static final int TYPE_WORKOUTS_LIST = 1;
     private static final int TYPE_WORKOUT_SINGLE_ROW = 2;

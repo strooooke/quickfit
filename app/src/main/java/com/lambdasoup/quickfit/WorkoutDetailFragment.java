@@ -17,6 +17,8 @@
 package com.lambdasoup.quickfit;
 
 import android.app.Activity;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.databinding.BaseObservable;
 import android.databinding.Bindable;
@@ -49,7 +51,7 @@ public class WorkoutDetailFragment extends Fragment implements LoaderManager.Loa
     public static final String ARG_ITEM_ID = "item_id";
 
 
-    WorkoutViewModel item;
+    private WorkoutViewModel item;
     private WorkoutDetailBinding binding;
 
     /**
@@ -94,19 +96,6 @@ public class WorkoutDetailFragment extends Fragment implements LoaderManager.Loa
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        binding.durationMins.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable edit) {
-                item.setDurationInMinutes(Integer.parseInt(edit.toString()));
-            }
-        });
-
         return rootView;
     }
 
@@ -143,6 +132,14 @@ public class WorkoutDetailFragment extends Fragment implements LoaderManager.Loa
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+    }
+
+    public void save() {
+        long id = getArguments().getLong(ARG_ITEM_ID);
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE,((FitActivity) binding.activityTypeSpinner.getSelectedItem()).key);
+        contentValues.put(QuickFitContract.WorkoutEntry.DURATION_MINUTES, binding.durationMins.getText().toString());
+        getActivity().getContentResolver().update(ContentUris.withAppendedId(QuickFitContentProvider.URI_WORKOUTS, id), contentValues, null, null);
     }
 
     public static class WorkoutViewModel extends BaseObservable {

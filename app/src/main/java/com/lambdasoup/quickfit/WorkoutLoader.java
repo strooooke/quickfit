@@ -18,11 +18,7 @@ package com.lambdasoup.quickfit;
 
 import android.content.ContentUris;
 import android.content.Context;
-import android.net.Uri;
 import android.support.v4.content.CursorLoader;
-
-import static com.lambdasoup.quickfit.QuickFitContentProvider.AUTHORITY;
-import static com.lambdasoup.quickfit.QuickFitContentProvider.PATH_WORKOUTS;
 
 /**
  * Created by jl on 11.01.16.
@@ -31,7 +27,7 @@ public class WorkoutLoader extends CursorLoader {
     public WorkoutLoader(Context context, long id) {
         super(
                 context,
-                ContentUris.appendId(new Uri.Builder().scheme("content").authority(AUTHORITY).path(PATH_WORKOUTS), id).build(),
+                ContentUris.withAppendedId(QuickFitContentProvider.URI_WORKOUTS, id),
                 QuickFitContract.WorkoutEntry.COLUMNS,
                 null,
                 null,

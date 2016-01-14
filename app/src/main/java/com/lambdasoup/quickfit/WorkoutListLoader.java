@@ -18,17 +18,13 @@ package com.lambdasoup.quickfit;
 
 import android.content.Context;
 import android.content.CursorLoader;
-import android.net.Uri;
-
-import static com.lambdasoup.quickfit.QuickFitContentProvider.AUTHORITY;
-import static com.lambdasoup.quickfit.QuickFitContentProvider.PATH_WORKOUTS;
 
 
 public class WorkoutListLoader extends CursorLoader {
     public WorkoutListLoader(Context context) {
         super(
                 context,
-                new Uri.Builder().scheme("content").authority(AUTHORITY).path(PATH_WORKOUTS).build(),
+                QuickFitContentProvider.URI_WORKOUTS,
                 QuickFitContract.WorkoutEntry.COLUMNS,
                 null,
                 null,
