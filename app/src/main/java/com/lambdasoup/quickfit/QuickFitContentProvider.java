@@ -17,6 +17,7 @@
 package com.lambdasoup.quickfit;
 
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -26,6 +27,10 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by jl on 06.01.16.
@@ -37,17 +42,24 @@ public class QuickFitContentProvider extends ContentProvider {
     private static final String AUTHORITY = "com.lambdasoup.quickfit.provider";
 
     private static final String PATH_WORKOUTS = "workouts";
+    private static final String PATH_SESSIONS = "sessions";
 
-    public static final Uri URI_WORKOUTS = new Uri.Builder().scheme("content").authority(AUTHORITY).path(PATH_WORKOUTS).build();
+    public static final Uri URI_WORKOUTS = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(AUTHORITY).path(PATH_WORKOUTS).build();
+    public static final Uri URI_SESSIONS = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(AUTHORITY).path(PATH_SESSIONS).build();
 
     private static final int TYPE_WORKOUTS_LIST = 1;
     private static final int TYPE_WORKOUT_SINGLE_ROW = 2;
+    private static final int TYPE_SESSIONS_LIST = 3;
+    private static final int TYPE_SESSION_SINGLE_ROW = 4;
 
 
     private static final UriMatcher uriMatcher = new UriMatcher(0);
+
     static {
         uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS, TYPE_WORKOUTS_LIST);
         uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS + "/#", TYPE_WORKOUT_SINGLE_ROW);
+        uriMatcher.addURI(AUTHORITY, PATH_SESSIONS, TYPE_SESSIONS_LIST);
+        uriMatcher.addURI(AUTHORITY, PATH_SESSIONS + "/#", TYPE_SESSION_SINGLE_ROW);
     }
 
     @Override
@@ -59,22 +71,31 @@ public class QuickFitContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        List<String> moreSelectionArgs = new ArrayList<>();
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
 
         switch (uriMatcher.match(uri)) {
             case TYPE_WORKOUT_SINGLE_ROW:
-                queryBuilder.appendWhere(QuickFitContract.WorkoutEntry._ID + "="
-                        + uri.getLastPathSegment());
+                queryBuilder.appendWhere(QuickFitContract.WorkoutEntry._ID + "=?");
+                moreSelectionArgs.add(uri.getLastPathSegment());
             case TYPE_WORKOUTS_LIST:
                 queryBuilder.setTables(QuickFitContract.WorkoutEntry.TABLE_NAME);
+                break;
+            case TYPE_SESSION_SINGLE_ROW:
+                queryBuilder.appendWhere(QuickFitContract.SessionEntry._ID + "=?");
+                moreSelectionArgs.add(uri.getLastPathSegment());
+            case TYPE_SESSIONS_LIST:
+                queryBuilder.setTables(QuickFitContract.SessionEntry.TABLE_NAME);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid content URI:" + uri);
         }
 
+        String[] expandedSelectionArgs = expandSelectionArgs(selectionArgs, moreSelectionArgs);
+
         SQLiteDatabase db = database.getWritableDatabase();
         Cursor cursor = queryBuilder.query(db, projection, selection,
-                selectionArgs, null, null, sortOrder);
+                expandedSelectionArgs, null, null, sortOrder);
         //noinspection ConstantConditions
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
 
@@ -86,9 +107,13 @@ public class QuickFitContentProvider extends ContentProvider {
     public String getType(@NonNull Uri uri) {
         switch (uriMatcher.match(uri)) {
             case TYPE_WORKOUT_SINGLE_ROW:
-                return "vnd.android.cursor.item/vnd." + AUTHORITY + ".workout";
+                return ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd." + AUTHORITY + ".workout";
             case TYPE_WORKOUTS_LIST:
-                return "vnd.android.cursor.dir/vnd." + AUTHORITY + ".workout";
+                return ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".workout";
+            case TYPE_SESSION_SINGLE_ROW:
+                return ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd." + AUTHORITY + ".session";
+            case TYPE_SESSIONS_LIST:
+                return ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".session";
             default:
                 throw new IllegalArgumentException("Invalid content URI:" + uri);
         }
@@ -98,12 +123,16 @@ public class QuickFitContentProvider extends ContentProvider {
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues values) {
         SQLiteDatabase sqlDB = database.getWritableDatabase();
-        long id = 0;
+        long id;
         String basePath;
         switch (uriMatcher.match(uri)) {
             case TYPE_WORKOUTS_LIST:
                 id = sqlDB.insert(QuickFitContract.WorkoutEntry.TABLE_NAME, null, values);
                 basePath = PATH_WORKOUTS;
+                break;
+            case TYPE_SESSIONS_LIST:
+                id = sqlDB.insert(QuickFitContract.SessionEntry.TABLE_NAME, null, values);
+                basePath = PATH_SESSIONS;
                 break;
             default:
                 throw new IllegalArgumentException("Invalid content URI:" + uri);
@@ -116,25 +145,43 @@ public class QuickFitContentProvider extends ContentProvider {
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         SQLiteDatabase sqlDB = database.getWritableDatabase();
-        int rowsDeleted = 0;
+
+        int rowsDeleted;
         switch (uriMatcher.match(uri)) {
-            case TYPE_WORKOUTS_LIST:
+            case TYPE_WORKOUTS_LIST: {
                 rowsDeleted = sqlDB.delete(QuickFitContract.WorkoutEntry.TABLE_NAME, selection,
                         selectionArgs);
                 break;
-            case TYPE_WORKOUT_SINGLE_ROW:
-                String id = uri.getLastPathSegment();
+            }
+            case TYPE_WORKOUT_SINGLE_ROW: {
                 if (TextUtils.isEmpty(selection)) {
                     rowsDeleted = sqlDB.delete(QuickFitContract.WorkoutEntry.TABLE_NAME,
-                            QuickFitContract.WorkoutEntry._ID + "=" + id,
-                            null);
+                            QuickFitContract.WorkoutEntry._ID + "=?",
+                            new String[]{uri.getLastPathSegment()});
                 } else {
                     rowsDeleted = sqlDB.delete(QuickFitContract.WorkoutEntry.TABLE_NAME,
-                            QuickFitContract.WorkoutEntry._ID + "=" + id
-                                    + " and " + selection,
-                            selectionArgs);
+                            QuickFitContract.WorkoutEntry._ID + "=? and " + selection,
+                            expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
                 }
                 break;
+            }
+            case TYPE_SESSIONS_LIST: {
+                rowsDeleted = sqlDB.delete(QuickFitContract.SessionEntry.TABLE_NAME, selection,
+                        selectionArgs);
+                break;
+            }
+            case TYPE_SESSION_SINGLE_ROW: {
+                if (TextUtils.isEmpty(selection)) {
+                    rowsDeleted = sqlDB.delete(QuickFitContract.SessionEntry.TABLE_NAME,
+                            QuickFitContract.SessionEntry._ID + "=?",
+                            new String[]{uri.getLastPathSegment()});
+                } else {
+                    rowsDeleted = sqlDB.delete(QuickFitContract.SessionEntry.TABLE_NAME,
+                            QuickFitContract.SessionEntry._ID + "=? and " + selection,
+                            expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
+                }
+                break;
+            }
             default:
                 throw new IllegalArgumentException("Invalid content URI:" + uri);
         }
@@ -146,7 +193,7 @@ public class QuickFitContentProvider extends ContentProvider {
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         SQLiteDatabase sqlDB = database.getWritableDatabase();
-        int rowsUpdated = 0;
+        int rowsUpdated;
         switch (uriMatcher.match(uri)) {
             case TYPE_WORKOUTS_LIST:
                 rowsUpdated = sqlDB.update(QuickFitContract.WorkoutEntry.TABLE_NAME,
@@ -155,19 +202,35 @@ public class QuickFitContentProvider extends ContentProvider {
                         selectionArgs);
                 break;
             case TYPE_WORKOUT_SINGLE_ROW:
-                String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection)) {
                     rowsUpdated = sqlDB.update(QuickFitContract.WorkoutEntry.TABLE_NAME,
                             values,
-                            QuickFitContract.WorkoutEntry._ID + "=" + id,
-                            null);
+                            QuickFitContract.WorkoutEntry._ID + "=?",
+                            new String[]{uri.getLastPathSegment()});
                 } else {
                     rowsUpdated = sqlDB.update(QuickFitContract.WorkoutEntry.TABLE_NAME,
                             values,
-                            QuickFitContract.WorkoutEntry._ID + "=" + id
-                                    + " and "
-                                    + selection,
-                            selectionArgs);
+                            QuickFitContract.WorkoutEntry._ID + "=? and " + selection,
+                            expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
+                }
+                break;
+            case TYPE_SESSIONS_LIST:
+                rowsUpdated = sqlDB.update(QuickFitContract.SessionEntry.TABLE_NAME,
+                        values,
+                        selection,
+                        selectionArgs);
+                break;
+            case TYPE_SESSION_SINGLE_ROW:
+                if (TextUtils.isEmpty(selection)) {
+                    rowsUpdated = sqlDB.update(QuickFitContract.SessionEntry.TABLE_NAME,
+                            values,
+                            QuickFitContract.SessionEntry._ID + "=?",
+                            new String[]{uri.getLastPathSegment()});
+                } else {
+                    rowsUpdated = sqlDB.update(QuickFitContract.SessionEntry.TABLE_NAME,
+                            values,
+                            QuickFitContract.SessionEntry._ID + "=? and " + selection,
+                            expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
                 }
                 break;
             default:
@@ -176,5 +239,21 @@ public class QuickFitContentProvider extends ContentProvider {
         //noinspection ConstantConditions
         getContext().getContentResolver().notifyChange(uri, null);
         return rowsUpdated;
+    }
+
+    private String[] expandSelectionArgs(String[] selectionArgs, List<String> moreSelectionArgs) {
+        String[] expandedSelectionArgs = selectionArgs;
+        if (!moreSelectionArgs.isEmpty()) {
+            int originalArgsLength = selectionArgs == null ? 0 : selectionArgs.length;
+            expandedSelectionArgs = new String[originalArgsLength + moreSelectionArgs.size()];
+            int i = 0;
+            for (; i < originalArgsLength; i++) {
+                expandedSelectionArgs[i] = selectionArgs[i];
+            }
+            for (i = 0; i < moreSelectionArgs.size(); i++) {
+                expandedSelectionArgs[originalArgsLength + i] = moreSelectionArgs.get(i);
+            }
+        }
+        return expandedSelectionArgs;
     }
 }

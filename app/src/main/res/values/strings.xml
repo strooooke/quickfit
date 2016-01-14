@@ -133,4 +133,5 @@
     <string name="insert_session_button">Just did it!</string>
     <string name="edit_workout_button">Edit</string>
     <string name="duration_mins_compact">%d minutes</string>
+    <string name="success_session_insert">Your workout session was noted.</string>
 </resources>

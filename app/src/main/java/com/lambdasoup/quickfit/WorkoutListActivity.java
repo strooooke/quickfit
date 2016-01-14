@@ -17,16 +17,26 @@
 package com.lambdasoup.quickfit;
 
 import android.app.LoaderManager;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.util.TimeUtils;
+import android.widget.Toast;
+
+import com.lambdasoup.quickfit.QuickFitContract.SessionEntry.SessionStatus;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * An activity representing a list of Workouts. This activity
@@ -38,6 +48,7 @@ import android.support.v7.widget.Toolbar;
  */
 public class WorkoutListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    private static final String TAG = WorkoutListActivity.class.getSimpleName();
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
@@ -61,7 +72,7 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.workout_list);
         assert recyclerView != null;
         workoutsAdapter = new WorkoutItemRecyclerViewAdapter(this);
-        workoutsAdapter.setInsertSessionClickListener(workoutId -> {/* TODO: content provider insertion + sync request? */});
+        workoutsAdapter.setInsertSessionClickListener(this::onInsertSession);
         workoutsAdapter.setOnEditClickListener(workoutId -> {
             if (isTwoPane) {
                 Bundle arguments = new Bundle();
@@ -91,6 +102,8 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
     }
 
 
+
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -110,5 +123,47 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         workoutsAdapter.swapCursor(null);
+    }
+
+    private void onInsertSession(long workoutId) {
+        new InsertSessionTask().execute(workoutId);
+    }
+
+    private class InsertSessionTask extends AsyncTask<Long, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(Long... params) {
+            long workoutId = params[0];
+
+            Cursor cursor = getContentResolver().query(
+                    ContentUris.withAppendedId(QuickFitContentProvider.URI_WORKOUTS, workoutId),
+                    QuickFitContract.WorkoutEntry.COLUMNS,
+                    null,
+                    null,
+                    null);
+            if (cursor == null || !cursor.moveToFirst()) {
+                Log.w(TAG, "Workout missing with id: " + workoutId);
+                return false;
+            }
+
+            int durationInMinutes = cursor.getInt(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.DURATION_MINUTES));
+            long endTime = System.currentTimeMillis();
+            long startTime = endTime - TimeUnit.MINUTES.toMillis(durationInMinutes);
+
+            ContentValues values = new ContentValues();
+            values.put(QuickFitContract.SessionEntry.ACTIVITY_TYPE, cursor.getString(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE)));
+            values.put(QuickFitContract.SessionEntry.START_TIME, startTime);
+            values.put(QuickFitContract.SessionEntry.END_TIME, endTime);
+            values.put(QuickFitContract.SessionEntry.STATUS, SessionStatus.NEW.name());
+
+            getContentResolver().insert(QuickFitContentProvider.URI_SESSIONS, values);
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if (success) {
+                Toast.makeText(WorkoutListActivity.this, R.string.success_session_insert, Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

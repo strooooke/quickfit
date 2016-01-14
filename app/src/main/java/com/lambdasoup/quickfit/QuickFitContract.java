@@ -34,8 +34,33 @@ public class QuickFitContract {
                 "CREATE TABLE " + TABLE_NAME + " ( " +
                         _ID + " INTEGER PRIMARY KEY, " +
                         ACTIVITY_TYPE + " TEXT NOT NULL, " +
-                        DURATION_MINUTES + " INTEGER NULL " +
+                        DURATION_MINUTES + " INTEGER NOT NULL " +
                         ")"
         };
+    }
+
+    abstract static class SessionEntry implements BaseColumns {
+        static final String TABLE_NAME = "session";
+
+        static final String ACTIVITY_TYPE = "activity_type";
+        static final String START_TIME = "start_time";
+        static final String END_TIME = "end_time";
+        static final String STATUS = "status";
+
+        static final String[] COLUMNS = {_ID, ACTIVITY_TYPE, START_TIME, END_TIME, STATUS};
+
+        static final String[] CREATE_STATEMENTS = {
+            "CREATE TABLE " + TABLE_NAME + " ( " +
+                    _ID + " INTEGER PRIMARY KEY, " +
+                    ACTIVITY_TYPE + " TEXT NOT NULL, " +
+                    START_TIME + " INTEGER NOT NULL, " +
+                    END_TIME + " INTEGER NOT NULL, " +
+                    STATUS + " TEXT NOT NULL " +
+                    ")"
+        };
+
+        enum SessionStatus {
+            NEW, SYNCED
+        }
     }
 }

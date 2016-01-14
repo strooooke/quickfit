@@ -27,7 +27,7 @@ import android.util.Log;
 public class QuickFitDbHelper extends SQLiteOpenHelper {
 
     static final String DATABASE_NAME = "quickfit.db";
-    static final int DATABASE_VERSION = 1;
+    static final int DATABASE_VERSION = 2;
     public static final String TAG = QuickFitDbHelper.class.getSimpleName();
 
     public QuickFitDbHelper(Context context) {
@@ -46,7 +46,19 @@ public class QuickFitDbHelper extends SQLiteOpenHelper {
         Log.w(TAG, "Upgrading database from version "
                 + oldVersion + " to " + newVersion);
 
-        if (newVersion > 1) {
+        if (newVersion == 2) {
+            database.execSQL("DROP TABLE IF EXISTS " + QuickFitContract.WorkoutEntry.TABLE_NAME);
+            database.execSQL("DROP TABLE IF EXISTS " + QuickFitContract.SessionEntry.TABLE_NAME);
+
+            for (String stmt : QuickFitContract.WorkoutEntry.CREATE_STATEMENTS) {
+                database.execSQL(stmt);
+            }
+            for (String stmt : QuickFitContract.SessionEntry.CREATE_STATEMENTS) {
+                database.execSQL(stmt);
+            }
+        }
+
+        if (newVersion > 2) {
             Log.e(TAG, "No upgrading procedure for version " + newVersion + " implemented yet!");
         }
     }
