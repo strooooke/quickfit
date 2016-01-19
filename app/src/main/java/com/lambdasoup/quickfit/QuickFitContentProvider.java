@@ -39,7 +39,7 @@ public class QuickFitContentProvider extends ContentProvider {
 
     private QuickFitDbHelper database;
 
-    private static final String AUTHORITY = "com.lambdasoup.quickfit.provider";
+    public static final String AUTHORITY = "com.lambdasoup.quickfit.provider";
 
     private static final String PATH_WORKOUTS = "workouts";
     private static final String PATH_SESSIONS = "sessions";
