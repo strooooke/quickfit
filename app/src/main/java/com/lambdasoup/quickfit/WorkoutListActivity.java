@@ -16,14 +16,21 @@
 
 package com.lambdasoup.quickfit;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.LoaderManager;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -31,9 +38,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.TimeUtils;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
 import com.lambdasoup.quickfit.QuickFitContract.SessionEntry.SessionStatus;
 
 import java.util.concurrent.TimeUnit;
@@ -49,12 +56,18 @@ import java.util.concurrent.TimeUnit;
 public class WorkoutListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = WorkoutListActivity.class.getSimpleName();
+
+    public static final String EXTRA_PLAY_API_CONNECT_RESULT = "play_api_connect_result";
+    private static final int REQUEST_OAUTH = 0;
+    private static final String KEY_AUTH_IN_PROGRESS = "com.lambdasoup.quickfit.auth_in_progress";
+
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
     boolean isTwoPane;
     private WorkoutItemRecyclerViewAdapter workoutsAdapter;
+    boolean authInProgress = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,15 +112,39 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
             // activity should be in two-pane mode.
             isTwoPane = true;
         }
+
+        if (savedInstanceState != null) {
+            authInProgress = savedInstanceState.getBoolean(KEY_AUTH_IN_PROGRESS, false);
+        }
     }
-
-
 
 
     @Override
     protected void onStart() {
         super.onStart();
         getLoaderManager().initLoader(0, null, this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        ConnectionResult connectionResult = getIntent().getParcelableExtra(EXTRA_PLAY_API_CONNECT_RESULT);
+        if (connectionResult != null && !authInProgress) {
+            authInProgress = true;
+            try {
+                connectionResult.startResolutionForResult(this, REQUEST_OAUTH);
+            } catch (IntentSender.SendIntentException e) {
+                Log.e(TAG,
+                        "Exception while starting resolution activity", e);
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_AUTH_IN_PROGRESS, authInProgress);
     }
 
     @Override
@@ -118,6 +155,7 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         workoutsAdapter.swapCursor(data);
+        data.close();
     }
 
     @Override
@@ -154,8 +192,11 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
             values.put(QuickFitContract.SessionEntry.START_TIME, startTime);
             values.put(QuickFitContract.SessionEntry.END_TIME, endTime);
             values.put(QuickFitContract.SessionEntry.STATUS, SessionStatus.NEW.name());
+            values.put(QuickFitContract.SessionEntry.NAME, cursor.getString(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.LABEL)));
+            values.put(QuickFitContract.SessionEntry.CALORIES, cursor.getInt(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.CALORIES)));
 
             getContentResolver().insert(QuickFitContentProvider.URI_SESSIONS, values);
+            ContentResolver.requestSync(getSyncableGoogleAccount(), QuickFitContentProvider.AUTHORITY, new Bundle());// TODO: fetch account; let the user choose the default to use...
             return true;
         }
 
@@ -166,4 +207,31 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
             }
         }
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_OAUTH) {
+            authInProgress = false;
+            if (resultCode == Activity.RESULT_OK) {
+                ContentResolver.requestSync(getSyncableGoogleAccount(), QuickFitContentProvider.AUTHORITY, new Bundle());
+            }
+        }
+    }
+
+    // TODO: ???
+    private Account getSyncableGoogleAccount() {
+        // TODO: M permissions!
+        Account[] accounts = AccountManager.get(getApplicationContext()).getAccountsByType("com.google");
+        for (Account account : accounts) {
+            Log.i(TAG, "Looking at account " + account);
+            if (ContentResolver.getIsSyncable(account, QuickFitContentProvider.AUTHORITY) > 0) {
+                Log.i(TAG, "Requesting sync for " + account);
+                return account;
+            }
+        }
+        Log.w(TAG, "No usable account found.");
+        return null;
+    }
+
+
 }

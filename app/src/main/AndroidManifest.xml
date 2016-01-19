@@ -36,7 +36,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".OldWorkoutListActivity"
+            android:name=".WorkoutListActivity"
             android:label="@string/title_workout_list"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>

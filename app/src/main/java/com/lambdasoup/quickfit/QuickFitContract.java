@@ -27,14 +27,18 @@ public class QuickFitContract {
 
         static final String ACTIVITY_TYPE = "activity_type";
         static final String DURATION_MINUTES = "duration_minutes";
+        static final String LABEL = "label";
+        static final String CALORIES = "calories";
 
-        static final String[] COLUMNS = {_ID, ACTIVITY_TYPE, DURATION_MINUTES};
+        static final String[] COLUMNS = {_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES};
 
         static final String[] CREATE_STATEMENTS = {
                 "CREATE TABLE " + TABLE_NAME + " ( " +
                         _ID + " INTEGER PRIMARY KEY, " +
                         ACTIVITY_TYPE + " TEXT NOT NULL, " +
-                        DURATION_MINUTES + " INTEGER NOT NULL " +
+                        DURATION_MINUTES + " INTEGER NOT NULL, " +
+                        LABEL + " TEXT NULL, " +
+                        CALORIES + " INTEGER NULL " +
                         ")"
         };
     }
@@ -46,8 +50,10 @@ public class QuickFitContract {
         static final String START_TIME = "start_time";
         static final String END_TIME = "end_time";
         static final String STATUS = "status";
+        static final String NAME = "title";
+        static final String CALORIES = "calories";
 
-        static final String[] COLUMNS = {_ID, ACTIVITY_TYPE, START_TIME, END_TIME, STATUS};
+        static final String[] COLUMNS = {_ID, ACTIVITY_TYPE, START_TIME, END_TIME, STATUS, NAME, CALORIES};
 
         static final String[] CREATE_STATEMENTS = {
             "CREATE TABLE " + TABLE_NAME + " ( " +
@@ -55,7 +61,9 @@ public class QuickFitContract {
                     ACTIVITY_TYPE + " TEXT NOT NULL, " +
                     START_TIME + " INTEGER NOT NULL, " +
                     END_TIME + " INTEGER NOT NULL, " +
-                    STATUS + " TEXT NOT NULL " +
+                    STATUS + " TEXT NOT NULL, " +
+                    NAME + " TEXT NULL, " +
+                    CALORIES + " INTEGER NULL " +
                     ")"
         };
 
