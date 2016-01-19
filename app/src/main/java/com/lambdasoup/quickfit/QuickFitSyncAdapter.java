@@ -135,7 +135,9 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
                                     .setContentTitle(getContext().getResources().getString(R.string.permission_needed_play_service_title))
                                     .setContentText(getContext().getResources().getString(R.string.permission_needed_play_service))
                                     .setSmallIcon(R.drawable.common_ic_googleplayservices)
-                                    .setContentIntent(resultPendingIntent);
+                                    .setContentIntent(resultPendingIntent)
+                                    .setAutoCancel(true);
+
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                 notificationBuilder.setCategory(Notification.CATEGORY_ERROR);
                             }

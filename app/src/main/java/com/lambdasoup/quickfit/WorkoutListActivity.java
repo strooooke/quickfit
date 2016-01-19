@@ -18,19 +18,17 @@ package com.lambdasoup.quickfit;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.LoaderManager;
+import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.Loader;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -67,7 +65,7 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
      */
     boolean isTwoPane;
     private WorkoutItemRecyclerViewAdapter workoutsAdapter;
-    boolean authInProgress = false;
+    AuthProgress authProgress = AuthProgress.NONE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,7 +112,7 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
         }
 
         if (savedInstanceState != null) {
-            authInProgress = savedInstanceState.getBoolean(KEY_AUTH_IN_PROGRESS, false);
+            authProgress = AuthProgress.valueOf(savedInstanceState.getString(KEY_AUTH_IN_PROGRESS, AuthProgress.NONE.name()));
         }
     }
 
@@ -130,8 +128,10 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
         super.onResume();
 
         ConnectionResult connectionResult = getIntent().getParcelableExtra(EXTRA_PLAY_API_CONNECT_RESULT);
-        if (connectionResult != null && !authInProgress) {
-            authInProgress = true;
+        if (connectionResult != null && authProgress == AuthProgress.NONE) {
+            Log.i(TAG, "starting auth");
+
+            authProgress = AuthProgress.IN_PROGRESS;
             try {
                 connectionResult.startResolutionForResult(this, REQUEST_OAUTH);
             } catch (IntentSender.SendIntentException e) {
@@ -144,7 +144,7 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(KEY_AUTH_IN_PROGRESS, authInProgress);
+        outState.putString(KEY_AUTH_IN_PROGRESS, authProgress.name());
     }
 
     @Override
@@ -211,7 +211,7 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_OAUTH) {
-            authInProgress = false;
+            authProgress = AuthProgress.DONE;
             if (resultCode == Activity.RESULT_OK) {
                 ContentResolver.requestSync(getSyncableGoogleAccount(), QuickFitContentProvider.AUTHORITY, new Bundle());
             }
@@ -233,5 +233,8 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
         return null;
     }
 
+    enum AuthProgress {
+        NONE, IN_PROGRESS, DONE
+    }
 
 }
