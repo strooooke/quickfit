@@ -17,6 +17,7 @@
 package com.lambdasoup.quickfit;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.support.v4.app.Fragment;
@@ -26,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -67,10 +69,9 @@ public class OldWorkoutListActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        //View view = inflater.inflate(R.layout.fragment_workout_list, container, false);
-        //view.findViewById(R.id.button_add_workout).setOnClickListener(v -> onAddWorkout());
-        //return view;
-        return null;
+        View view = inflater.inflate(R.layout.old_fragment_workout_list, container, false);
+        view.findViewById(R.id.button_add_workout).setOnClickListener(v -> onAddWorkout());
+        return view;
     }
 
     private void onAddWorkout() {
@@ -91,11 +92,13 @@ public class OldWorkoutListActivityFragment extends Fragment {
 
 
                                 long now = System.currentTimeMillis();
+                                long startTime = now - 8 * 3_600_000;
+                                long endTime = now - 7 * 3_600_000;
                                 Session session = new Session.Builder()
-                                        .setActivity(FitnessActivities.BASKETBALL)
-                                        .setName("Test").setStartTime(now, TimeUnit.MILLISECONDS)
-                                        .setEndTime(now + 100_000, TimeUnit.MILLISECONDS)
-                                        .setActiveTime(100_000, TimeUnit.MILLISECONDS)
+                                        .setActivity(FitnessActivities.AEROBICS)
+                                        .setName("Test old aerobics with disco")
+                                        .setStartTime(startTime, TimeUnit.MILLISECONDS)
+                                        .setEndTime(endTime, TimeUnit.MILLISECONDS)
                                         .build();
 
                                 DataSource datasource = new DataSource.Builder()
@@ -107,13 +110,21 @@ public class OldWorkoutListActivityFragment extends Fragment {
 
                                 SessionInsertRequest insertRequest = new SessionInsertRequest.Builder()
                                         .setSession(session)
-                                        .addAggregateDataPoint(DataPoint.create(datasource).setTimestamp(now, TimeUnit.MILLISECONDS).setFloatValues(333.3f).setTimeInterval(now, now + 100_000, TimeUnit.MILLISECONDS))
+                                        .addAggregateDataPoint(
+                                                DataPoint.create(datasource)
+                                                        .setTimestamp(endTime, TimeUnit.MILLISECONDS)
+                                                        .setFloatValues(333.3f)
+                                                        .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS)
+                                        )
                                         .build();
 
                                 PendingResult<Status> res = Fitness.SessionsApi.insertSession(mClient, insertRequest);
-                                res.setResultCallback(status -> Log.i(TAG, "insertion result: " + status.toString()));
+                                res.setResultCallback(status -> {
+                                    Log.i(TAG, "insertion result: " + status.toString());
+                                    mClient.disconnect();
+                                });
 
-                                //mClient.disconnect();
+
                             }
 
                             @Override
@@ -132,9 +143,8 @@ public class OldWorkoutListActivityFragment extends Fragment {
                         result -> {
                             Log.i(TAG, "Connection failed. Cause: " + result.toString());
                             if (!result.hasResolution()) {
-                                // Show the localized error dialog
-                                GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(),
-                                        getActivity(), 0).show();
+                                // Show the localized error notification
+                                GoogleApiAvailability.getInstance().showErrorNotification(getContext(), result.getErrorCode());
                                 return;
                             }
                             // The failure has a resolution. Resolve it.
@@ -144,6 +154,7 @@ public class OldWorkoutListActivityFragment extends Fragment {
                                 try {
                                     Log.i(TAG, "Attempting to resolve failed connection");
                                     authInProgress = true;
+
                                     result.startResolutionForResult(getActivity(),
                                             REQUEST_OAUTH);
                                 } catch (IntentSender.SendIntentException e) {
