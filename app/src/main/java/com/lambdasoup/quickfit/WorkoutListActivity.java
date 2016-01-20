@@ -20,7 +20,6 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.LoaderManager;
-import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -57,7 +56,10 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
 
     public static final String EXTRA_PLAY_API_CONNECT_RESULT = "play_api_connect_result";
     private static final int REQUEST_OAUTH = 0;
-    private static final String KEY_AUTH_IN_PROGRESS = "com.lambdasoup.quickfit.auth_in_progress";
+    private static final String ACCOUNT_TYPE = "com.lambdasoup.quickfit";
+    private static final String KEY_AUTH_IN_PROGRESS = "auth_in_progress";
+
+    private Account account = new Account("QuickFit", ACCOUNT_TYPE);
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -113,6 +115,10 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
 
         if (savedInstanceState != null) {
             authProgress = AuthProgress.valueOf(savedInstanceState.getString(KEY_AUTH_IN_PROGRESS, AuthProgress.NONE.name()));
+        }
+
+        if (AccountManager.get(getApplicationContext()).addAccountExplicitly(account, null, null)) {
+            ContentResolver.setIsSyncable(account, QuickFitContentProvider.AUTHORITY, 1);
         }
     }
 
@@ -196,7 +202,7 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
             values.put(QuickFitContract.SessionEntry.CALORIES, cursor.getInt(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.CALORIES)));
 
             getContentResolver().insert(QuickFitContentProvider.URI_SESSIONS, values);
-            ContentResolver.requestSync(getSyncableGoogleAccount(), QuickFitContentProvider.AUTHORITY, new Bundle());// TODO: fetch account; let the user choose the default to use...
+            requestSync();
             return true;
         }
 
@@ -213,24 +219,16 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
         if (requestCode == REQUEST_OAUTH) {
             authProgress = AuthProgress.DONE;
             if (resultCode == Activity.RESULT_OK) {
-                ContentResolver.requestSync(getSyncableGoogleAccount(), QuickFitContentProvider.AUTHORITY, new Bundle());
+                requestSync();
             }
         }
     }
 
-    // TODO: ???
-    private Account getSyncableGoogleAccount() {
-        // TODO: M permissions!
-        Account[] accounts = AccountManager.get(getApplicationContext()).getAccountsByType("com.google");
-        for (Account account : accounts) {
-            Log.i(TAG, "Looking at account " + account);
-            if (ContentResolver.getIsSyncable(account, QuickFitContentProvider.AUTHORITY) > 0) {
-                Log.i(TAG, "Requesting sync for " + account);
-                return account;
-            }
-        }
-        Log.w(TAG, "No usable account found.");
-        return null;
+    private void requestSync() {
+        Log.d(TAG, "going to request sync!");
+        Bundle syncOptions = new Bundle();
+        syncOptions.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        ContentResolver.requestSync(account, QuickFitContentProvider.AUTHORITY, syncOptions);
     }
 
     enum AuthProgress {

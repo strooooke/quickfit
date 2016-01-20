@@ -15,9 +15,7 @@
   ~    limitations under the License.
   -->
 
-<sync-adapter xmlns:android="http://schemas.android.com/apk/res/android"
-    android:contentAuthority="com.lambdasoup.quickfit.provider"
+<account-authenticator
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:accountType="com.lambdasoup.quickfit"
-    android:isAlwaysSyncable="true"
-    android:userVisible="false"
-    />
+    android:label="@string/app_name"/>
