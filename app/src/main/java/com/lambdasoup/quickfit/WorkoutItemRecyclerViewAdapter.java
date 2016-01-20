@@ -16,22 +16,19 @@
 
 package com.lambdasoup.quickfit;
 
-import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
-import android.os.Bundle;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -40,6 +37,7 @@ import java.util.Set;
 public class WorkoutItemRecyclerViewAdapter
         extends RecyclerView.Adapter<WorkoutItemRecyclerViewAdapter.ViewHolder> {
 
+    private static final String TAG = WorkoutItemRecyclerViewAdapter.class.getSimpleName();
     private WorkoutListActivity workoutListActivity;
 
     private final SortedList<WorkoutItem> dataset;
@@ -52,21 +50,29 @@ public class WorkoutItemRecyclerViewAdapter
         dataset = new SortedList<>(WorkoutItem.class, new SortedList.Callback<WorkoutItem>() {
             @Override
             public int compare(WorkoutItem left, WorkoutItem right) {
+                Log.d(TAG, "compare: " + left + ", " + right);
                 int res = String.CASE_INSENSITIVE_ORDER.compare(left.activityName, right.activityName);
                 if (res != 0) {
                     return res;
                 }
                 res = Integer.compare(left.durationMins, right.durationMins);
+                if (res != 0) {
+                    return res;
+                }
+                res = Long.compare(left.id, right.id);
                 return res;
             }
 
             @Override
             public boolean areContentsTheSame(WorkoutItem oldItem, WorkoutItem newItem) {
-                return oldItem.activityName.equals(newItem.activityName) && oldItem.durationMins == newItem.durationMins;
+                Log.d(TAG, "areContentsTheSame: " + oldItem + ", " + newItem);
+                return oldItem.activityName.equals(newItem.activityName)
+                        && oldItem.durationMins == newItem.durationMins;
             }
 
             @Override
             public boolean areItemsTheSame(WorkoutItem item1, WorkoutItem item2) {
+                Log.d(TAG, "areItemsTheSame: " + item1 + ", " + item2);
                 return item1.id == item2.id;
             }
 
@@ -124,16 +130,25 @@ public class WorkoutItemRecyclerViewAdapter
             return;
         }
 
+        Map<Long, Integer> oldIds = new HashMap<>();
+        for (int i = 0; i < dataset.size(); i++) {
+            oldIds.put(dataset.get(i).id, i);
+        }
+
         Set<Long> newIds = new HashSet<>();
         dataset.beginBatchedUpdates();
         while (cursor.moveToNext()) {
-            long id = cursor.getLong(cursor.getColumnIndex(QuickFitContract.WorkoutEntry._ID));
-            newIds.add(id);
-            dataset.add(new WorkoutItem(
-                    id,
-                    FitActivity.fromKey(cursor.getString(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE)), workoutListActivity.getResources()).displayName,
-                    cursor.getInt(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.DURATION_MINUTES))
-            ));
+            WorkoutItem newItem = new WorkoutItem(
+                    cursor.getLong(cursor.getColumnIndex(QuickFitContract.WorkoutEntry._ID)),
+                    FitActivity.fromKey(cursor.getString(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE)),
+                            workoutListActivity.getResources()).displayName,
+                    cursor.getInt(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.DURATION_MINUTES)));
+            newIds.add(newItem.id);
+            if (oldIds.containsKey(newItem.id)) {
+                dataset.updateItemAt(oldIds.get(newItem.id), newItem);
+            } else {
+                dataset.add(newItem);
+            }
         }
 
         for (int i = dataset.size() - 1; i >= 0; i--) {
@@ -142,6 +157,15 @@ public class WorkoutItemRecyclerViewAdapter
             }
         }
         dataset.endBatchedUpdates();
+    }
+
+    private static <T> String sortedSetToString(SortedList<T> dataset) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < dataset.size(); i++) {
+            sb.append("\n\t");
+            sb.append(dataset.get(i).toString());
+        }
+        return sb.toString();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -153,6 +177,7 @@ public class WorkoutItemRecyclerViewAdapter
         public final Button editButton;
         public final Button insertSessionButton;
         public WorkoutItem item;
+
         public ViewHolder(View view) {
             super(view);
             this.view = view;
@@ -209,5 +234,14 @@ public class WorkoutItemRecyclerViewAdapter
             this.durationMins = durationMins;
         }
 
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("WorkoutItem{");
+            sb.append("id=").append(id);
+            sb.append(", activityName='").append(activityName).append('\'');
+            sb.append(", durationMins=").append(durationMins);
+            sb.append('}');
+            return sb.toString();
+        }
     }
 }
