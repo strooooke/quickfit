@@ -120,14 +120,11 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
         if (AccountManager.get(getApplicationContext()).addAccountExplicitly(account, null, null)) {
             ContentResolver.setIsSyncable(account, QuickFitContentProvider.AUTHORITY, 1);
         }
-    }
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         getLoaderManager().initLoader(0, null, this);
     }
+
+
 
     @Override
     protected void onResume() {
@@ -161,7 +158,7 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         workoutsAdapter.swapCursor(data);
-        data.close();
+        //data.close();
     }
 
     @Override
@@ -200,6 +197,8 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
             values.put(QuickFitContract.SessionEntry.STATUS, SessionStatus.NEW.name());
             values.put(QuickFitContract.SessionEntry.NAME, cursor.getString(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.LABEL)));
             values.put(QuickFitContract.SessionEntry.CALORIES, cursor.getInt(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.CALORIES)));
+
+            cursor.close();
 
             getContentResolver().insert(QuickFitContentProvider.URI_SESSIONS, values);
             requestSync();
