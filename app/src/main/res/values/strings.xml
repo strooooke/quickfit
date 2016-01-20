@@ -134,4 +134,6 @@
     <string name="edit_workout_button">Edit</string>
     <string name="duration_mins_compact">%d minutes</string>
     <string name="success_session_insert">Your workout session was noted.</string>
+    <string name="permission_needed_play_service">Permission needed to access your Google Fit data</string>
+    <string name="permission_needed_play_service_title">Permission needed</string>
 </resources>
