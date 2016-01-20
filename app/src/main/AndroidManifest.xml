@@ -57,7 +57,7 @@
 
         <service
             android:name=".SyncService"
-            android:exported="true"
+            android:exported="false"
             android:process=":sync">
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
@@ -67,7 +67,8 @@
                 android:resource="@xml/syncadapter" />
         </service>
         <service
-            android:name=".AuthenticatorService">
+            android:name=".AuthenticatorService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator"/>
             </intent-filter>
