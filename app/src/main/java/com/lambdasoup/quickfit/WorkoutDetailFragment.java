@@ -153,7 +153,7 @@ public class WorkoutDetailFragment extends Fragment implements LoaderManager.Loa
 
         public void setActivityTypeIndex(int activityTypeIndex) {
             this.activityTypeIndex = activityTypeIndex;
-            notifyPropertyChanged(com.lambdasoup.quickfit.BR.activityTypeIndex);
+            //notifyPropertyChanged(com.lambdasoup.quickfit.BR.activityTypeIndex);
         }
 
         @Bindable
@@ -163,7 +163,7 @@ public class WorkoutDetailFragment extends Fragment implements LoaderManager.Loa
 
         public void setDurationInMinutes(int durationInMinutes) {
             this.durationInMinutes = durationInMinutes;
-            notifyPropertyChanged(com.lambdasoup.quickfit.BR.durationInMinutes);
+            //notifyPropertyChanged(com.lambdasoup.quickfit.BR.durationInMinutes);
         }
 
         @Override

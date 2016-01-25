@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +38,7 @@ import java.util.List;
  */
 public class QuickFitContentProvider extends ContentProvider {
 
+    private static final String TAG = QuickFitContentProvider.class.getSimpleName();
     private QuickFitDbHelper database;
 
     public static final String AUTHORITY = "com.lambdasoup.quickfit.provider";
@@ -192,6 +194,7 @@ public class QuickFitContentProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        Log.d(TAG, "ContentProvider update for uri " + uri + ", with content values " + values);
         SQLiteDatabase sqlDB = database.getWritableDatabase();
         int rowsUpdated;
         switch (uriMatcher.match(uri)) {
@@ -203,6 +206,7 @@ public class QuickFitContentProvider extends ContentProvider {
                 break;
             case TYPE_WORKOUT_SINGLE_ROW:
                 if (TextUtils.isEmpty(selection)) {
+                    Log.d(TAG, "Update for single workout row with empty selection");
                     rowsUpdated = sqlDB.update(QuickFitContract.WorkoutEntry.TABLE_NAME,
                             values,
                             QuickFitContract.WorkoutEntry._ID + "=?",
@@ -238,6 +242,7 @@ public class QuickFitContentProvider extends ContentProvider {
         }
         //noinspection ConstantConditions
         getContext().getContentResolver().notifyChange(uri, null);
+        Log.d(TAG, rowsUpdated + " rows updated.");
         return rowsUpdated;
     }
 

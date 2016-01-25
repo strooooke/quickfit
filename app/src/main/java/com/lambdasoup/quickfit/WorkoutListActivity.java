@@ -50,7 +50,7 @@ import java.util.concurrent.TimeUnit;
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class WorkoutListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class WorkoutListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, WorkoutItemRecyclerViewAdapter.OnWorkoutInteractionListener {
 
     private static final String TAG = WorkoutListActivity.class.getSimpleName();
 
@@ -85,24 +85,8 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.workout_list);
         assert recyclerView != null;
         workoutsAdapter = new WorkoutItemRecyclerViewAdapter(this);
-        workoutsAdapter.setInsertSessionClickListener(this::onInsertSession);
-        workoutsAdapter.setOnEditClickListener(workoutId -> {
-            if (isTwoPane) {
-                Bundle arguments = new Bundle();
-                arguments.putLong(WorkoutDetailFragment.ARG_ITEM_ID, workoutId);
-                WorkoutDetailFragment fragment = new WorkoutDetailFragment();
-                fragment.setArguments(arguments);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.workout_detail_container, fragment)
-                        .commit();
+        workoutsAdapter.setOnWorkoutInteractionListener(this);
 
-            } else {
-                Intent intent = new Intent(this, WorkoutDetailActivity.class);
-                intent.putExtra(WorkoutDetailFragment.ARG_ITEM_ID, workoutId);
-
-                startActivity(intent);
-            }
-        });
         recyclerView.setAdapter(workoutsAdapter);
 
         if (findViewById(R.id.workout_detail_container) != null) {
@@ -166,8 +150,16 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
         workoutsAdapter.swapCursor(null);
     }
 
-    private void onInsertSession(long workoutId) {
+    @Override
+    public void onDoneItClick(long workoutId) {
         new InsertSessionTask().execute(workoutId);
+    }
+
+    @Override
+    public void onActivityTypeChanged(long workoutId, String newActivityTypeKey) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE, newActivityTypeKey);
+        getContentResolver().update(ContentUris.withAppendedId(QuickFitContentProvider.URI_WORKOUTS, workoutId), contentValues, null, null);
     }
 
     private class InsertSessionTask extends AsyncTask<Long, Void, Boolean> {
