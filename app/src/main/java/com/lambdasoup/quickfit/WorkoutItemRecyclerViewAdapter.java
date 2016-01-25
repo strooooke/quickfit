@@ -106,7 +106,13 @@ public class WorkoutItemRecyclerViewAdapter
         activityTypesAdapter.sort((left, right) -> left.displayName.compareToIgnoreCase(right.displayName));
     }
 
-
+    @Override
+    public long getItemId(int position) {
+        if (position >= 0 && position < dataset.size()) {
+            return dataset.get(position).id;
+        }
+        return RecyclerView.NO_ID;
+    }
 
     public void setOnWorkoutInteractionListener(OnWorkoutInteractionListener onWorkoutInteractionListener) {
         this.onWorkoutInteractionListener = onWorkoutInteractionListener;
