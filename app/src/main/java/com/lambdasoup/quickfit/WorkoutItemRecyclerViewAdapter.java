@@ -107,6 +107,7 @@ public class WorkoutItemRecyclerViewAdapter
     }
 
 
+
     public void setOnWorkoutInteractionListener(OnWorkoutInteractionListener onWorkoutInteractionListener) {
         this.onWorkoutInteractionListener = onWorkoutInteractionListener;
     }

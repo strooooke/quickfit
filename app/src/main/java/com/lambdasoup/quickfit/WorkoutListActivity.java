@@ -38,6 +38,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.fitness.FitnessActivities;
 import com.lambdasoup.quickfit.QuickFitContract.SessionEntry.SessionStatus;
 
 import java.util.concurrent.TimeUnit;
@@ -79,8 +80,7 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
         toolbar.setTitle(getTitle());
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show());
+        fab.setOnClickListener(view -> addNewWorkout());
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.workout_list);
         assert recyclerView != null;
@@ -148,6 +148,13 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         workoutsAdapter.swapCursor(null);
+    }
+
+    private void addNewWorkout() {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE, FitnessActivities.AEROBICS);
+        contentValues.put(QuickFitContract.WorkoutEntry.DURATION_MINUTES, 30);
+        getContentResolver().insert(QuickFitContentProvider.URI_WORKOUTS, contentValues);
     }
 
     @Override
