@@ -228,6 +228,15 @@ public class WorkoutItemRecyclerViewAdapter
             }
         };
 
+        public final View.OnClickListener durationMinsClicked =new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onWorkoutInteractionListener != null) {
+                    onWorkoutInteractionListener.onDurationMinsEditRequested(viewHolder.item.id, viewHolder.item.durationInMinutes);
+                }
+            }
+        };
+
         EventHandler(ViewHolder viewHolder) {
             this.viewHolder = viewHolder;
         }
@@ -236,6 +245,7 @@ public class WorkoutItemRecyclerViewAdapter
     public interface OnWorkoutInteractionListener {
         void onDoneItClick(long workoutId);
         void onActivityTypeChanged(long workoutId, String newActivityTypeKey);
+        void onDurationMinsEditRequested(long workoutId, int oldValue);
     }
 
 

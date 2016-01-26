@@ -30,7 +30,8 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -51,7 +52,8 @@ import java.util.concurrent.TimeUnit;
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class WorkoutListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, WorkoutItemRecyclerViewAdapter.OnWorkoutInteractionListener {
+public class WorkoutListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
+        WorkoutItemRecyclerViewAdapter.OnWorkoutInteractionListener, NumberPickerDialogFragment.OnFragmentInteractionListener {
 
     private static final String TAG = WorkoutListActivity.class.getSimpleName();
 
@@ -59,6 +61,7 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
     private static final int REQUEST_OAUTH = 0;
     private static final String ACCOUNT_TYPE = "com.lambdasoup.quickfit";
     private static final String KEY_AUTH_IN_PROGRESS = "auth_in_progress";
+    public static final String TAG_DIALOG = "dialog";
 
     private Account account = new Account("QuickFit", ACCOUNT_TYPE);
 
@@ -107,7 +110,6 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
 
         getLoaderManager().initLoader(0, null, this);
     }
-
 
 
     @Override
@@ -166,6 +168,26 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
     public void onActivityTypeChanged(long workoutId, String newActivityTypeKey) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE, newActivityTypeKey);
+        getContentResolver().update(ContentUris.withAppendedId(QuickFitContentProvider.URI_WORKOUTS, workoutId), contentValues, null, null);
+    }
+
+    @Override
+    public void onDurationMinsEditRequested(long workoutId, int oldValue) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Fragment prev = getSupportFragmentManager().findFragmentByTag(TAG_DIALOG);
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        NumberPickerDialogFragment numberPickerDialogFragment = NumberPickerDialogFragment.newInstance(R.string.title_workout_duration, R.string.button_done_workout_duration, workoutId, oldValue);
+        numberPickerDialogFragment.show(ft, TAG_DIALOG);
+    }
+
+    @Override
+    public void onDurationChanged(long workoutId, int newValue) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(QuickFitContract.WorkoutEntry.DURATION_MINUTES, newValue);
         getContentResolver().update(ContentUris.withAppendedId(QuickFitContentProvider.URI_WORKOUTS, workoutId), contentValues, null, null);
     }
 

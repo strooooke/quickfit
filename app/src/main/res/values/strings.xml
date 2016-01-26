@@ -20,7 +20,15 @@
     <string name="title_workout_list">Workouts</string>
     <string name="title_workout_detail">Workout Detail</string>
     <string name="workout_name">Name</string>
-    <string name="duration_mins_label">minutes</string>
+    <string name="duration_mins_format">%d minutes</string>
+    <string name="insert_session_button">Just did it!</string>
+    <string name="edit_workout_button">Edit</string>
+    <string name="duration_mins_compact">%d minutes</string>
+    <string name="success_session_insert">Your workout session was noted.</string>
+    <string name="permission_needed_play_service">Permission needed to access your Google Fit data</string>
+    <string name="permission_needed_play_service_title">Permission needed</string>
+    <string name="calories_label">calories</string>
+    <string name="label_hint">Label</string>
 
 
     <string name="fit_act_aerobics">Aerobics</string>
@@ -128,14 +136,10 @@
     <string name="fit_act_windsurfing">Windsurfing</string>
     <string name="fit_act_yoga">Yoga</string>
     <string name="fit_act_zumba">Zumba</string>
+    <string name="duration_mins_label">minutes</string>
+    <string name="title_workout_duration">Workout duration</string>
+    <string name="button_done">Done</string>
+    <string name="button_done_workout_duration">Set new duration</string>
 
 
-    <string name="insert_session_button">Just did it!</string>
-    <string name="edit_workout_button">Edit</string>
-    <string name="duration_mins_compact">%d minutes</string>
-    <string name="success_session_insert">Your workout session was noted.</string>
-    <string name="permission_needed_play_service">Permission needed to access your Google Fit data</string>
-    <string name="permission_needed_play_service_title">Permission needed</string>
-    <string name="calories_label">calories</string>
-    <string name="label_hint">Label</string>
 </resources>

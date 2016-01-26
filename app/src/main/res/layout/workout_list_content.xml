@@ -39,27 +39,16 @@
             app:selection="@{workout.activityTypeIndex}"
             app:onItemSelectedListener="@{handler.activityTypeSpinnerItemSelected}"/>
 
-        <EditText
-            android:id="@+id/duration_mins"
-            style="?android:attr/textAppearanceMedium"
-            android:layout_width="48dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/activity_type_spinner"
-            android:layout_margin="@dimen/text_margin"
-            android:inputType="number"
-            android:padding="4dp"
-            android:text="@{workout.durationInMinutes}" />
-
         <TextView
-            android:id="@+id/duration_mins_label"
+            android:id="@+id/duration_mins"
             style="?android:attr/textAppearanceMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@id/duration_mins"
-            android:layout_toEndOf="@id/duration_mins"
-            android:labelFor="@id/duration_mins"
-            android:padding="16dp"
-            android:text="@string/duration_mins_label" />
+            android:layout_below="@id/activity_type_spinner"
+            android:layout_margin="@dimen/text_margin"
+            android:padding="4dp"
+            android:text="@{@string/duration_mins_format(workout.durationInMinutes)}"
+            app:onClickListener="@{handler.durationMinsClicked}"/>
 
         <EditText
             android:id="@+id/label"

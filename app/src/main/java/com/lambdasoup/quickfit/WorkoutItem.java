@@ -16,14 +16,12 @@
 
 package com.lambdasoup.quickfit;
 
-/**
- * Created by jl on 21.01.16.
- */
+
 public class WorkoutItem {
     final public long id;
     final public int activityTypeIndex;
     final public String activityTypeDisplayName;
-    final int durationInMinutes;
+    final public int durationInMinutes;
     final int calories;
     final public String label;
 
@@ -36,9 +34,6 @@ public class WorkoutItem {
         this.label = label;
     }
 
-    public String getDurationInMinutes() {
-        return Integer.toString(durationInMinutes);
-    }
 
     public String getCalories() {
         return calories == 0 ? "" : Integer.toString(calories);
