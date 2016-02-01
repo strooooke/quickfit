@@ -22,7 +22,7 @@ public class WorkoutItem {
     final public int activityTypeIndex;
     final public String activityTypeDisplayName;
     final public int durationInMinutes;
-    final int calories;
+    final public int calories;
     final public String label;
 
     public WorkoutItem(long id, int activityTypeIndex, String activityTypeDisplayName, int durationInMinutes, int calories, String label) {
@@ -34,10 +34,6 @@ public class WorkoutItem {
         this.label = label;
     }
 
-
-    public String getCalories() {
-        return calories == 0 ? "" : Integer.toString(calories);
-    }
 
     @Override
     public String toString() {

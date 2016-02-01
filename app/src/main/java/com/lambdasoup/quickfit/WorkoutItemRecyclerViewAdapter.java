@@ -251,6 +251,15 @@ public class WorkoutItemRecyclerViewAdapter
             }
         };
 
+        public final View.OnClickListener caloriesClicked = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onWorkoutInteractionListener != null) {
+                    onWorkoutInteractionListener.onCaloriesEditRequested(viewHolder.item.id, viewHolder.item.calories);
+                }
+            }
+        };
+
         EventHandler(ViewHolder viewHolder) {
             this.viewHolder = viewHolder;
         }
@@ -261,6 +270,7 @@ public class WorkoutItemRecyclerViewAdapter
         void onActivityTypeChanged(long workoutId, String newActivityTypeKey);
         void onDurationMinsEditRequested(long workoutId, int oldValue);
         void onLabelEditRequested(long workoutId, String oldValue);
+        void onCaloriesEditRequested(long workoutId, int oldValue);
     }
 
 

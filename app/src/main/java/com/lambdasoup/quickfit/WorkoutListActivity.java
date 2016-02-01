@@ -55,7 +55,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class WorkoutListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         WorkoutItemRecyclerViewAdapter.OnWorkoutInteractionListener, DurationMinutesDialogFragment.OnFragmentInteractionListener,
-LabelDialogFragment.OnFragmentInteractionListener {
+LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFragmentInteractionListener {
 
     private static final String TAG = WorkoutListActivity.class.getSimpleName();
 
@@ -193,6 +193,18 @@ LabelDialogFragment.OnFragmentInteractionListener {
     public void onLabelChanged(long workoutId, String newValue) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(QuickFitContract.WorkoutEntry.LABEL, newValue);
+        getContentResolver().update(ContentUris.withAppendedId(QuickFitContentProvider.URI_WORKOUTS, workoutId), contentValues, null, null);
+    }
+
+    @Override
+    public void onCaloriesEditRequested(long workoutId, int oldValue) {
+        showDialog(CaloriesDialogFragment.newInstance(workoutId, oldValue));
+    }
+
+    @Override
+    public void onCaloriesChanged(long workoutId, int newValue) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(QuickFitContract.WorkoutEntry.CALORIES, newValue);
         getContentResolver().update(ContentUris.withAppendedId(QuickFitContentProvider.URI_WORKOUTS, workoutId), contentValues, null, null);
     }
 
