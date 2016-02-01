@@ -260,6 +260,15 @@ public class WorkoutItemRecyclerViewAdapter
             }
         };
 
+        public final View.OnClickListener deleteButtonClicked = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onWorkoutInteractionListener != null) {
+                    onWorkoutInteractionListener.onDeleteClick(viewHolder.item.id);
+                }
+            }
+        };
+
         EventHandler(ViewHolder viewHolder) {
             this.viewHolder = viewHolder;
         }
@@ -271,6 +280,7 @@ public class WorkoutItemRecyclerViewAdapter
         void onDurationMinsEditRequested(long workoutId, int oldValue);
         void onLabelEditRequested(long workoutId, String oldValue);
         void onCaloriesEditRequested(long workoutId, int oldValue);
+        void onDeleteClick(long workoutId);
     }
 
 

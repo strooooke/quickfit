@@ -166,6 +166,11 @@ LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFrag
     }
 
     @Override
+    public void onDeleteClick(long workoutId) {
+        getContentResolver().delete(ContentUris.withAppendedId(QuickFitContentProvider.URI_WORKOUTS, workoutId), null, null);
+    }
+
+    @Override
     public void onActivityTypeChanged(long workoutId, String newActivityTypeKey) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE, newActivityTypeKey);
