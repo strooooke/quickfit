@@ -50,7 +50,7 @@
             android:text="@{@string/duration_mins_format(workout.durationInMinutes)}"
             app:onClickListener="@{handler.durationMinsClicked}"/>
 
-        <EditText
+        <TextView
             android:id="@+id/label"
             style="?android:attr/textAppearanceMedium"
             android:layout_width="match_parent"
@@ -58,8 +58,10 @@
             android:layout_below="@id/duration_mins"
             android:layout_margin="@dimen/text_margin"
             android:padding="4dp"
+            android:text="@{workout.label}"
             android:hint="@string/label_hint"
-            android:text="@{workout.label}"/>
+            app:onClickListener="@{handler.labelClicked}"
+            />
 
         <EditText
             android:id="@+id/calories"

@@ -21,36 +21,37 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.NumberPicker;
+import android.widget.TextView;
 
 /**
  * Created by jl on 26.01.16.
  */
-public class NumberPickerDialogFragment extends DialogFragment implements DialogInterface.OnClickListener {
+public class LabelDialogFragment extends DialogFragment implements DialogInterface.OnClickListener, TextView.OnEditorActionListener {
 
     private static final String KEY_WORKOUT_ID = "workoutId";
-    private static final String KEY_TITLE_RES_ID = "titleResId";
     private static final String KEY_OLD_VALUE = "oldValue";
-    private static final String KEY_DONE_BUTTON_RES_ID = "doneButtonResId";
 
     private OnFragmentInteractionListener listener;
 
-    public NumberPickerDialogFragment(){
+    public LabelDialogFragment(){
         // It's a fragment, it needs a default constructor
     }
 
-    public static NumberPickerDialogFragment newInstance(@StringRes int titleResId, @StringRes int doneButtonResId, long workoutId, int oldValue) {
-        NumberPickerDialogFragment fragment = new NumberPickerDialogFragment();
+    public static LabelDialogFragment newInstance(long workoutId, String oldValue) {
+        LabelDialogFragment fragment = new LabelDialogFragment();
         Bundle args = new Bundle();
         args.putLong(KEY_WORKOUT_ID, workoutId);
-        args.putInt(KEY_OLD_VALUE, oldValue);
-        args.putInt(KEY_TITLE_RES_ID, titleResId);
-        args.putInt(KEY_DONE_BUTTON_RES_ID, doneButtonResId);
+        args.putString(KEY_OLD_VALUE, oldValue);
         fragment.setArguments(args);
         return fragment;
     }
@@ -74,19 +75,19 @@ public class NumberPickerDialogFragment extends DialogFragment implements Dialog
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View dialogContent = LayoutInflater.from(getContext()).inflate(R.layout.dialog_numberpicker, null);
-        NumberPicker numberPicker = ((NumberPicker) dialogContent.findViewById(R.id.duration_mins_picker));
-        numberPicker.setMinValue(1);
-        numberPicker.setMaxValue(9999);
-        numberPicker.setWrapSelectorWheel(false);
-        numberPicker.setValue(getArguments().getInt(KEY_OLD_VALUE));
+        View dialogContent = LayoutInflater.from(getContext()).inflate(R.layout.dialog_label, null);
+        EditText editText = (EditText) dialogContent.findViewById(R.id.label_input);
+        editText.setText(getArguments().getString(KEY_OLD_VALUE));
+        editText.setOnEditorActionListener(this);
 
         AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setView(dialogContent)
-                .setTitle(getArguments().getInt(KEY_TITLE_RES_ID))
-                .setPositiveButton(getArguments().getInt(KEY_DONE_BUTTON_RES_ID), this)
+                .setTitle(R.string.title_workout_label)
+                .setPositiveButton(R.string.button_done_workout_label, this)
                 .create();
 
+        editText.requestFocus();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         return dialog;
     }
 
@@ -99,21 +100,34 @@ public class NumberPickerDialogFragment extends DialogFragment implements Dialog
 
     }
 
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (actionId == EditorInfo.IME_ACTION_DONE) {
+            onDone();
+            dismiss();
+            return true;
+        }
+        return false;
+    }
+
     interface OnFragmentInteractionListener {
-        void onDurationChanged(long workoutId, int newValue);
+        void onLabelChanged(long workoutId, String newValue);
     }
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
         switch (which) {
             case DialogInterface.BUTTON_POSITIVE:
-                NumberPicker numberPicker = ((NumberPicker) getDialog().findViewById(R.id.duration_mins_picker));
-                numberPicker.clearFocus();
-                int newVal = numberPicker.getValue();
-                listener.onDurationChanged(getArguments().getLong(KEY_WORKOUT_ID), newVal);
+                onDone();
                 break;
             default:
                 throw new IllegalStateException("No such button.");
         }
+    }
+
+    private void onDone() {
+        EditText editText = (EditText) getDialog().findViewById(R.id.label_input);
+        String newVal = editText.getText().toString();
+        listener.onLabelChanged(getArguments().getLong(KEY_WORKOUT_ID), newVal.isEmpty() ? null : newVal);
     }
 }

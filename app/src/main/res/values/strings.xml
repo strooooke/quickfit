@@ -28,7 +28,8 @@
     <string name="permission_needed_play_service">Permission needed to access your Google Fit data</string>
     <string name="permission_needed_play_service_title">Permission needed</string>
     <string name="calories_label">calories</string>
-    <string name="label_hint">Label</string>
+    <string name="label_hint"><i>Label</i></string>
+    <string name="label_label">Label</string>
 
 
     <string name="fit_act_aerobics">Aerobics</string>
@@ -140,6 +141,8 @@
     <string name="title_workout_duration">Workout duration</string>
     <string name="button_done">Done</string>
     <string name="button_done_workout_duration">Set new duration</string>
+    <string name="title_workout_label">Label</string>
+    <string name="button_done_workout_label">Set new label</string>
 
 
 </resources>

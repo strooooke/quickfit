@@ -22,12 +22,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 
 import com.lambdasoup.quickfit.databinding.WorkoutListContentBinding;
@@ -35,6 +37,7 @@ import com.lambdasoup.quickfit.databinding.WorkoutListContentBinding;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -72,7 +75,9 @@ public class WorkoutItemRecyclerViewAdapter
             @Override
             public boolean areContentsTheSame(WorkoutItem oldItem, WorkoutItem newItem) {
                 return oldItem.activityTypeDisplayName.equals(newItem.activityTypeDisplayName)
-                        && oldItem.durationInMinutes == newItem.durationInMinutes;
+                        && oldItem.durationInMinutes == newItem.durationInMinutes
+                        && Objects.equals(oldItem.label, newItem.label)
+                        && oldItem.calories == newItem.calories;
             }
 
             @Override
@@ -237,6 +242,15 @@ public class WorkoutItemRecyclerViewAdapter
             }
         };
 
+        public final View.OnClickListener labelClicked = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onWorkoutInteractionListener != null) {
+                    onWorkoutInteractionListener.onLabelEditRequested(viewHolder.item.id, viewHolder.item.label);
+                }
+            }
+        };
+
         EventHandler(ViewHolder viewHolder) {
             this.viewHolder = viewHolder;
         }
@@ -246,6 +260,7 @@ public class WorkoutItemRecyclerViewAdapter
         void onDoneItClick(long workoutId);
         void onActivityTypeChanged(long workoutId, String newActivityTypeKey);
         void onDurationMinsEditRequested(long workoutId, int oldValue);
+        void onLabelEditRequested(long workoutId, String oldValue);
     }
 
 

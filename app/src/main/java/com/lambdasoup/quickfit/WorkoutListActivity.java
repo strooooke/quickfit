@@ -30,6 +30,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -53,7 +54,8 @@ import java.util.concurrent.TimeUnit;
  * item details side-by-side using two vertical panes.
  */
 public class WorkoutListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
-        WorkoutItemRecyclerViewAdapter.OnWorkoutInteractionListener, NumberPickerDialogFragment.OnFragmentInteractionListener {
+        WorkoutItemRecyclerViewAdapter.OnWorkoutInteractionListener, DurationMinutesDialogFragment.OnFragmentInteractionListener,
+LabelDialogFragment.OnFragmentInteractionListener {
 
     private static final String TAG = WorkoutListActivity.class.getSimpleName();
 
@@ -144,7 +146,6 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         workoutsAdapter.swapCursor(data);
-        //data.close();
     }
 
     @Override
@@ -173,15 +174,7 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
 
     @Override
     public void onDurationMinsEditRequested(long workoutId, int oldValue) {
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        Fragment prev = getSupportFragmentManager().findFragmentByTag(TAG_DIALOG);
-        if (prev != null) {
-            ft.remove(prev);
-        }
-        ft.addToBackStack(null);
-
-        NumberPickerDialogFragment numberPickerDialogFragment = NumberPickerDialogFragment.newInstance(R.string.title_workout_duration, R.string.button_done_workout_duration, workoutId, oldValue);
-        numberPickerDialogFragment.show(ft, TAG_DIALOG);
+        showDialog(DurationMinutesDialogFragment.newInstance(workoutId, oldValue));
     }
 
     @Override
@@ -189,6 +182,29 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
         ContentValues contentValues = new ContentValues();
         contentValues.put(QuickFitContract.WorkoutEntry.DURATION_MINUTES, newValue);
         getContentResolver().update(ContentUris.withAppendedId(QuickFitContentProvider.URI_WORKOUTS, workoutId), contentValues, null, null);
+    }
+
+    @Override
+    public void onLabelEditRequested(long workoutId, String oldValue) {
+        showDialog(LabelDialogFragment.newInstance(workoutId, oldValue));
+    }
+
+    @Override
+    public void onLabelChanged(long workoutId, String newValue) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(QuickFitContract.WorkoutEntry.LABEL, newValue);
+        getContentResolver().update(ContentUris.withAppendedId(QuickFitContentProvider.URI_WORKOUTS, workoutId), contentValues, null, null);
+    }
+
+    private void showDialog(DialogFragment dialogFragment) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Fragment prev = getSupportFragmentManager().findFragmentByTag(TAG_DIALOG);
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        dialogFragment.show(ft, TAG_DIALOG);
     }
 
     private class InsertSessionTask extends AsyncTask<Long, Void, Boolean> {
