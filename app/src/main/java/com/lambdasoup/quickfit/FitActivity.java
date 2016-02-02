@@ -18,18 +18,18 @@ package com.lambdasoup.quickfit;
 
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
 
 import com.google.android.gms.fitness.FitnessActivities;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 
 public class FitActivity {
-    @NonNull public final String key;
-    @NonNull public final String displayName;
+    @NonNull
+    public final String key;
+    @NonNull
+    public final String displayName;
 
     private FitActivity(@NonNull String key, @NonNull String displayName) {
         this.key = key;
@@ -38,6 +38,7 @@ public class FitActivity {
 
     /**
      * returns the displayname, for ease of use in an @code{android.widget.ArrayAdapter}
+     *
      * @return displayName
      */
     @Override
@@ -52,8 +53,7 @@ public class FitActivity {
 
         FitActivity that = (FitActivity) o;
 
-        if (!key.equals(that.key)) return false;
-        return displayName.equals(that.displayName);
+        return key.equals(that.key) && displayName.equals(that.displayName);
 
     }
 
@@ -82,7 +82,7 @@ public class FitActivity {
         return all;
     }
 
-    private static Map<String, Integer> RES_ID_BY_KEY = new HashMap<String, Integer>(){{
+    private static final Map<String, Integer> RES_ID_BY_KEY = new HashMap<String, Integer>() {{
         put(FitnessActivities.AEROBICS, R.string.fit_act_aerobics);
         put(FitnessActivities.BADMINTON, R.string.fit_act_badminton);
         put(FitnessActivities.BASEBALL, R.string.fit_act_baseball);

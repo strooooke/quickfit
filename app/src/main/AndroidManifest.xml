@@ -47,15 +47,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".WorkoutDetailActivity"
-            android:label="@string/title_workout_detail"
-            android:parentActivityName=".WorkoutListActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.lambdasoup.quickfit.WorkoutListActivity" />
-        </activity>
 
         <service
             android:name=".SyncService"

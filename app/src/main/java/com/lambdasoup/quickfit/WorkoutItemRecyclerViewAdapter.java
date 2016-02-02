@@ -16,21 +16,16 @@
 
 package com.lambdasoup.quickfit;
 
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
-import android.text.Spannable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
-
 
 import com.lambdasoup.quickfit.databinding.WorkoutListContentBinding;
 
@@ -40,20 +35,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-/**
- * Created by jl on 06.01.16.
- */
 public class WorkoutItemRecyclerViewAdapter
         extends RecyclerView.Adapter<WorkoutItemRecyclerViewAdapter.ViewHolder> {
 
     private static final String TAG = WorkoutItemRecyclerViewAdapter.class.getSimpleName();
-    private Context context;
+    private final Context context;
 
     private final SortedList<WorkoutItem> dataset;
 
     private OnWorkoutInteractionListener onWorkoutInteractionListener;
 
-    private ArrayAdapter<FitActivity> activityTypesAdapter;
+    private final ArrayAdapter<FitActivity> activityTypesAdapter;
 
     public WorkoutItemRecyclerViewAdapter(Context context) {
         this.context = context;
@@ -201,6 +193,7 @@ public class WorkoutItemRecyclerViewAdapter
 
     }
 
+    @SuppressWarnings("unused") // members get used by databinding expressions
     public class EventHandler {
         private final ViewHolder viewHolder;
 
@@ -221,7 +214,8 @@ public class WorkoutItemRecyclerViewAdapter
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         };
 
         public final View.OnClickListener doneItButtonClicked = new View.OnClickListener() {
@@ -233,7 +227,7 @@ public class WorkoutItemRecyclerViewAdapter
             }
         };
 
-        public final View.OnClickListener durationMinsClicked =new View.OnClickListener() {
+        public final View.OnClickListener durationMinsClicked = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (onWorkoutInteractionListener != null) {
@@ -276,10 +270,15 @@ public class WorkoutItemRecyclerViewAdapter
 
     public interface OnWorkoutInteractionListener {
         void onDoneItClick(long workoutId);
+
         void onActivityTypeChanged(long workoutId, String newActivityTypeKey);
+
         void onDurationMinsEditRequested(long workoutId, int oldValue);
+
         void onLabelEditRequested(long workoutId, String oldValue);
+
         void onCaloriesEditRequested(long workoutId, int oldValue);
+
         void onDeleteClick(long workoutId);
     }
 

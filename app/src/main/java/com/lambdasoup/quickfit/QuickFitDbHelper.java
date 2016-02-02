@@ -21,9 +21,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-/**
- * Created by jl on 06.01.16.
- */
+
 public class QuickFitDbHelper extends SQLiteOpenHelper {
 
     static final String DATABASE_NAME = "quickfit.db";

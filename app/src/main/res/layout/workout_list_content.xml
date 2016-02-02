@@ -35,7 +35,8 @@
             android:id="@+id/activity_type_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/text_margin"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
             app:selection="@{workout.activityTypeIndex}"
             app:onItemSelectedListener="@{handler.activityTypeSpinnerItemSelected}"/>
 
@@ -45,7 +46,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/activity_type_spinner"
-            android:layout_margin="@dimen/text_margin"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:padding="4dp"
             android:text="@{@string/duration_mins_format(workout.durationInMinutes)}"
             app:onClickListener="@{handler.durationMinsClicked}"/>
@@ -56,7 +58,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/duration_mins"
-            android:layout_margin="@dimen/text_margin"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:padding="4dp"
             android:text="@{workout.label}"
             android:hint="@string/label_hint"
@@ -69,7 +72,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/label"
-            android:layout_margin="@dimen/text_margin"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:padding="4dp"
             android:hint="@string/calories_hint"
             android:text='@{workout.calories != 0 ? @string/calories_format(workout.calories) : ""}'
@@ -82,6 +86,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/calories"
             android:src="@drawable/ic_delete_black_24dp"
+            android:contentDescription="@string/delete_button"
             app:onClickListener="@{handler.deleteButtonClicked}"/>
 
         <Button

@@ -27,9 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.NumberPicker;
 
-/**
- * Created by jl on 26.01.16.
- */
+
 public class CaloriesDialogFragment extends DialogFragment implements DialogInterface.OnClickListener {
 
     private static final String KEY_WORKOUT_ID = "workoutId";
@@ -76,23 +74,13 @@ public class CaloriesDialogFragment extends DialogFragment implements DialogInte
         numberPicker.setWrapSelectorWheel(false);
         numberPicker.setValue(getArguments().getInt(KEY_OLD_VALUE));
 
-        AlertDialog dialog = new AlertDialog.Builder(getContext())
+        return new AlertDialog.Builder(getContext())
                 .setView(dialogContent)
                 .setTitle(R.string.title_calories)
                 .setPositiveButton(R.string.button_done_calories, this)
                 .create();
-
-        return dialog;
     }
 
-
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-
-    }
 
     interface OnFragmentInteractionListener {
         void onCaloriesChanged(long workoutId, int newValue);

@@ -26,16 +26,11 @@ import android.support.v7.app.AlertDialog;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 
-/**
- * Created by jl on 26.01.16.
- */
 public class LabelDialogFragment extends DialogFragment implements DialogInterface.OnClickListener, TextView.OnEditorActionListener {
 
     private static final String KEY_WORKOUT_ID = "workoutId";
@@ -43,7 +38,7 @@ public class LabelDialogFragment extends DialogFragment implements DialogInterfa
 
     private OnFragmentInteractionListener listener;
 
-    public LabelDialogFragment(){
+    public LabelDialogFragment() {
         // It's a fragment, it needs a default constructor
     }
 
@@ -91,14 +86,6 @@ public class LabelDialogFragment extends DialogFragment implements DialogInterfa
         return dialog;
     }
 
-
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-
-    }
 
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {

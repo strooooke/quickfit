@@ -19,11 +19,8 @@
     <string name="action_settings">Settings</string>
     <string name="title_workout_list">Workouts</string>
     <string name="title_workout_detail">Workout Detail</string>
-    <string name="workout_name">Name</string>
     <string name="duration_mins_format">%d minutes</string>
     <string name="insert_session_button">Just did it!</string>
-    <string name="edit_workout_button">Edit</string>
-    <string name="duration_mins_compact">%d minutes</string>
     <string name="success_session_insert">Your workout session was noted.</string>
     <string name="permission_needed_play_service">Permission needed to access your Google Fit data</string>
     <string name="permission_needed_play_service_title">Permission needed</string>
@@ -32,7 +29,6 @@
     <string name="label_label">Label</string>
     <string name="duration_mins_label">minutes</string>
     <string name="title_workout_duration">Workout duration</string>
-    <string name="button_done">Done</string>
     <string name="button_done_workout_duration">Set new duration</string>
     <string name="title_workout_label">Label</string>
     <string name="button_done_workout_label">Set new label</string>
@@ -40,4 +36,5 @@
     <string name="calories_hint"><i>Calories</i></string>
     <string name="title_calories">Calories</string>
     <string name="button_done_calories">Set new calorie amount</string>
+    <string name="delete_button">delete</string>
 </resources>

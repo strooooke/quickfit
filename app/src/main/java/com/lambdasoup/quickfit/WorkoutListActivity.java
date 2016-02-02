@@ -45,14 +45,7 @@ import com.lambdasoup.quickfit.QuickFitContract.SessionEntry.SessionStatus;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * An activity representing a list of Workouts. This activity
- * has different presentations for handset and tablet-size devices. On
- * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link WorkoutDetailActivity} representing
- * item details. On tablets, the activity presents the list of items and
- * item details side-by-side using two vertical panes.
- */
+
 public class WorkoutListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         WorkoutItemRecyclerViewAdapter.OnWorkoutInteractionListener, DurationMinutesDialogFragment.OnFragmentInteractionListener,
 LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFragmentInteractionListener {
@@ -65,13 +58,9 @@ LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFrag
     private static final String KEY_AUTH_IN_PROGRESS = "auth_in_progress";
     public static final String TAG_DIALOG = "dialog";
 
-    private Account account = new Account("QuickFit", ACCOUNT_TYPE);
+    private final Account account = new Account("QuickFit", ACCOUNT_TYPE);
 
-    /**
-     * Whether or not the activity is in two-pane mode, i.e. running on a tablet
-     * device.
-     */
-    boolean isTwoPane;
+
     private WorkoutItemRecyclerViewAdapter workoutsAdapter;
     AuthProgress authProgress = AuthProgress.NONE;
 
@@ -93,14 +82,6 @@ LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFrag
         workoutsAdapter.setOnWorkoutInteractionListener(this);
 
         recyclerView.setAdapter(workoutsAdapter);
-
-        if (findViewById(R.id.workout_detail_container) != null) {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-w900dp).
-            // If this view is present, then the
-            // activity should be in two-pane mode.
-            isTwoPane = true;
-        }
 
         if (savedInstanceState != null) {
             authProgress = AuthProgress.valueOf(savedInstanceState.getString(KEY_AUTH_IN_PROGRESS, AuthProgress.NONE.name()));

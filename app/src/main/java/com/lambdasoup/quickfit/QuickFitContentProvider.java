@@ -33,9 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Created by jl on 06.01.16.
- */
+
 public class QuickFitContentProvider extends ContentProvider {
 
     private static final String TAG = QuickFitContentProvider.class.getSimpleName();

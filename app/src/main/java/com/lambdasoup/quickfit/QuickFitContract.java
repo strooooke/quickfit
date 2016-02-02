@@ -18,9 +18,7 @@ package com.lambdasoup.quickfit;
 
 import android.provider.BaseColumns;
 
-/**
- * Created by jl on 06.01.16.
- */
+
 public class QuickFitContract {
     abstract static class WorkoutEntry implements BaseColumns {
         static final String TABLE_NAME = "workout";
