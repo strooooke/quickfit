@@ -29,9 +29,7 @@ import android.widget.ArrayAdapter;
 
 import com.lambdasoup.quickfit.databinding.WorkoutListContentBinding;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -52,16 +50,7 @@ public class WorkoutItemRecyclerViewAdapter
         dataset = new SortedList<>(WorkoutItem.class, new SortedList.Callback<WorkoutItem>() {
             @Override
             public int compare(WorkoutItem left, WorkoutItem right) {
-                int res = String.CASE_INSENSITIVE_ORDER.compare(left.activityTypeDisplayName, right.activityTypeDisplayName);
-                if (res != 0) {
-                    return res;
-                }
-                res = Integer.compare(left.durationInMinutes, right.durationInMinutes);
-                if (res != 0) {
-                    return res;
-                }
-                res = Long.compare(left.id, right.id);
-                return res;
+                return Long.compare(left.id, right.id);
             }
 
             @Override
@@ -138,13 +127,8 @@ public class WorkoutItemRecyclerViewAdapter
             return;
         }
 
-        Map<Long, Integer> oldIds = new HashMap<>();
-        for (int i = 0; i < dataset.size(); i++) {
-            oldIds.put(dataset.get(i).id, i);
-        }
-
         Set<Long> newIds = new HashSet<>();
-        dataset.beginBatchedUpdates();
+        WorkoutItem[] newItems = new WorkoutItem[cursor.getCount()];
         while (cursor.moveToNext()) {
             FitActivity fitActivity = FitActivity.fromKey(cursor.getString(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE)),
                     context.getResources());
@@ -156,13 +140,11 @@ public class WorkoutItemRecyclerViewAdapter
                     cursor.getString(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.LABEL))
             );
             newIds.add(newItem.id);
-            if (oldIds.containsKey(newItem.id)) {
-                dataset.updateItemAt(oldIds.get(newItem.id), newItem);
-            } else {
-                dataset.add(newItem);
-            }
+            newItems[cursor.getPosition()] = newItem;
         }
 
+        dataset.beginBatchedUpdates();
+        dataset.addAll(newItems, true);
         for (int i = dataset.size() - 1; i >= 0; i--) {
             if (!newIds.contains(dataset.get(i).id)) {
                 dataset.removeItemAt(i);
