@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -34,6 +35,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -57,14 +59,14 @@ LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFrag
     private static final String ACCOUNT_TYPE = "com.lambdasoup.quickfit";
     private static final String KEY_AUTH_IN_PROGRESS = "auth_in_progress";
     public static final String TAG_DIALOG = "dialog";
+    private static final long NO_FRESH_INSERTION = -1;
 
     private final Account account = new Account("QuickFit", ACCOUNT_TYPE);
 
-
     private WorkoutItemRecyclerViewAdapter workoutsAdapter;
     AuthProgress authProgress = AuthProgress.NONE;
-    private boolean scrollToEndOnNextLoad = false;
     private RecyclerView workoutsRecyclerView;
+    private long idFreshlyInserted = NO_FRESH_INSERTION;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,9 +131,12 @@ LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFrag
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         workoutsAdapter.swapCursor(data);
-        if (scrollToEndOnNextLoad) {
-            scrollToEndOnNextLoad = false;
-            workoutsRecyclerView.smoothScrollToPosition(workoutsAdapter.getItemCount() - 1);
+        if (idFreshlyInserted != NO_FRESH_INSERTION) {
+            int pos = workoutsAdapter.getPosition(idFreshlyInserted);
+            if (pos != SortedList.INVALID_POSITION) {
+                workoutsRecyclerView.smoothScrollToPosition(pos);
+            }
+            idFreshlyInserted = NO_FRESH_INSERTION;
         }
     }
 
@@ -144,8 +149,8 @@ LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFrag
         ContentValues contentValues = new ContentValues();
         contentValues.put(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE, FitnessActivities.AEROBICS);
         contentValues.put(QuickFitContract.WorkoutEntry.DURATION_MINUTES, 30);
-        scrollToEndOnNextLoad = true; // TODO: newly created items may not end up at the bottom (SQLite allows id reuse)
-        getContentResolver().insert(QuickFitContentProvider.URI_WORKOUTS, contentValues);
+        Uri newWorkoutUri = getContentResolver().insert(QuickFitContentProvider.URI_WORKOUTS, contentValues);
+        idFreshlyInserted = ContentUris.parseId(newWorkoutUri);
     }
 
     @Override

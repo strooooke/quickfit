@@ -156,6 +156,12 @@ public class WorkoutItemRecyclerViewAdapter
         dataset.endBatchedUpdates();
     }
 
+    public int getPosition(long id) {
+        // hack to make SortedList find the position of the item with the given id
+        // depends on dataset being ordered and equaled by id
+        return dataset.indexOf(new WorkoutItem(id, 0, "", 0, 0, null));
+    }
+
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
