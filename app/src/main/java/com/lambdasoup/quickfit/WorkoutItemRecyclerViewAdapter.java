@@ -29,6 +29,7 @@ import android.widget.ArrayAdapter;
 
 import com.lambdasoup.quickfit.databinding.WorkoutListContentBinding;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -126,6 +127,8 @@ public class WorkoutItemRecyclerViewAdapter
             dataset.clear();
             return;
         }
+
+        cursor.moveToPosition(-1);
 
         Set<Long> newIds = new HashSet<>();
         WorkoutItem[] newItems = new WorkoutItem[cursor.getCount()];
