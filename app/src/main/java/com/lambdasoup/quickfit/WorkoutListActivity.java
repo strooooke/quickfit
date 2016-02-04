@@ -63,6 +63,8 @@ LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFrag
 
     private WorkoutItemRecyclerViewAdapter workoutsAdapter;
     AuthProgress authProgress = AuthProgress.NONE;
+    private boolean scrollToEndOnNextLoad = false;
+    private RecyclerView workoutsRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,12 +78,11 @@ LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFrag
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(view -> addNewWorkout());
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.workout_list);
-        assert recyclerView != null;
+        workoutsRecyclerView = (RecyclerView) findViewById(R.id.workout_list);
         workoutsAdapter = new WorkoutItemRecyclerViewAdapter(this);
         workoutsAdapter.setOnWorkoutInteractionListener(this);
 
-        recyclerView.setAdapter(workoutsAdapter);
+        workoutsRecyclerView.setAdapter(workoutsAdapter);
 
         if (savedInstanceState != null) {
             authProgress = AuthProgress.valueOf(savedInstanceState.getString(KEY_AUTH_IN_PROGRESS, AuthProgress.NONE.name()));
@@ -127,6 +128,10 @@ LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFrag
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         workoutsAdapter.swapCursor(data);
+        if (scrollToEndOnNextLoad) {
+            scrollToEndOnNextLoad = false;
+            workoutsRecyclerView.smoothScrollToPosition(workoutsAdapter.getItemCount() - 1);
+        }
     }
 
     @Override
@@ -138,6 +143,7 @@ LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFrag
         ContentValues contentValues = new ContentValues();
         contentValues.put(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE, FitnessActivities.AEROBICS);
         contentValues.put(QuickFitContract.WorkoutEntry.DURATION_MINUTES, 30);
+        scrollToEndOnNextLoad = true;
         getContentResolver().insert(QuickFitContentProvider.URI_WORKOUTS, contentValues);
     }
 
