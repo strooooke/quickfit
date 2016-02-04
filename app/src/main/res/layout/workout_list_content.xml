@@ -35,6 +35,7 @@
             android:id="@+id/activity_type_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             app:selection="@{workout.activityTypeIndex}"
@@ -100,7 +101,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/calories"
-            android:layout_margin="@dimen/text_margin"
+            android:layout_margin="8dp"
             android:text="@string/insert_session_button"
             app:onClickListener="@{handler.doneItButtonClicked}"/>
     </RelativeLayout>

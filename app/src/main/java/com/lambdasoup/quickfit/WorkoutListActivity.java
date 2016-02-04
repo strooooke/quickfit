@@ -83,6 +83,7 @@ LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFrag
         workoutsAdapter.setOnWorkoutInteractionListener(this);
 
         workoutsRecyclerView.setAdapter(workoutsAdapter);
+        workoutsRecyclerView.addItemDecoration(new DividerItemDecoration(this));
 
         if (savedInstanceState != null) {
             authProgress = AuthProgress.valueOf(savedInstanceState.getString(KEY_AUTH_IN_PROGRESS, AuthProgress.NONE.name()));
@@ -143,7 +144,7 @@ LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFrag
         ContentValues contentValues = new ContentValues();
         contentValues.put(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE, FitnessActivities.AEROBICS);
         contentValues.put(QuickFitContract.WorkoutEntry.DURATION_MINUTES, 30);
-        scrollToEndOnNextLoad = true;
+        scrollToEndOnNextLoad = true; // TODO: newly created items may not end up at the bottom (SQLite allows id reuse)
         getContentResolver().insert(QuickFitContentProvider.URI_WORKOUTS, contentValues);
     }
 
