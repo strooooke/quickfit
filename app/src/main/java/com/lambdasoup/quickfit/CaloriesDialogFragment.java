@@ -69,7 +69,7 @@ public class CaloriesDialogFragment extends DialogFragment implements DialogInte
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View dialogContent = LayoutInflater.from(getContext()).inflate(R.layout.dialog_calories, null);
         NumberPicker numberPicker = ((NumberPicker) dialogContent.findViewById(R.id.calories_picker));
-        numberPicker.setMinValue(1);
+        numberPicker.setMinValue(0);
         numberPicker.setMaxValue(9999);
         numberPicker.setWrapSelectorWheel(false);
         numberPicker.setValue(getArguments().getInt(KEY_OLD_VALUE));
