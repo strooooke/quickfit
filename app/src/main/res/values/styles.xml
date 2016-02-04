@@ -22,6 +22,8 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="alertDialogTheme">@style/dialog</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -33,4 +35,11 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="borderlessButton">
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <style name="dialog" parent="Base.Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
 </resources>

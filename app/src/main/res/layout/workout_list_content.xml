@@ -35,14 +35,14 @@
             android:id="@+id/activity_type_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             app:selection="@{workout.activityTypeIndex}"
             app:onItemSelectedListener="@{handler.activityTypeSpinnerItemSelected}"/>
 
         <TextView
             android:id="@+id/duration_mins"
-            style="?android:attr/textAppearanceMedium"
+            style="?attr/textAppearanceListItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/activity_type_spinner"
@@ -50,11 +50,12 @@
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:padding="4dp"
             android:text="@{@string/duration_mins_format(workout.durationInMinutes)}"
-            app:onClickListener="@{handler.durationMinsClicked}"/>
+            app:onClickListener="@{handler.durationMinsClicked}"
+            tools:text="123 minutes"/>
 
         <TextView
             android:id="@+id/label"
-            style="?android:attr/textAppearanceMedium"
+            style="?attr/subtitleTextAppearance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/duration_mins"
@@ -68,7 +69,7 @@
 
         <TextView
             android:id="@+id/calories"
-            style="?android:attr/textAppearanceMedium"
+            style="?attr/subtitleTextAppearance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/label"
@@ -81,10 +82,13 @@
 
         <ImageButton
             android:id="@+id/delete_button"
-            style="?android:attr/borderlessButtonStyle"
+            style="@style/borderlessButton"
+            android:padding="8dp"
+            android:layout_marginEnd="4dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/calories"
+            android:layout_alignTop="@id/calories"
+            android:layout_alignParentEnd="true"
             android:src="@drawable/ic_delete_black_24dp"
             android:contentDescription="@string/delete_button"
             app:onClickListener="@{handler.deleteButtonClicked}"/>
@@ -92,9 +96,10 @@
         <Button
             android:id="@+id/insert_session_button"
             style="?android:attr/borderlessButtonStyle"
+            android:textColor="@color/colorAccent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/delete_button"
+            android:layout_below="@id/calories"
             android:layout_margin="@dimen/text_margin"
             android:text="@string/insert_session_button"
             app:onClickListener="@{handler.doneItButtonClicked}"/>
