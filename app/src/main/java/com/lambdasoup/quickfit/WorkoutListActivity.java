@@ -30,7 +30,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -109,7 +108,7 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
 
         ConnectionResult connectionResult = getIntent().getParcelableExtra(EXTRA_PLAY_API_CONNECT_RESULT);
         if (connectionResult != null && authProgress == AuthProgress.NONE) {
-            Log.i(TAG, "starting auth");
+            Log.d(TAG, "starting auth");
 
             authProgress = AuthProgress.IN_PROGRESS;
             try {
@@ -295,7 +294,6 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
     }
 
     private void requestSync() {
-        Log.d(TAG, "going to request sync!");
         Bundle syncOptions = new Bundle();
         syncOptions.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         ContentResolver.requestSync(account, QuickFitContentProvider.AUTHORITY, syncOptions);

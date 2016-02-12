@@ -30,7 +30,7 @@ import android.view.View;
  */
 public class DividerItemDecoration extends RecyclerView.ItemDecoration {
 
-    private Drawable divider;
+    private final Drawable divider;
 
     public DividerItemDecoration(Context context) {
         final TypedArray a = context.obtainStyledAttributes(new int[]{android.R.attr.listDivider});

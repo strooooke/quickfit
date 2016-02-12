@@ -50,7 +50,7 @@
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:padding="4dp"
-            android:text="@{@string/duration_mins_format(workout.durationInMinutes)}"
+            android:text="@{@plurals/duration_mins_format(workout.durationInMinutes, workout.durationInMinutes)}"
             app:onClickListener="@{handler.durationMinsClicked}"
             tools:text="123 minutes"/>
 
@@ -78,7 +78,7 @@
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:padding="4dp"
             android:hint="@string/calories_hint"
-            android:text='@{workout.calories != 0 ? @string/calories_format(workout.calories) : ""}'
+            android:text='@{workout.calories != 0 ? @plurals/calories_format(workout.calories, workout.calories) : ""}'
             app:onClickListener="@{handler.caloriesClicked}"/>
 
         <ImageButton

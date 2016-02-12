@@ -74,7 +74,7 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.i(TAG, "onPerformSync");
+        Log.d(TAG, "performing sync");
         googleApiClient = new GoogleApiClient.Builder(getContext())
                 .addApi(Fitness.SESSIONS_API)
                 .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
@@ -82,7 +82,7 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
                         new GoogleApiClient.ConnectionCallbacks() {
                             @Override
                             public void onConnected(Bundle bundle) {
-                                Log.i(TAG, "Connected!");
+                                Log.d(TAG, "Connected!");
                                 try {
                                     Cursor sessionsCursor = provider.query(
                                             QuickFitContentProvider.URI_SESSIONS,
@@ -90,7 +90,7 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
                                             QuickFitContract.SessionEntry.STATUS + "=?",
                                             new String[]{QuickFitContract.SessionEntry.SessionStatus.NEW.name()},
                                             null);
-                                    Log.i(TAG, "Found " + sessionsCursor.getCount() + " sessions to sync");
+                                    Log.d(TAG, "Found " + (sessionsCursor == null ? "no" : sessionsCursor.getCount()) + " sessions to sync");
                                     insertNextSession(sessionsCursor, syncResult);
                                 } catch (RemoteException e) {
                                     syncResult.stats.numParseExceptions++;
@@ -99,19 +99,19 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
 
                             @Override
                             public void onConnectionSuspended(int i) {
-                                Log.i(TAG, "connection suspended");
+                                Log.d(TAG, "connection suspended");
                                 syncResult.stats.numIoExceptions++;
                                 if (i == GoogleApiClient.ConnectionCallbacks.CAUSE_NETWORK_LOST) {
-                                    Log.i(TAG, "Connection lost.  Cause: Network Lost.");
+                                    Log.d(TAG, "Connection lost.  Cause: Network Lost.");
                                 } else if (i == GoogleApiClient.ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
-                                    Log.i(TAG, "Connection lost.  Reason: Service Disconnected");
+                                    Log.d(TAG, "Connection lost.  Reason: Service Disconnected");
                                 }
                             }
                         }
                 )
                 .addOnConnectionFailedListener(
                         result -> {
-                            Log.i(TAG, "connection failed");
+                            Log.d(TAG, "connection failed");
                             if (!result.hasResolution()) {
                                 // Show the localized error notification
                                 GoogleApiAvailability.getInstance().showErrorNotification(getContext(), result.getErrorCode());
@@ -152,7 +152,7 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
     private void insertNextSession(Cursor cursor, SyncResult syncResult) {
         if (!cursor.moveToNext()) {
             // done with sessions
-            Log.i(TAG, "Done; disconnecting.");
+            Log.d(TAG, "Done; disconnecting.");
             googleApiClient.disconnect();
             // sync finished
             return;
@@ -198,12 +198,12 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
                         null
                 );
                 syncResult.stats.numInserts++;
-                Log.i(TAG, "insertion successfull");
+                Log.d(TAG, "insertion successfull");
             } else {
-                Log.i(TAG, "insertion failed: " + status.getStatusMessage());
+                Log.d(TAG, "insertion failed: " + status.getStatusMessage());
                 syncResult.stats.numIoExceptions++;
             }
-            Log.i(TAG, "Looking at the next session");
+            Log.d(TAG, "Looking at the next session");
             insertNextSession(cursor, syncResult);
         });
     }

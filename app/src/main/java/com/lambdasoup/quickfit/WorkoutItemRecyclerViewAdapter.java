@@ -29,7 +29,6 @@ import android.widget.ArrayAdapter;
 
 import com.lambdasoup.quickfit.databinding.WorkoutListContentBinding;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;

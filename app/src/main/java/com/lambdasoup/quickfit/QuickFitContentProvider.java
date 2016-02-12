@@ -204,7 +204,6 @@ public class QuickFitContentProvider extends ContentProvider {
                 break;
             case TYPE_WORKOUT_SINGLE_ROW:
                 if (TextUtils.isEmpty(selection)) {
-                    Log.d(TAG, "Update for single workout row with empty selection");
                     rowsUpdated = sqlDB.update(QuickFitContract.WorkoutEntry.TABLE_NAME,
                             values,
                             QuickFitContract.WorkoutEntry._ID + "=?",
