@@ -51,8 +51,6 @@
             android:name="com.lambdasoup.quickfit.WorkoutListFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
             app:layoutManager="LinearLayoutManager"
             tools:context="com.lambdasoup.quickfit.WorkoutListActivity"
             tools:listitem="@layout/workout_list_content" />
