@@ -137,7 +137,7 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
-                // TODO: User chose the "Settings" item, show the app settings UI...
+                startActivity(new Intent(getBaseContext(), SettingsActivity.class));
                 return true;
             default:
                 // If we got here, the user's action was not recognized.

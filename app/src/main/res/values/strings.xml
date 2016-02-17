@@ -34,6 +34,13 @@
     <string name="title_calories">Calories</string>
     <string name="button_done_calories">Set new calorie amount</string>
     <string name="delete_button">delete</string>
+    <string name="title_settings">Settings</string>
+    <string name="pref_google_account">Google account</string>
+    <string name="pref_disconnect_g_fit_title">Disconnect from Google Fit</string>
+    <string name="pref_disconnect_g_fit_summary">QuickFit will stop being able to read or write your Google Fit data.</string>
+    <string name="msg_fit_disconnect_success">QuickFit is now disconnected from Google Fit.</string>
+    <string name="msg_fit_disconnect_failure">Could not disconnect from Google Fit. Please try again later.</string>
+    <string name="msg_fit_disconnect_no_connection">Could not disconnect from Google Fit. Please try again later when network is available.</string>
 
     <plurals name="duration_mins_format">
         <item quantity="one">%d minute</item>

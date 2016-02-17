@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright 2016 Juliane Lehmann <jl@lambdasoup.com>
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +15,13 @@
   ~    limitations under the License.
   -->
 
-<resources>
-    <color name="colorPrimary">#607d8b</color>
-    <color name="colorPrimaryDark">#263238</color>
-    <color name="colorAccent">#e65100</color>
-    <!-- this is needed as preference_category_material layout is using this color as the text color -->
-    <!-- see http://stackoverflow.com/questions/32070670/preferencefragmentcompat-requires-preferencetheme-to-be-set -->
-    <color name="preference_fallback_accent_color">@color/colorAccent</color>
-</resources>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:key="pref_key_account_settings"
+        android:title="@string/pref_google_account">
+        <Preference
+            android:key="pref_key_disconnect_g_fit"
+            android:summary="@string/pref_disconnect_g_fit_summary"
+            android:title="@string/pref_disconnect_g_fit_title" />
+    </PreferenceCategory>
+</PreferenceScreen>
