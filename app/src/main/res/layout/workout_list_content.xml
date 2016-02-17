@@ -96,7 +96,7 @@
 
         <Button
             android:id="@+id/insert_session_button"
-            style="?android:attr/borderlessButtonStyle"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:textColor="@color/colorAccent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
