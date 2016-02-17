@@ -62,7 +62,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         @Override
         public void onCreatePreferences(Bundle bundle, String s) {
-            addPreferencesFromResource(R.xml.preferences_google_account);
+            addPreferencesFromResource(R.xml.preferences);
         }
 
 
