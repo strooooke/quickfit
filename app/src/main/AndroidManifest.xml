@@ -47,12 +47,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_settings"
-            android:parentActivityName=".WorkoutListActivity">
-        </activity>
+            android:parentActivityName=".WorkoutListActivity" />
+        <activity
+            android:name=".AboutActivity"
+            android:label="@string/title_about"
+            android:parentActivityName=".WorkoutListActivity" />
 
         <service
             android:name=".SyncService"

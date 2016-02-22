@@ -45,6 +45,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.fitness.FitnessActivities;
 import com.lambdasoup.quickfit.QuickFitContract.SessionEntry.SessionStatus;
 
@@ -138,6 +139,9 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
         switch (item.getItemId()) {
             case R.id.action_settings:
                 startActivity(new Intent(getBaseContext(), SettingsActivity.class));
+                return true;
+            case R.id.action_about:
+                startActivity(new Intent(getBaseContext(), AboutActivity.class));
                 return true;
             default:
                 // If we got here, the user's action was not recognized.
