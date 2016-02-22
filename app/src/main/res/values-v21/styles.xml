@@ -14,12 +14,19 @@
   ~    limitations under the License.
   -->
 
-<resources>>
+<resources>
+
+    <style name="AppThemeBase" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+    </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="borderlessButton">
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
     </style>
 </resources>

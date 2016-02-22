@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2016 Juliane Lehmann <jl@lambdasoup.com>
   ~
@@ -14,18 +15,13 @@
   ~    limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".WorkoutListActivity">
-    <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_about"
-        android:orderInCategory="90"
-        android:title="@string/action_about"
-        app:showAsAction="never"/>
-</menu>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:key="pref_key_account_settings"
+        android:title="@string/pref_google_account">
+        <Preference
+            android:key="pref_key_disconnect_g_fit"
+            android:summary="@string/pref_disconnect_g_fit_summary"
+            android:title="@string/pref_disconnect_g_fit_title" />
+    </PreferenceCategory>
+</PreferenceScreen>
