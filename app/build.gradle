@@ -17,6 +17,10 @@
 apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
 
+def version_major = 1
+def version_minor = 0
+def version_patch = 0
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
@@ -25,12 +29,12 @@ android {
         applicationId "com.lambdasoup.quickfit"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode version_major * 10000 + version_minor * 100 + version_patch * 1
+        versionName "$version_major.$version_minor.$version_patch"
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
