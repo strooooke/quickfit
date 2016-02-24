@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2016 Juliane Lehmann <jl@lambdasoup.com>
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<resources>
+    <string name="fit_act_aerobics">Aerobic</string>
+    <string name="fit_act_badminton">Badminton</string>
+    <string name="fit_act_baseball">Baseball</string>
+    <string name="fit_act_basketball">Basketball</string>
+    <string name="fit_act_biathlon">Biathlon</string>
+    <string name="fit_act_biking">Radfahren</string>
+    <string name="fit_act_biking_hand">Handbiken</string>
+    <string name="fit_act_biking_mountain">Mountainbiken</string>
+    <string name="fit_act_biking_road">Rennradfahren</string>
+    <string name="fit_act_biking_spinning">Spinning</string>
+    <string name="fit_act_biking_stationary">Fahrradtrainer</string>
+    <string name="fit_act_biking_utility">Transportfahrrad fahren</string>
+    <string name="fit_act_boxing">Boxen</string>
+    <string name="fit_act_calisthenics">Calisthenics</string>
+    <string name="fit_act_circuit_training">Zirkeltraining</string>
+    <string name="fit_act_cricket">Kricket</string>
+    <string name="fit_act_crossfit">CrossFit</string>
+    <string name="fit_act_curling">Curling</string>
+    <string name="fit_act_dancing">Tanzen</string>
+    <string name="fit_act_diving">Tauchen</string>
+    <string name="fit_act_elliptical">Crosstrainer</string>
+    <string name="fit_act_ergometer">Ergometer</string>
+    <string name="fit_act_fencing">Fechten</string>
+    <string name="fit_act_football_american">Football</string>
+    <string name="fit_act_football_australian">Australian football</string>
+    <string name="fit_act_football_soccer">Fußball</string>
+    <string name="fit_act_frisbee_disc">Frisbee</string>
+    <string name="fit_act_gardening">Gärtnern</string>
+    <string name="fit_act_golf">Golf</string>
+    <string name="fit_act_gymnastics">Gymnastik</string>
+    <string name="fit_act_handball">Handball</string>
+    <string name="fit_act_interval_training_high_intensity">Intervalltraining mit hoher Intensität</string>
+    <string name="fit_act_hiking">Wandern</string>
+    <string name="fit_act_hockey">Hockey</string>
+    <string name="fit_act_horseback_riding">Reitsport</string>
+    <string name="fit_act_housework">Hausarbeit</string>
+    <string name="fit_act_ice_skating">Eislaufen</string>
+    <string name="fit_act_interval_training">Intervalltraining</string>
+    <string name="fit_act_jump_rope">Seilspringen</string>
+    <string name="fit_act_kayaking">Kajakfahren</string>
+    <string name="fit_act_kettlebell_training">Kettlebell-Training</string>
+    <string name="fit_act_kick_scooter">Tretroller</string>
+    <string name="fit_act_kickboxing">Kickboxen</string>
+    <string name="fit_act_kitesurfing">Kitesurfing</string>
+    <string name="fit_act_martial_arts">Kampfkunst</string>
+    <string name="fit_act_meditation">Meditation</string>
+    <string name="fit_act_martial_arts_mixed">Gemischte Kampfkunst</string>
+    <string name="fit_act_other">Sonstiges</string>
+    <string name="fit_act_p90x">P90X</string>
+    <string name="fit_act_paragliding">Paragliding</string>
+    <string name="fit_act_pilates">Pilates</string>
+    <string name="fit_act_polo">Polo</string>
+    <string name="fit_act_racquetball">Racquetball</string>
+    <string name="fit_act_rock_climbing">Klettersport</string>
+    <string name="fit_act_rowing">Rudern</string>
+    <string name="fit_act_rowing_machine">Rudergerät</string>
+    <string name="fit_act_rugby">Rugby</string>
+    <string name="fit_act_running">Laufen</string>
+    <string name="fit_act_running_jogging">Joggen</string>
+    <string name="fit_act_running_sand">Auf Sand laufen</string>
+    <string name="fit_act_running_treadmill">Laufbandlaufen</string>*
+    <string name="fit_act_sailing">Segeln</string>
+    <string name="fit_act_scuba_diving">Gerätetauchen</string>
+    <string name="fit_act_skateboarding">Skateboarden</string>
+    <string name="fit_act_skating">Eislaufen</string>
+    <string name="fit_act_skating_cross">Cross Skating</string>
+    <string name="fit_act_skating_indoor">Halleneislauf</string>
+    <string name="fit_act_skating_inline">Inline Skating</string>
+    <string name="fit_act_skiing">Skifahren</string>
+    <string name="fit_act_skiing_back_country">Variantenskilauf</string>
+    <string name="fit_act_skiing_cross_country">Langlauf</string>
+    <string name="fit_act_skiing_downhill">Pistenskilauf</string>
+    <string name="fit_act_skiing_kite">Snowkiting</string>
+    <string name="fit_act_skiing_roller">Rollskilaufen</string>
+    <string name="fit_act_sledding">Sledding</string>
+    <string name="fit_act_snowboarding">Snowboarden</string>
+    <string name="fit_act_snowshoeing">Schneeschuhwandern</string>
+    <string name="fit_act_squash">Squash</string>
+    <string name="fit_act_stair_climbing">Treppensteigen</string>
+    <string name="fit_act_stair_climbing_machine">Stepper</string>
+    <string name="fit_act_standup_paddleboarding">Stand Up Paddling</string>
+    <string name="fit_act_strength_training">Krafttraining</string>
+    <string name="fit_act_surfing">Surfen</string>
+    <string name="fit_act_swimming">Schwimmen</string>
+    <string name="fit_act_swimming_pool">Schwimmen im Pool</string>
+    <string name="fit_act_swimming_open_water">Freiwasserschwimmen</string>
+    <string name="fit_act_table_tennis">Tischtennis</string>
+    <string name="fit_act_team_sports">Teamsport</string>
+    <string name="fit_act_tennis">Tennis</string>
+    <string name="fit_act_treadmill">Laufbandtraining</string>
+    <string name="fit_act_volleyball">Volleyball</string>
+    <string name="fit_act_volleyball_beach">Beachvolleyball</string>
+    <string name="fit_act_volleyball_indoor">Hallenvolleyball</string>
+    <string name="fit_act_wakeboarding">Wakeboarding</string>
+    <string name="fit_act_walking">Gehen</string>
+    <string name="fit_act_walking_fitness">Fitness Walking</string>
+    <string name="fit_act_walking_nordic">Nordic Walking</string>
+    <string name="fit_act_walking_treadmill">Laufbandwalking</string>
+    <string name="fit_act_walking_stroller">Kinderwagen</string>
+    <string name="fit_act_water_polo">Wasserpolo</string>
+    <string name="fit_act_weightlifting">Gewichtheben</string>
+    <string name="fit_act_wheelchair">Rollstuhlfahren</string>
+    <string name="fit_act_windsurfing">Windsurfing</string>
+    <string name="fit_act_yoga">Yoga</string>
+    <string name="fit_act_zumba">Zumba</string>
+</resources>
