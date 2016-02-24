@@ -205,10 +205,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.92945872"
-     inkscape:cx="494.24351"
+     inkscape:cx="502.09122"
      inkscape:cy="216.62761"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer3"
      showgrid="true"
      inkscape:window-width="1855"
      inkscape:window-height="1056"
@@ -233,7 +233,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -256,7 +256,9 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-552.36214)">
+     transform="translate(0,-552.36214)"
+     style="display:inline"
+     sodipodi:insensitive="true">
     <rect
        ry="11.066092"
        rx="11.504907"
@@ -372,9 +374,16 @@
          id="path7907"
          inkscape:connector-curvature="0" />
     </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="en"
+     style="display:none">
     <text
+       transform="translate(0,-552.36214)"
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:50.01375198px;line-height:125%;font-family:Ubuntu;-inkscape-font-specification:'Ubuntu, Medium';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#efefef;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;filter:url(#filter12309);"
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:50.01375198px;line-height:125%;font-family:Ubuntu;-inkscape-font-specification:'Ubuntu, Medium';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:#efefef;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;filter:url(#filter12309)"
        x="267.89783"
        y="772.86859"
        id="text12065"
@@ -389,5 +398,22 @@
          x="267.89783"
          y="835.3858"
          dx="0 0 0 0 0 0 0 0 0 0 0 0 0 -5.8037092e-08 0 0 -1.0758951 -5.8037092e-08 -2.1517901 -1.0758951 -1.0758951 0 0 0 -2.1517901 -1.0758951 -1.0758951 -1.0758951 -1.0758951 0 0 -1.0758951 -1.0758951">            is already enough work</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="de">
+    <text
+       sodipodi:linespacing="125%"
+       id="text4197"
+       y="772.86859"
+       x="267.89783"
+       style="display:inline;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:50.01375198px;line-height:125%;font-family:Ubuntu;-inkscape-font-specification:'Ubuntu, Medium';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#efefef;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;filter:url(#filter12309);"
+       xml:space="preserve"
+       transform="translate(0,-552.36214)"><tspan
+         sodipodi:role="line"
+         id="tspan4210">weil Sport machen schon</tspan><tspan
+         sodipodi:role="line"
+         id="tspan4212">            anstrengend genug ist</tspan></text>
   </g>
 </svg>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2016 Juliane Lehmann <jl@lambdasoup.com>
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<resources>
+    <string name="app_name">QuickFit</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="title_workout_list">Workouts</string>
+    <string name="insert_session_button">Hab\' ich getan!</string>
+    <string name="success_session_insert">Workout-Sitzung wurde vermerkt.</string>
+    <string name="permission_needed_play_service">QuickFit benötigt das Recht, auf deine Google Fit-Kontodaten zuzugreifen.</string>
+    <string name="permission_needed_play_service_title">Berechtigung benötigt</string>
+    <string name="calories_label">Kalorien</string>
+    <string name="label_hint"><i>Name</i></string>
+    <string name="label_label">Name</string>
+    <string name="duration_mins_label">Minuten</string>
+    <string name="title_workout_duration">Workout-Dauer</string>
+    <string name="button_done_workout_duration">Neue Dauer setzen</string>
+    <string name="title_workout_label">Name</string>
+    <string name="button_done_workout_label">Neuen Namen setzen</string>
+    <string name="calories_hint"><i>Kalorien</i></string>
+    <string name="title_calories">Kalorien</string>
+    <string name="button_done_calories">Neue Kalorienanzahl setzen</string>
+    <string name="delete_button">löschen</string>
+    <string name="title_settings">Einstellungen</string>
+    <string name="pref_google_account">Google-Konto</string>
+    <string name="pref_disconnect_g_fit_title">Verbindung zu Google Fit trennen</string>
+    <string name="pref_disconnect_g_fit_summary">QuickFit wird keine Google Fit-Daten mehr lesen oder schreiben können.</string>
+    <string name="msg_fit_disconnect_success">QuickFit ist nun von Google Fit getrennt.</string>
+    <string name="msg_fit_disconnect_failure">Konnte QuickFit nicht von Google Fit trennen. Bitte später noch einmal probieren.</string>
+    <string name="msg_fit_disconnect_no_connection">Konnte QuickFit nicht von Google Fit trennen. Bitte später noch einmal probieren, wenn eine Internetverbindung verfügbar ist.</string>
+
+    <plurals name="duration_mins_format">
+        <item quantity="one">%d Minute</item>
+        <item quantity="other">%d Minuten</item>
+    </plurals>
+    <plurals name="calories_format">
+        <item quantity="one">%d Kalorie</item>
+        <item quantity="other">%d Kalorien</item>
+    </plurals>
+
+    <string name="title_about">Über QuickFit</string>
+    <string name="action_about">Über QuickFit…</string>
+    <string name="workout_list_empty">Keine Workouts geplant.</string>
+</resources>
