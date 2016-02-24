@@ -111,5 +111,6 @@
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="title_about">About QuickFit</string>
     <string name="action_about">About</string>
+    <string name="workout_list_empty">You have no workouts scheduled.</string>
 
 </resources>

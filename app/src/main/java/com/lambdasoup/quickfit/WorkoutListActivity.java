@@ -69,7 +69,7 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
 
     private WorkoutItemRecyclerViewAdapter workoutsAdapter;
     AuthProgress authProgress = AuthProgress.NONE;
-    private RecyclerView workoutsRecyclerView;
+    private EmptyRecyclerView workoutsRecyclerView;
     private long idFreshlyInserted = NO_FRESH_INSERTION;
 
     @Override
@@ -84,12 +84,13 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(view -> addNewWorkout());
 
-        workoutsRecyclerView = (RecyclerView) findViewById(R.id.workout_list);
+        workoutsRecyclerView = (EmptyRecyclerView) findViewById(R.id.workout_list);
         workoutsAdapter = new WorkoutItemRecyclerViewAdapter(this);
         workoutsAdapter.setOnWorkoutInteractionListener(this);
 
         workoutsRecyclerView.setAdapter(workoutsAdapter);
         workoutsRecyclerView.addItemDecoration(new DividerItemDecoration(this));
+        workoutsRecyclerView.setEmptyView(findViewById(R.id.workout_list_empty));
 
         if (savedInstanceState != null) {
             authProgress = AuthProgress.valueOf(savedInstanceState.getString(KEY_AUTH_IN_PROGRESS, AuthProgress.NONE.name()));

@@ -36,7 +36,9 @@ public class ScrollAwareFabBehavior extends FloatingActionButton.Behavior{
     @Override
     public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout, FloatingActionButton child, View directTargetChild, View target, int nestedScrollAxes) {
         return super.onStartNestedScroll(coordinatorLayout, child, directTargetChild, target, nestedScrollAxes)
-                || nestedScrollAxes == ViewCompat.SCROLL_AXIS_VERTICAL;
+                || (nestedScrollAxes == ViewCompat.SCROLL_AXIS_VERTICAL
+                    && (!(target instanceof EmptyRecyclerView) || !((EmptyRecyclerView) target).isEmpty())
+                );
     }
 
 
