@@ -55,4 +55,12 @@
     <string name="title_about">Über QuickFit</string>
     <string name="action_about">Über QuickFit…</string>
     <string name="workout_list_empty">Keine Workouts geplant.</string>
+
+    <string name="monday">Montag</string>
+    <string name="tuesday">Dienstag</string>
+    <string name="wednesday">Mittwoch</string>
+    <string name="thursday">Donnerstag</string>
+    <string name="friday">Freitag</string>
+    <string name="saturday">Samstag</string>
+    <string name="sunday">Sonntag</string>
 </resources>
