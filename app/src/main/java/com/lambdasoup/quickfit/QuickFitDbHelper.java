@@ -25,16 +25,23 @@ import android.util.Log;
 public class QuickFitDbHelper extends SQLiteOpenHelper {
 
     static final String DATABASE_NAME = "quickfit.db";
-    static final int DATABASE_VERSION = 5;
+    static final int DATABASE_VERSION = 6;
     public static final String TAG = QuickFitDbHelper.class.getSimpleName();
 
     public QuickFitDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    @Override
+    public void onConfigure(SQLiteDatabase db) {
+        db.setForeignKeyConstraintsEnabled(true);
+    }
 
     public void onCreate(SQLiteDatabase database) {
         for (String stmt : QuickFitContract.WorkoutEntry.CREATE_STATEMENTS) {
+            database.execSQL(stmt);
+        }
+        for (String stmt : QuickFitContract.ScheduleEntry.CREATE_STATEMENTS) {
             database.execSQL(stmt);
         }
         for (String stmt : QuickFitContract.SessionEntry.CREATE_STATEMENTS) {
@@ -47,7 +54,12 @@ public class QuickFitDbHelper extends SQLiteOpenHelper {
         Log.w(TAG, "Upgrading database from version "
                 + oldVersion + " to " + newVersion);
 
-        if (newVersion <= 5) {
+        if (newVersion > 6) {
+            Log.e(TAG, "No upgrading procedure for version " + newVersion + " implemented yet!");
+            return;
+        }
+
+        if (oldVersion < 5) {
             database.execSQL("DROP TABLE IF EXISTS " + QuickFitContract.WorkoutEntry.TABLE_NAME);
             database.execSQL("DROP TABLE IF EXISTS " + QuickFitContract.SessionEntry.TABLE_NAME);
 
@@ -59,8 +71,13 @@ public class QuickFitDbHelper extends SQLiteOpenHelper {
             }
         }
 
-        if (newVersion > 5) {
-            Log.e(TAG, "No upgrading procedure for version " + newVersion + " implemented yet!");
+
+        if (newVersion == 6) {
+            for (String stmt : QuickFitContract.ScheduleEntry.CREATE_STATEMENTS) {
+                database.execSQL(stmt);
+            }
         }
+
+
     }
 }

@@ -41,6 +41,43 @@ public class QuickFitContract {
         };
     }
 
+    abstract static class WorkoutScheduleEntry {
+        static final String WORKOUT_ID = WorkoutEntry.TABLE_NAME + "." + WorkoutEntry._ID;
+        static final String SCHEDULE_ID = ScheduleEntry.TABLE_NAME + "." + ScheduleEntry._ID;
+
+        static final String ACTIVITY_TYPE = WorkoutEntry.TABLE_NAME + "." + WorkoutEntry.ACTIVITY_TYPE;
+        static final String DURATION_MINUTES = WorkoutEntry.TABLE_NAME + "." + WorkoutEntry.DURATION_MINUTES;
+        static final String LABEL = WorkoutEntry.TABLE_NAME + "." + WorkoutEntry.LABEL;
+        static final String CALORIES = WorkoutEntry.TABLE_NAME + "." + WorkoutEntry.CALORIES;
+
+        static final String DAY_OF_WEEK = ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.DAY_OF_WEEK;
+        static final String HOUR = ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.HOUR;
+        static final String MINUTE = ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.MINUTE;
+
+        static final String[] COLUMNS = {WORKOUT_ID, SCHEDULE_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES, DAY_OF_WEEK, HOUR, MINUTE};
+    }
+
+    abstract static class ScheduleEntry implements BaseColumns {
+        static final String TABLE_NAME = "schedule";
+
+        static final String WORKOUT_ID = "workout_id";
+        static final String DAY_OF_WEEK = "day_of_week";
+        static final String HOUR = "hour";
+        static final String MINUTE = "minute";
+
+        static final String[] COLUMNS = {_ID, WORKOUT_ID, DAY_OF_WEEK, HOUR, MINUTE};
+
+        static final String[] CREATE_STATEMENTS = {
+                "CREATE TABLE " + TABLE_NAME + " ( " +
+                        _ID + " INTEGER PRIMARY KEY, " +
+                        WORKOUT_ID + " INTEGER NOT NULL REFERENCES " + WorkoutEntry.TABLE_NAME + "(" + WorkoutEntry._ID + ") ON DELETE CASCADE, " +
+                        DAY_OF_WEEK + " TEXT NOT NULL, " +
+                        HOUR + " INTEGER NOT NULL, " +
+                        MINUTE + " INTEGER NOT NULL " +
+                        ")"
+        };
+    }
+
     abstract static class SessionEntry implements BaseColumns {
         static final String TABLE_NAME = "session";
 
