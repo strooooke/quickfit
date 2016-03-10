@@ -19,7 +19,8 @@ package com.lambdasoup.quickfit;
 import android.content.Context;
 import android.content.CursorLoader;
 
-import com.lambdasoup.quickfit.QuickFitContract.WorkoutEntry;
+import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
+import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
 
 
 public class WorkoutListLoader extends CursorLoader {

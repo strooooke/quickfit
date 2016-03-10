@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit;
+package com.lambdasoup.quickfit.util.ui;
 
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;

@@ -43,7 +43,7 @@
  */
 // based on https://gist.github.com/adelnizamutdinov/31c8f054d1af4588dc5c
 
-package com.lambdasoup.quickfit;
+package com.lambdasoup.quickfit.util.ui;
 
         import android.content.Context;
         import android.support.annotation.NonNull;

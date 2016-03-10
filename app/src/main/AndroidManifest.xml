@@ -33,7 +33,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <provider
-            android:name=".QuickFitContentProvider"
+            android:name=".persist.QuickFitContentProvider"
             android:authorities="com.lambdasoup.quickfit.provider"
             android:exported="false" />
 
@@ -57,7 +57,7 @@
             android:parentActivityName=".WorkoutListActivity" />
 
         <service
-            android:name=".SyncService"
+            android:name=".persist.SyncService"
             android:exported="false"
             android:process=":sync">
             <intent-filter>
@@ -69,7 +69,7 @@
                 android:resource="@xml/syncadapter" />
         </service>
         <service
-            android:name=".AuthenticatorService"
+            android:name=".persist.AuthenticatorService"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />

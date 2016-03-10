@@ -39,7 +39,7 @@
     </android.support.design.widget.AppBarLayout>
 
 
-    <com.lambdasoup.quickfit.EmptyRecyclerView
+    <com.lambdasoup.quickfit.util.ui.EmptyRecyclerView
         android:id="@+id/workout_list"
         android:name="com.lambdasoup.quickfit.WorkoutListFragment"
         android:layout_width="match_parent"

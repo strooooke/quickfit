@@ -14,12 +14,13 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit;
+package com.lambdasoup.quickfit.model;
 
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
 
 import com.google.android.gms.fitness.FitnessActivities;
+import com.lambdasoup.quickfit.R;
 
 import java.util.HashMap;
 import java.util.Map;

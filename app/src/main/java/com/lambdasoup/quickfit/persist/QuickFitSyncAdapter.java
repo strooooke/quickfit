@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit;
+package com.lambdasoup.quickfit.persist;
 
 import android.accounts.Account;
 import android.app.Notification;
@@ -24,7 +24,6 @@ import android.app.TaskStackBuilder;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -49,6 +48,9 @@ import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Device;
 import com.google.android.gms.fitness.data.Session;
 import com.google.android.gms.fitness.request.SessionInsertRequest;
+import com.lambdasoup.quickfit.Constants;
+import com.lambdasoup.quickfit.R;
+import com.lambdasoup.quickfit.WorkoutListActivity;
 
 import java.util.concurrent.TimeUnit;
 

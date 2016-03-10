@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit;
+package com.lambdasoup.quickfit.persist;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

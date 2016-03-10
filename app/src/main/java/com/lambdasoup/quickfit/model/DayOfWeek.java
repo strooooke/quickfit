@@ -14,11 +14,12 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit;
+package com.lambdasoup.quickfit.model;
 
 import android.support.annotation.StringRes;
 
-import java.text.SimpleDateFormat;
+import com.lambdasoup.quickfit.R;
+
 import java.util.Calendar;
 
 /**

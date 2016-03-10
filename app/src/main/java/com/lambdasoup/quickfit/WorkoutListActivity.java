@@ -45,9 +45,12 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.fitness.FitnessActivities;
-import com.lambdasoup.quickfit.QuickFitContract.SessionEntry;
-import com.lambdasoup.quickfit.QuickFitContract.SessionEntry.SessionStatus;
-import com.lambdasoup.quickfit.QuickFitContract.WorkoutEntry;
+import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
+import com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry;
+import com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry.SessionStatus;
+import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
+import com.lambdasoup.quickfit.util.ui.DividerItemDecoration;
+import com.lambdasoup.quickfit.util.ui.EmptyRecyclerView;
 
 import java.util.concurrent.TimeUnit;
 

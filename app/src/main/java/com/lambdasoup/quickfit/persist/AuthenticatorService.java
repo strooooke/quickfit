@@ -14,14 +14,14 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit;
+package com.lambdasoup.quickfit.persist;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
 /**
- * Supplies stub authenticators. See @code{com.lambdasoup.quickfit.Authenticator}
+ * Supplies stub authenticators. See @code{com.lambdasoup.quickfit.persist.Authenticator}
  */
 public class AuthenticatorService extends Service {
     private Authenticator authenticator;

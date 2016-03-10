@@ -16,18 +16,20 @@
 
 package com.lambdasoup.quickfit;
 
+import com.lambdasoup.quickfit.model.DayOfWeek;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Calendar;
 
-import static com.lambdasoup.quickfit.DayOfWeek.FRIDAY;
-import static com.lambdasoup.quickfit.DayOfWeek.MONDAY;
-import static com.lambdasoup.quickfit.DayOfWeek.SATURDAY;
-import static com.lambdasoup.quickfit.DayOfWeek.SUNDAY;
-import static com.lambdasoup.quickfit.DayOfWeek.THURSDAY;
-import static com.lambdasoup.quickfit.DayOfWeek.TUESDAY;
-import static com.lambdasoup.quickfit.DayOfWeek.WEDNESDAY;
+import static com.lambdasoup.quickfit.model.DayOfWeek.FRIDAY;
+import static com.lambdasoup.quickfit.model.DayOfWeek.MONDAY;
+import static com.lambdasoup.quickfit.model.DayOfWeek.SATURDAY;
+import static com.lambdasoup.quickfit.model.DayOfWeek.SUNDAY;
+import static com.lambdasoup.quickfit.model.DayOfWeek.THURSDAY;
+import static com.lambdasoup.quickfit.model.DayOfWeek.TUESDAY;
+import static com.lambdasoup.quickfit.model.DayOfWeek.WEDNESDAY;
 
 /**
  * Created by jl on 07.03.16.

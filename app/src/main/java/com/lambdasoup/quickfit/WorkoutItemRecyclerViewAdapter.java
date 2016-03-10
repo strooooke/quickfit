@@ -27,7 +27,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
-import com.lambdasoup.quickfit.QuickFitContract.WorkoutEntry;
+import com.lambdasoup.quickfit.model.DayOfWeek;
+import com.lambdasoup.quickfit.model.FitActivity;
+import com.lambdasoup.quickfit.model.WorkoutItem;
+import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
 import com.lambdasoup.quickfit.databinding.WorkoutListContentBinding;
 
 import java.text.DateFormat;

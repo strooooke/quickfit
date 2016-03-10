@@ -21,7 +21,7 @@
 
         <variable
             name="workout"
-            type="com.lambdasoup.quickfit.WorkoutItem" />
+            type="com.lambdasoup.quickfit.model.WorkoutItem" />
         <variable
             name="handler"
             type="com.lambdasoup.quickfit.WorkoutItemRecyclerViewAdapter.EventHandler"/>
@@ -67,6 +67,16 @@
             android:hint="@string/label_hint"
             app:onClickListener="@{handler.labelClicked}"
             />
+
+        <ListView
+            android:id="@+id/schedules"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/label"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            />
+
 
         <TextView
             android:id="@+id/calories"
