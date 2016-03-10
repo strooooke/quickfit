@@ -19,16 +19,18 @@ package com.lambdasoup.quickfit;
 import android.content.Context;
 import android.content.CursorLoader;
 
+import com.lambdasoup.quickfit.QuickFitContract.WorkoutEntry;
+
 
 public class WorkoutListLoader extends CursorLoader {
     public WorkoutListLoader(Context context) {
         super(
                 context,
-                QuickFitContentProvider.URI_WORKOUTS,
-                QuickFitContract.WorkoutEntry.COLUMNS,
+                QuickFitContentProvider.getUriWorkoutsList(),
+                WorkoutEntry.COLUMNS_FULL,
                 null,
                 null,
-                QuickFitContract.WorkoutEntry._ID + " ASC"
+                WorkoutEntry.WORKOUT_ID + " ASC, " + WorkoutEntry.SCHEDULE_ID + " ASC"
         );
     }
 }

@@ -27,9 +27,15 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
+import com.lambdasoup.quickfit.QuickFitContract.WorkoutEntry;
 import com.lambdasoup.quickfit.databinding.WorkoutListContentBinding;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -130,23 +136,56 @@ public class WorkoutItemRecyclerViewAdapter
         cursor.moveToPosition(-1);
 
         Set<Long> newIds = new HashSet<>();
-        WorkoutItem[] newItems = new WorkoutItem[cursor.getCount()];
+        List<WorkoutItem> newItems = new ArrayList<>();
+        long prevId = -1;
         while (cursor.moveToNext()) {
-            FitActivity fitActivity = FitActivity.fromKey(cursor.getString(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE)),
-                    context.getResources());
-            WorkoutItem newItem = new WorkoutItem(
-                    cursor.getLong(cursor.getColumnIndex(QuickFitContract.WorkoutEntry._ID)),
-                    activityTypesAdapter.getPosition(fitActivity),
-                    fitActivity.displayName, cursor.getInt(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.DURATION_MINUTES)),
-                    cursor.getInt(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.CALORIES)),
-                    cursor.getString(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.LABEL))
-            );
-            newIds.add(newItem.id);
-            newItems[cursor.getPosition()] = newItem;
+            long workoutId = cursor.getLong(cursor.getColumnIndex(WorkoutEntry.WORKOUT_ID));
+            Log.d(TAG, "loaded workoutId " + workoutId);
+            if (workoutId != prevId) {
+                // next workout, start new item
+                FitActivity fitActivity = FitActivity.fromKey(cursor.getString(cursor.getColumnIndex(WorkoutEntry.ACTIVITY_TYPE)),
+                        context.getResources());
+                WorkoutItem newItem = new WorkoutItem(
+                        workoutId,
+                        activityTypesAdapter.getPosition(fitActivity),
+                        fitActivity.displayName, cursor.getInt(cursor.getColumnIndex(WorkoutEntry.DURATION_MINUTES)),
+                        cursor.getInt(cursor.getColumnIndex(WorkoutEntry.CALORIES)),
+                        cursor.getString(cursor.getColumnIndex(WorkoutEntry.LABEL))
+                );
+                newIds.add(newItem.id);
+                newItems.add(newItem);
+                prevId = workoutId;
+            }
+
+            if (!cursor.isNull(cursor.getColumnIndex(WorkoutEntry.SCHEDULE_ID))) {
+                // more schedule data for current workout item
+                long scheduleId = cursor.getLong(cursor.getColumnIndex(WorkoutEntry.SCHEDULE_ID));
+
+                WorkoutItem currentWorkout = newItems.get(newItems.size() - 1);
+
+                int minute = cursor.getInt(cursor.getColumnIndex(WorkoutEntry.MINUTE));
+                int hour = cursor.getInt(cursor.getColumnIndex(WorkoutEntry.HOUR));
+                Calendar time = Calendar.getInstance();
+                time.set(Calendar.HOUR_OF_DAY, hour);
+                time.set(Calendar.MINUTE, minute);
+                time.set(Calendar.SECOND, 0); // seconds should not be shown, but just in case
+                String timeFormatted = SimpleDateFormat.getTimeInstance(DateFormat.SHORT).format(time.getTime()); // TODO: bind formatting method instead
+
+                DayOfWeek dayOfWeek = DayOfWeek.valueOf(cursor.getString(cursor.getColumnIndex(WorkoutEntry.DAY_OF_WEEK)));
+
+                currentWorkout.addSchedule(new WorkoutItem.ScheduleItem(
+                        scheduleId,
+                        dayOfWeek,
+                        timeFormatted,
+                        minute,
+                        hour
+                ));
+            }
         }
 
+        Log.d(TAG, "loaded new items: " + newItems);
         dataset.beginBatchedUpdates();
-        dataset.addAll(newItems, true);
+        dataset.addAll(newItems);
         for (int i = dataset.size() - 1; i >= 0; i--) {
             if (!newIds.contains(dataset.get(i).id)) {
                 dataset.removeItemAt(i);

@@ -85,7 +85,7 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
                                 Log.d(TAG, "Connected!");
                                 try {
                                     Cursor sessionsCursor = provider.query(
-                                            QuickFitContentProvider.URI_SESSIONS,
+                                            QuickFitContentProvider.getUriSessionsList(),
                                             QuickFitContract.SessionEntry.COLUMNS,
                                             QuickFitContract.SessionEntry.STATUS + "=?",
                                             new String[]{QuickFitContract.SessionEntry.SessionStatus.NEW.name()},
@@ -192,7 +192,7 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
         res.setResultCallback(status -> {
             if (status.isSuccess()) {
                 contentResolver.update(
-                        ContentUris.withAppendedId(QuickFitContentProvider.URI_SESSIONS, cursor.getLong(cursor.getColumnIndex(QuickFitContract.SessionEntry._ID))),
+                        QuickFitContentProvider.getUriSessionsId(cursor.getLong(cursor.getColumnIndex(QuickFitContract.SessionEntry._ID))),
                         STATUS_TRANSMITTED,
                         null,
                         null

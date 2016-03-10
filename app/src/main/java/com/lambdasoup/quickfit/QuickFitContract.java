@@ -17,63 +17,150 @@
 package com.lambdasoup.quickfit;
 
 import android.provider.BaseColumns;
+import android.util.Pair;
+
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class QuickFitContract {
-    abstract static class WorkoutEntry implements BaseColumns {
+    abstract static class WorkoutEntry  {
         static final String TABLE_NAME = "workout";
 
-        static final String ACTIVITY_TYPE = "activity_type";
-        static final String DURATION_MINUTES = "duration_minutes";
-        static final String LABEL = "label";
-        static final String CALORIES = "calories";
-
-        static final String[] COLUMNS = {_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES};
+        static final String COL_ID = "_id";
+        static final String COL_ACTIVITY_TYPE = "activity_type";
+        static final String COL_DURATION_MINUTES = "duration_minutes";
+        static final String COL_LABEL = "label";
+        static final String COL_CALORIES = "calories";
 
         static final String[] CREATE_STATEMENTS = {
                 "CREATE TABLE " + TABLE_NAME + " ( " +
-                        _ID + " INTEGER PRIMARY KEY, " +
-                        ACTIVITY_TYPE + " TEXT NOT NULL, " +
-                        DURATION_MINUTES + " INTEGER NOT NULL, " +
-                        LABEL + " TEXT NULL, " +
-                        CALORIES + " INTEGER NULL " +
+                        COL_ID + " INTEGER PRIMARY KEY, " +
+                        COL_ACTIVITY_TYPE + " TEXT NOT NULL, " +
+                        COL_DURATION_MINUTES + " INTEGER NOT NULL, " +
+                        COL_LABEL + " TEXT NULL, " +
+                        COL_CALORIES + " INTEGER NULL " +
                         ")"
         };
-    }
-
-    abstract static class WorkoutScheduleEntry {
-        static final String WORKOUT_ID = WorkoutEntry.TABLE_NAME + "." + WorkoutEntry._ID;
-        static final String SCHEDULE_ID = ScheduleEntry.TABLE_NAME + "." + ScheduleEntry._ID;
-
-        static final String ACTIVITY_TYPE = WorkoutEntry.TABLE_NAME + "." + WorkoutEntry.ACTIVITY_TYPE;
-        static final String DURATION_MINUTES = WorkoutEntry.TABLE_NAME + "." + WorkoutEntry.DURATION_MINUTES;
-        static final String LABEL = WorkoutEntry.TABLE_NAME + "." + WorkoutEntry.LABEL;
-        static final String CALORIES = WorkoutEntry.TABLE_NAME + "." + WorkoutEntry.CALORIES;
-
-        static final String DAY_OF_WEEK = ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.DAY_OF_WEEK;
-        static final String HOUR = ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.HOUR;
-        static final String MINUTE = ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.MINUTE;
-
-        static final String[] COLUMNS = {WORKOUT_ID, SCHEDULE_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES, DAY_OF_WEEK, HOUR, MINUTE};
-    }
-
-    abstract static class ScheduleEntry implements BaseColumns {
-        static final String TABLE_NAME = "schedule";
 
         static final String WORKOUT_ID = "workout_id";
-        static final String DAY_OF_WEEK = "day_of_week";
-        static final String HOUR = "hour";
-        static final String MINUTE = "minute";
+        static final String SCHEDULE_ID = "schedule_id";
 
-        static final String[] COLUMNS = {_ID, WORKOUT_ID, DAY_OF_WEEK, HOUR, MINUTE};
+        static final String ACTIVITY_TYPE = "workout_activity_type";
+        static final String DURATION_MINUTES = "workout_duration_minutes";
+        static final String LABEL = "workout_label";
+        static final String CALORIES = "workout_calories";
+
+        static final String DAY_OF_WEEK = "schedule_day_of_week";
+        static final String HOUR = "schedule_hour";
+        static final String MINUTE = "schedule_minute";
+
+        static final String[] COLUMNS_FULL = {WORKOUT_ID, SCHEDULE_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES, DAY_OF_WEEK, HOUR, MINUTE};
+        static final String[] COLUMNS_WORKOUT_ONLY = {WORKOUT_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES};
+        static final String[] COLUMNS_SCHEDULE_ONLY = {WORKOUT_ID, SCHEDULE_ID, DAY_OF_WEEK, HOUR, MINUTE};
+
+
+        static Pair<String, String> toAlias(String contractColumn) {
+            StringBuilder aliased = new StringBuilder();
+            String table;
+            switch (contractColumn) {
+                case WORKOUT_ID:
+                case ACTIVITY_TYPE:
+                case DURATION_MINUTES:
+                case LABEL:
+                case CALORIES:
+                    aliased.append(WorkoutEntry.TABLE_NAME);
+                    table = WorkoutEntry.TABLE_NAME;
+                    break;
+                case SCHEDULE_ID:
+                case DAY_OF_WEEK:
+                case HOUR:
+                case MINUTE:
+                    aliased.append(ScheduleEntry.TABLE_NAME);
+                    table = ScheduleEntry.TABLE_NAME;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Not a WorkoutScheduleEntry column name: " + contractColumn);
+            }
+            aliased.append(".");
+            switch (contractColumn) {
+                case WORKOUT_ID:
+                    aliased.append(WorkoutEntry.COL_ID);
+                    break;
+                case ACTIVITY_TYPE:
+                    aliased.append(WorkoutEntry.COL_ACTIVITY_TYPE);
+                    break;
+                case DURATION_MINUTES:
+                    aliased.append(WorkoutEntry.COL_DURATION_MINUTES);
+                    break;
+                case LABEL:
+                    aliased.append(WorkoutEntry.COL_LABEL);
+                    break;
+                case CALORIES:
+                    aliased.append(WorkoutEntry.COL_CALORIES);
+                    break;
+                case SCHEDULE_ID:
+                    aliased.append(ScheduleEntry.COL_ID);
+                    break;
+                case DAY_OF_WEEK:
+                    aliased.append(ScheduleEntry.COL_DAY_OF_WEEK);
+                    break;
+                case HOUR:
+                    aliased.append(ScheduleEntry.COL_HOUR);
+                    break;
+                case MINUTE:
+                    aliased.append(ScheduleEntry.COL_MINUTE);
+                    break;
+            }
+            aliased.append(" as ");
+            aliased.append(contractColumn);
+            return new Pair<>(table, aliased.toString());
+        }
+
+        static Pair<String, String[]> toAlias(String[] contractConstants) {
+            String[] aliased = new String[contractConstants.length];
+            Set<String> tables = new HashSet<>();
+            for (int i = 0; i < contractConstants.length; i++) {
+                Pair<String, String> tableAndAlias = toAlias(contractConstants[i]);
+                aliased[i] = tableAndAlias.second;
+                tables.add(tableAndAlias.first);
+            }
+
+            String tablesExpression;
+            switch (tables.size()) {
+                case 1:
+                    tablesExpression = tables.iterator().next();
+                    break;
+                case 2:
+                    tablesExpression = WorkoutEntry.TABLE_NAME + " left outer join " + ScheduleEntry.TABLE_NAME
+                            + " on " + WorkoutEntry.TABLE_NAME + "." + WorkoutEntry.COL_ID + "="
+                            + ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_WORKOUT_ID;
+                    break;
+                default:
+                    throw new IllegalArgumentException("what do you want to alias an empty array for?");
+            }
+            return new Pair<>(tablesExpression, aliased);
+        }
+    }
+
+    abstract static class ScheduleEntry  {
+        static final String TABLE_NAME = "schedule";
+
+        static final String COL_ID = "_id";
+        static final String COL_WORKOUT_ID = "workout_id";
+        static final String COL_DAY_OF_WEEK = "day_of_week";
+        static final String COL_HOUR = "hour";
+        static final String COL_MINUTE = "minute";
+
+        static final String[] COLUMNS = {COL_ID, COL_WORKOUT_ID, COL_DAY_OF_WEEK, COL_HOUR, COL_MINUTE};
 
         static final String[] CREATE_STATEMENTS = {
                 "CREATE TABLE " + TABLE_NAME + " ( " +
-                        _ID + " INTEGER PRIMARY KEY, " +
-                        WORKOUT_ID + " INTEGER NOT NULL REFERENCES " + WorkoutEntry.TABLE_NAME + "(" + WorkoutEntry._ID + ") ON DELETE CASCADE, " +
-                        DAY_OF_WEEK + " TEXT NOT NULL, " +
-                        HOUR + " INTEGER NOT NULL, " +
-                        MINUTE + " INTEGER NOT NULL " +
+                        COL_ID + " INTEGER PRIMARY KEY, " +
+                        COL_WORKOUT_ID + " INTEGER NOT NULL REFERENCES " + WorkoutEntry.TABLE_NAME + "(" + WorkoutEntry.COL_ID + ") ON DELETE CASCADE, " +
+                        COL_DAY_OF_WEEK + " TEXT NOT NULL, " +
+                        COL_HOUR + " INTEGER NOT NULL, " +
+                        COL_MINUTE + " INTEGER NOT NULL " +
                         ")"
         };
     }

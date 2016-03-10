@@ -17,6 +17,9 @@
 package com.lambdasoup.quickfit;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class WorkoutItem {
     final public long id;
     final public int activityTypeIndex;
@@ -24,6 +27,8 @@ public class WorkoutItem {
     final public int durationInMinutes;
     final public int calories;
     final public String label;
+
+    final public List<ScheduleItem> scheduleItems = new ArrayList<>();
 
     public WorkoutItem(long id, int activityTypeIndex, String activityTypeDisplayName, int durationInMinutes, int calories, String label) {
         this.id = id;
@@ -46,5 +51,25 @@ public class WorkoutItem {
         sb.append(", label='").append(label).append('\'');
         sb.append('}');
         return sb.toString();
+    }
+
+    public void addSchedule(ScheduleItem scheduleItem) {
+        this.scheduleItems.add(scheduleItem);
+    }
+
+    public static class ScheduleItem {
+        final public long id;
+        final public DayOfWeek dayOfWeek;
+        final public String time;
+        final public int minute;
+        final public int hour;
+
+        public ScheduleItem(long id, DayOfWeek dayOfWeek, String time, int minute, int hour) {
+            this.id = id;
+            this.dayOfWeek = dayOfWeek;
+            this.time = time;
+            this.minute = minute;
+            this.hour = hour;
+        }
     }
 }

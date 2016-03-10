@@ -18,6 +18,7 @@ package com.lambdasoup.quickfit;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -28,6 +29,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 
 import com.lambdasoup.quickfit.QuickFitContract.ScheduleEntry;
 import com.lambdasoup.quickfit.QuickFitContract.SessionEntry;
@@ -48,32 +50,48 @@ public class QuickFitContentProvider extends ContentProvider {
     private static final String PATH_WORKOUTS = "workouts";
     private static final String PATH_SESSIONS = "sessions";
     private static final String PATH_SCHEDULES = "schedules";
-    private static final String PATH_WORKOUT_SCHEDULES = "workoutSchedules";
 
-    public static final Uri URI_WORKOUTS = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(AUTHORITY).path(PATH_WORKOUTS).build();
-    public static final Uri URI_SESSIONS = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(AUTHORITY).path(PATH_SESSIONS).build();
-    public static final Uri URI_SCHEDULES = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(AUTHORITY).path(PATH_SCHEDULES).build();
-    public static final Uri URI_WORKOUT_SCHEDULES = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(AUTHORITY).path(PATH_WORKOUT_SCHEDULES).build();
+    private static final Uri URI_WORKOUTS = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(AUTHORITY).path(PATH_WORKOUTS).build();
+    private static final Uri URI_SESSIONS = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(AUTHORITY).path(PATH_SESSIONS).build();
 
-    private static final int TYPE_WORKOUTS_LIST = 1;
-    private static final int TYPE_WORKOUT_SINGLE_ROW = 2;
-    private static final int TYPE_SESSIONS_LIST = 3;
-    private static final int TYPE_SESSION_SINGLE_ROW = 4;
-    private static final int TYPE_WORKOUT_SCHEDULES_LIST = 5;
-    private static final int TYPE_SCHEDULES_LIST = 6;
-    private static final int TYPE_SCHEDULE_SINGLE_ROW = 7;
+    public static Uri getUriWorkoutsList() {
+        return URI_WORKOUTS;
+    }
+
+    public static Uri getUriWorkoutsId(long workoutId) {
+        return ContentUris.withAppendedId(getUriWorkoutsList(), workoutId);
+    }
+
+    public static Uri getUriWorkoutsSchedulesId(long workoutId, long scheduleId) {
+        Uri uri = getUriWorkoutsId(workoutId);
+        return uri.buildUpon().appendEncodedPath(PATH_SCHEDULES).appendEncodedPath(String.valueOf(scheduleId)).build();
+    }
+
+    public static Uri getUriSessionsList() {
+        return URI_SESSIONS;
+    }
+
+    public static Uri getUriSessionsId(long sessionId) {
+        return ContentUris.withAppendedId(getUriSessionsList(), sessionId);
+    }
+
+    private static final int TYPE_WORKOUTS = 1;
+    private static final int TYPE_WORKOUT_ID = 2;
+    private static final int TYPE_SESSIONS = 3;
+    private static final int TYPE_SESSION_ID = 4;
+    private static final int TYPE_WORKOUT_ID_SCHEDULES = 5;
+    private static final int TYPE_WORKOUT_ID_SCHEDULE_ID = 6;
 
 
     private static final UriMatcher uriMatcher = new UriMatcher(0);
 
     static {
-        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS, TYPE_WORKOUTS_LIST);
-        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS + "/#", TYPE_WORKOUT_SINGLE_ROW);
-        uriMatcher.addURI(AUTHORITY, PATH_SESSIONS, TYPE_SESSIONS_LIST);
-        uriMatcher.addURI(AUTHORITY, PATH_SESSIONS + "/#", TYPE_SESSION_SINGLE_ROW);
-        uriMatcher.addURI(AUTHORITY, PATH_WORKOUT_SCHEDULES, TYPE_WORKOUT_SCHEDULES_LIST);
-        uriMatcher.addURI(AUTHORITY, PATH_SCHEDULES + "/#", TYPE_SCHEDULE_SINGLE_ROW);
-        uriMatcher.addURI(AUTHORITY, PATH_SCHEDULES, TYPE_SCHEDULES_LIST);
+        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS, TYPE_WORKOUTS);
+        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS + "/#", TYPE_WORKOUT_ID);
+        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS + "/#" + PATH_SCHEDULES, TYPE_WORKOUT_ID_SCHEDULES);
+        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS + "/#" + PATH_SCHEDULES + "/#", TYPE_WORKOUT_ID_SCHEDULE_ID);
+        uriMatcher.addURI(AUTHORITY, PATH_SESSIONS, TYPE_SESSIONS);
+        uriMatcher.addURI(AUTHORITY, PATH_SESSIONS + "/#", TYPE_SESSION_ID);
     }
 
     @Override
@@ -86,42 +104,52 @@ public class QuickFitContentProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         List<String> moreSelectionArgs = new ArrayList<>();
-        SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+        String[] aliasedProjection = projection;
 
-        switch (uriMatcher.match(uri)) {
-            case TYPE_WORKOUT_SINGLE_ROW:
-                queryBuilder.appendWhere(WorkoutEntry._ID + "=?");
-                moreSelectionArgs.add(uri.getLastPathSegment());
-            case TYPE_WORKOUTS_LIST:
-                queryBuilder.setTables(WorkoutEntry.TABLE_NAME);
+        SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+        int type = uriMatcher.match(uri);
+        switch (type) {
+            case TYPE_WORKOUT_ID:
+            case TYPE_WORKOUT_ID_SCHEDULE_ID:
+            case TYPE_WORKOUT_ID_SCHEDULES:
+            case TYPE_WORKOUTS:
+                Pair<String, String[]> tableAndProjection = WorkoutEntry.toAlias(projection);
+                aliasedProjection = tableAndProjection.second;
+                queryBuilder.setTables(tableAndProjection.first);
                 break;
-            case TYPE_SESSION_SINGLE_ROW:
-                queryBuilder.appendWhere(SessionEntry._ID + "=?");
-                moreSelectionArgs.add(uri.getLastPathSegment());
-            case TYPE_SESSIONS_LIST:
+            case TYPE_SESSION_ID:
+            case TYPE_SESSIONS:
                 queryBuilder.setTables(SessionEntry.TABLE_NAME);
-                break;
-            case TYPE_SCHEDULE_SINGLE_ROW:
-                queryBuilder.appendWhere(ScheduleEntry._ID + "=?");
-                moreSelectionArgs.add(uri.getLastPathSegment());
-                queryBuilder.setTables(ScheduleEntry.TABLE_NAME);
-                break;
-            case TYPE_WORKOUT_SCHEDULES_LIST:
-                queryBuilder.setTables(WorkoutEntry.TABLE_NAME + " left outer join " + ScheduleEntry.TABLE_NAME
-                        + " on (" + WorkoutEntry.TABLE_NAME + "." + WorkoutEntry._ID + "=" + ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.WORKOUT_ID +")" );
                 break;
             default:
                 throw new IllegalArgumentException("Invalid content URI:" + uri);
+        }
+        switch (type) {
+            case TYPE_WORKOUT_ID:
+            case TYPE_WORKOUT_ID_SCHEDULES:
+                queryBuilder.appendWhere(WorkoutEntry.WORKOUT_ID + "=?");
+                moreSelectionArgs.add(uri.getPathSegments().get(1));
+                break;
+            case TYPE_WORKOUT_ID_SCHEDULE_ID:
+                queryBuilder.appendWhere(WorkoutEntry.SCHEDULE_ID + "=?");
+                moreSelectionArgs.add(uri.getLastPathSegment());
+                break;
+            case TYPE_SESSION_ID:
+                queryBuilder.appendWhere(SessionEntry._ID + "=?");
+                moreSelectionArgs.add(uri.getLastPathSegment());
+                break;
+            case TYPE_WORKOUTS:
+            case TYPE_SESSIONS:
+                break;
         }
 
         String[] expandedSelectionArgs = expandSelectionArgs(selectionArgs, moreSelectionArgs);
 
         SQLiteDatabase db = database.getWritableDatabase();
-        Cursor cursor = queryBuilder.query(db, projection, selection,
+        Cursor cursor = queryBuilder.query(db, aliasedProjection, selection,
                 expandedSelectionArgs, null, null, sortOrder);
         //noinspection ConstantConditions
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
-
         return cursor;
     }
 
@@ -129,19 +157,17 @@ public class QuickFitContentProvider extends ContentProvider {
     @Override
     public String getType(@NonNull Uri uri) {
         switch (uriMatcher.match(uri)) {
-            case TYPE_WORKOUT_SINGLE_ROW:
+            case TYPE_WORKOUT_ID:
                 return ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd." + AUTHORITY + ".workout";
-            case TYPE_WORKOUTS_LIST:
+            case TYPE_WORKOUTS:
                 return ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".workout";
-            case TYPE_SESSION_SINGLE_ROW:
+            case TYPE_SESSION_ID:
                 return ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd." + AUTHORITY + ".session";
-            case TYPE_SESSIONS_LIST:
+            case TYPE_SESSIONS:
                 return ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".session";
-            case TYPE_WORKOUT_SCHEDULES_LIST:
-                return ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".workoutSchedules";
-            case TYPE_SCHEDULES_LIST:
+            case TYPE_WORKOUT_ID_SCHEDULES:
                 return ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".schedule";
-            case TYPE_SCHEDULE_SINGLE_ROW:
+            case TYPE_WORKOUT_ID_SCHEDULE_ID:
                 return ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd." + AUTHORITY + ".schedule";
             default:
                 throw new IllegalArgumentException("Invalid content URI:" + uri);
@@ -153,26 +179,22 @@ public class QuickFitContentProvider extends ContentProvider {
     public Uri insert(@NonNull Uri uri, ContentValues values) {
         SQLiteDatabase sqlDB = database.getWritableDatabase();
         long id;
-        String basePath;
         switch (uriMatcher.match(uri)) {
-            case TYPE_WORKOUTS_LIST:
+            case TYPE_WORKOUTS:
                 id = sqlDB.insert(WorkoutEntry.TABLE_NAME, null, values);
-                basePath = PATH_WORKOUTS;
                 break;
-            case TYPE_SESSIONS_LIST:
+            case TYPE_SESSIONS:
                 id = sqlDB.insert(SessionEntry.TABLE_NAME, null, values);
-                basePath = PATH_SESSIONS;
                 break;
-            case TYPE_SCHEDULES_LIST:
+            case TYPE_WORKOUT_ID_SCHEDULES:
                 id = sqlDB.insert(ScheduleEntry.TABLE_NAME, null, values);
-                basePath = PATH_SCHEDULES;
                 break;
             default:
                 throw new IllegalArgumentException("Invalid content URI:" + uri);
         }
         //noinspection ConstantConditions
         getContext().getContentResolver().notifyChange(uri, null);
-        return Uri.parse(basePath + "/" + id);
+        return ContentUris.withAppendedId(uri, id);
     }
 
     @Override
@@ -181,29 +203,29 @@ public class QuickFitContentProvider extends ContentProvider {
 
         int rowsDeleted;
         switch (uriMatcher.match(uri)) {
-            case TYPE_WORKOUTS_LIST: {
+            case TYPE_WORKOUTS: {
                 rowsDeleted = sqlDB.delete(WorkoutEntry.TABLE_NAME, selection,
                         selectionArgs);
                 break;
             }
-            case TYPE_WORKOUT_SINGLE_ROW: {
+            case TYPE_WORKOUT_ID: {
                 if (TextUtils.isEmpty(selection)) {
                     rowsDeleted = sqlDB.delete(WorkoutEntry.TABLE_NAME,
-                            WorkoutEntry._ID + "=?",
+                            WorkoutEntry.COL_ID + "=?",
                             new String[]{uri.getLastPathSegment()});
                 } else {
                     rowsDeleted = sqlDB.delete(WorkoutEntry.TABLE_NAME,
-                            WorkoutEntry._ID + "=? and " + selection,
+                            WorkoutEntry.COL_ID + "=? and " + selection,
                             expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
                 }
                 break;
             }
-            case TYPE_SESSIONS_LIST: {
+            case TYPE_SESSIONS: {
                 rowsDeleted = sqlDB.delete(SessionEntry.TABLE_NAME, selection,
                         selectionArgs);
                 break;
             }
-            case TYPE_SESSION_SINGLE_ROW: {
+            case TYPE_SESSION_ID: {
                 if (TextUtils.isEmpty(selection)) {
                     rowsDeleted = sqlDB.delete(SessionEntry.TABLE_NAME,
                             SessionEntry._ID + "=?",
@@ -215,14 +237,18 @@ public class QuickFitContentProvider extends ContentProvider {
                 }
                 break;
             }
-            case TYPE_SCHEDULE_SINGLE_ROW: {
+            case TYPE_WORKOUT_ID_SCHEDULES: {
+                rowsDeleted = sqlDB.delete(ScheduleEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            }
+            case TYPE_WORKOUT_ID_SCHEDULE_ID: {
                 if (TextUtils.isEmpty(selection)) {
                     rowsDeleted = sqlDB.delete(ScheduleEntry.TABLE_NAME,
-                            ScheduleEntry._ID + "=?",
+                            ScheduleEntry.COL_ID + "=?",
                             new String[]{uri.getLastPathSegment()});
                 } else {
                     rowsDeleted = sqlDB.delete(ScheduleEntry.TABLE_NAME,
-                            ScheduleEntry._ID + "=? and " + selection,
+                            ScheduleEntry.COL_ID + "=? and " + selection,
                             expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
                 }
                 break;
@@ -241,32 +267,32 @@ public class QuickFitContentProvider extends ContentProvider {
         SQLiteDatabase sqlDB = database.getWritableDatabase();
         int rowsUpdated;
         switch (uriMatcher.match(uri)) {
-            case TYPE_WORKOUTS_LIST:
+            case TYPE_WORKOUTS:
                 rowsUpdated = sqlDB.update(WorkoutEntry.TABLE_NAME,
                         values,
                         selection,
                         selectionArgs);
                 break;
-            case TYPE_WORKOUT_SINGLE_ROW:
+            case TYPE_WORKOUT_ID:
                 if (TextUtils.isEmpty(selection)) {
                     rowsUpdated = sqlDB.update(WorkoutEntry.TABLE_NAME,
                             values,
-                            WorkoutEntry._ID + "=?",
+                            WorkoutEntry.COL_ID + "=?",
                             new String[]{uri.getLastPathSegment()});
                 } else {
                     rowsUpdated = sqlDB.update(WorkoutEntry.TABLE_NAME,
                             values,
-                            WorkoutEntry._ID + "=? and " + selection,
+                            WorkoutEntry.COL_ID + "=? and " + selection,
                             expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
                 }
                 break;
-            case TYPE_SESSIONS_LIST:
+            case TYPE_SESSIONS:
                 rowsUpdated = sqlDB.update(SessionEntry.TABLE_NAME,
                         values,
                         selection,
                         selectionArgs);
                 break;
-            case TYPE_SESSION_SINGLE_ROW:
+            case TYPE_SESSION_ID:
                 if (TextUtils.isEmpty(selection)) {
                     rowsUpdated = sqlDB.update(SessionEntry.TABLE_NAME,
                             values,
@@ -279,16 +305,19 @@ public class QuickFitContentProvider extends ContentProvider {
                             expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
                 }
                 break;
-            case TYPE_SCHEDULE_SINGLE_ROW:
+            case TYPE_WORKOUT_ID_SCHEDULES:
+                rowsUpdated = sqlDB.update(ScheduleEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            case TYPE_WORKOUT_ID_SCHEDULE_ID:
                 if (TextUtils.isEmpty(selection)) {
                     rowsUpdated = sqlDB.update(ScheduleEntry.TABLE_NAME,
                             values,
-                            ScheduleEntry._ID + "=?",
+                            ScheduleEntry.COL_ID + "=?",
                             new String[]{uri.getLastPathSegment()});
                 } else {
                     rowsUpdated = sqlDB.update(ScheduleEntry.TABLE_NAME,
                             values,
-                            ScheduleEntry._ID + "=? and " + selection,
+                            ScheduleEntry.COL_ID + "=? and " + selection,
                             expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
                 }
                 break;
@@ -306,8 +335,8 @@ public class QuickFitContentProvider extends ContentProvider {
         if (!moreSelectionArgs.isEmpty()) {
             int originalArgsLength = selectionArgs == null ? 0 : selectionArgs.length;
             expandedSelectionArgs = new String[originalArgsLength + moreSelectionArgs.size()];
-            for (int i = 0; i < originalArgsLength; i++) {
-                expandedSelectionArgs[i] = selectionArgs[i];
+            if (selectionArgs != null) {
+                System.arraycopy(selectionArgs, 0, expandedSelectionArgs, 0, originalArgsLength);
             }
             for (int i = 0; i < moreSelectionArgs.size(); i++) {
                 expandedSelectionArgs[originalArgsLength + i] = moreSelectionArgs.get(i);

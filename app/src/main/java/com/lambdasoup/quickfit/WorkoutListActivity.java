@@ -36,7 +36,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.util.SortedList;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -45,9 +44,10 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.fitness.FitnessActivities;
+import com.lambdasoup.quickfit.QuickFitContract.SessionEntry;
 import com.lambdasoup.quickfit.QuickFitContract.SessionEntry.SessionStatus;
+import com.lambdasoup.quickfit.QuickFitContract.WorkoutEntry;
 
 import java.util.concurrent.TimeUnit;
 
@@ -175,9 +175,9 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
 
     private void addNewWorkout() {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE, FitnessActivities.AEROBICS);
-        contentValues.put(QuickFitContract.WorkoutEntry.DURATION_MINUTES, 30);
-        Uri newWorkoutUri = getContentResolver().insert(QuickFitContentProvider.URI_WORKOUTS, contentValues);
+        contentValues.put(WorkoutEntry.COL_ACTIVITY_TYPE, FitnessActivities.AEROBICS);
+        contentValues.put(WorkoutEntry.COL_DURATION_MINUTES, 30);
+        Uri newWorkoutUri = getContentResolver().insert(QuickFitContentProvider.getUriWorkoutsList(), contentValues);
         idFreshlyInserted = ContentUris.parseId(newWorkoutUri);
     }
 
@@ -188,14 +188,14 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
 
     @Override
     public void onDeleteClick(long workoutId) {
-        getContentResolver().delete(ContentUris.withAppendedId(QuickFitContentProvider.URI_WORKOUTS, workoutId), null, null);
+        getContentResolver().delete(QuickFitContentProvider.getUriWorkoutsId(workoutId), null, null);
     }
 
     @Override
     public void onActivityTypeChanged(long workoutId, String newActivityTypeKey) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE, newActivityTypeKey);
-        getContentResolver().update(ContentUris.withAppendedId(QuickFitContentProvider.URI_WORKOUTS, workoutId), contentValues, null, null);
+        contentValues.put(WorkoutEntry.COL_ACTIVITY_TYPE, newActivityTypeKey);
+        getContentResolver().update(QuickFitContentProvider.getUriWorkoutsId(workoutId), contentValues, null, null);
     }
 
     @Override
@@ -206,8 +206,8 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
     @Override
     public void onDurationChanged(long workoutId, int newValue) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(QuickFitContract.WorkoutEntry.DURATION_MINUTES, newValue);
-        getContentResolver().update(ContentUris.withAppendedId(QuickFitContentProvider.URI_WORKOUTS, workoutId), contentValues, null, null);
+        contentValues.put(WorkoutEntry.COL_DURATION_MINUTES, newValue);
+        getContentResolver().update(QuickFitContentProvider.getUriWorkoutsId(workoutId), contentValues, null, null);
     }
 
     @Override
@@ -218,8 +218,8 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
     @Override
     public void onLabelChanged(long workoutId, String newValue) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(QuickFitContract.WorkoutEntry.LABEL, newValue);
-        getContentResolver().update(ContentUris.withAppendedId(QuickFitContentProvider.URI_WORKOUTS, workoutId), contentValues, null, null);
+        contentValues.put(WorkoutEntry.COL_LABEL, newValue);
+        getContentResolver().update(QuickFitContentProvider.getUriWorkoutsId(workoutId), contentValues, null, null);
     }
 
     @Override
@@ -230,8 +230,8 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
     @Override
     public void onCaloriesChanged(long workoutId, int newValue) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(QuickFitContract.WorkoutEntry.CALORIES, newValue);
-        getContentResolver().update(ContentUris.withAppendedId(QuickFitContentProvider.URI_WORKOUTS, workoutId), contentValues, null, null);
+        contentValues.put(WorkoutEntry.COL_CALORIES, newValue);
+        getContentResolver().update(QuickFitContentProvider.getUriWorkoutsId(workoutId), contentValues, null, null);
     }
 
     private void showDialog(DialogFragment dialogFragment) {
@@ -251,8 +251,8 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
             long workoutId = params[0];
 
             Cursor cursor = getContentResolver().query(
-                    ContentUris.withAppendedId(QuickFitContentProvider.URI_WORKOUTS, workoutId),
-                    QuickFitContract.WorkoutEntry.COLUMNS,
+                    QuickFitContentProvider.getUriWorkoutsId(workoutId),
+                    WorkoutEntry.COLUMNS_WORKOUT_ONLY,
                     null,
                     null,
                     null);
@@ -261,21 +261,21 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
                 return false;
             }
 
-            int durationInMinutes = cursor.getInt(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.DURATION_MINUTES));
+            int durationInMinutes = cursor.getInt(cursor.getColumnIndex(WorkoutEntry.DURATION_MINUTES));
             long endTime = System.currentTimeMillis();
             long startTime = endTime - TimeUnit.MINUTES.toMillis(durationInMinutes);
 
             ContentValues values = new ContentValues();
-            values.put(QuickFitContract.SessionEntry.ACTIVITY_TYPE, cursor.getString(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE)));
-            values.put(QuickFitContract.SessionEntry.START_TIME, startTime);
-            values.put(QuickFitContract.SessionEntry.END_TIME, endTime);
-            values.put(QuickFitContract.SessionEntry.STATUS, SessionStatus.NEW.name());
-            values.put(QuickFitContract.SessionEntry.NAME, cursor.getString(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.LABEL)));
-            values.put(QuickFitContract.SessionEntry.CALORIES, cursor.getInt(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.CALORIES)));
+            values.put(SessionEntry.ACTIVITY_TYPE, cursor.getString(cursor.getColumnIndex(WorkoutEntry.ACTIVITY_TYPE)));
+            values.put(SessionEntry.START_TIME, startTime);
+            values.put(SessionEntry.END_TIME, endTime);
+            values.put(SessionEntry.STATUS, SessionStatus.NEW.name());
+            values.put(SessionEntry.NAME, cursor.getString(cursor.getColumnIndex(WorkoutEntry.LABEL)));
+            values.put(SessionEntry.CALORIES, cursor.getInt(cursor.getColumnIndex(WorkoutEntry.CALORIES)));
 
             cursor.close();
 
-            getContentResolver().insert(QuickFitContentProvider.URI_SESSIONS, values);
+            getContentResolver().insert(QuickFitContentProvider.getUriSessionsList(), values);
             requestSync();
             return true;
         }
