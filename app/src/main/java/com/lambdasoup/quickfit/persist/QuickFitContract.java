@@ -200,7 +200,7 @@ public class QuickFitContract {
                     ")"
         };
 
-        enum SessionStatus {
+        public enum SessionStatus {
             NEW, SYNCED
         }
     }

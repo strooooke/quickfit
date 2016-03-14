@@ -64,7 +64,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/ic_add_white_24dp"
-        app:layout_behavior="com.lambdasoup.quickfit.ScrollAwareFabBehavior" />
+        app:layout_behavior="com.lambdasoup.quickfit.util.ui.ScrollAwareFabBehavior" />
 
 
 </android.support.design.widget.CoordinatorLayout>
