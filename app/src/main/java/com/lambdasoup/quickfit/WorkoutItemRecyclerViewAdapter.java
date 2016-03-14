@@ -27,20 +27,19 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
-import com.lambdasoup.quickfit.model.DayOfWeek;
-import com.lambdasoup.quickfit.model.FitActivity;
-import com.lambdasoup.quickfit.model.WorkoutItem;
-import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
 import com.lambdasoup.quickfit.databinding.WorkoutListContentBinding;
+import com.lambdasoup.quickfit.model.FitActivity;
+import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
+import com.lambdasoup.quickfit.viewmodel.ScheduleItem;
+import com.lambdasoup.quickfit.viewmodel.WorkoutItem;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import static com.lambdasoup.quickfit.util.Lists.map;
 
 public class WorkoutItemRecyclerViewAdapter
         extends RecyclerView.Adapter<WorkoutItemRecyclerViewAdapter.ViewHolder> {
@@ -49,10 +48,8 @@ public class WorkoutItemRecyclerViewAdapter
     private final Context context;
 
     private final SortedList<WorkoutItem> dataset;
-
-    private OnWorkoutInteractionListener onWorkoutInteractionListener;
-
     private final ArrayAdapter<FitActivity> activityTypesAdapter;
+    private OnWorkoutInteractionListener onWorkoutInteractionListener;
 
     public WorkoutItemRecyclerViewAdapter(Context context) {
         this.context = context;
@@ -139,56 +136,42 @@ public class WorkoutItemRecyclerViewAdapter
         cursor.moveToPosition(-1);
 
         Set<Long> newIds = new HashSet<>();
-        List<WorkoutItem> newItems = new ArrayList<>();
+        List<WorkoutItem.Builder> newItems = new ArrayList<>();
         long prevId = -1;
         while (cursor.moveToNext()) {
             long workoutId = cursor.getLong(cursor.getColumnIndex(WorkoutEntry.WORKOUT_ID));
             Log.d(TAG, "loaded workoutId " + workoutId);
             if (workoutId != prevId) {
                 // next workout, start new item
-                FitActivity fitActivity = FitActivity.fromKey(cursor.getString(cursor.getColumnIndex(WorkoutEntry.ACTIVITY_TYPE)),
-                        context.getResources());
-                WorkoutItem newItem = new WorkoutItem(
-                        workoutId,
-                        activityTypesAdapter.getPosition(fitActivity),
-                        fitActivity.displayName, cursor.getInt(cursor.getColumnIndex(WorkoutEntry.DURATION_MINUTES)),
-                        cursor.getInt(cursor.getColumnIndex(WorkoutEntry.CALORIES)),
-                        cursor.getString(cursor.getColumnIndex(WorkoutEntry.LABEL))
-                );
-                newIds.add(newItem.id);
+                WorkoutItem.Builder newItem = new WorkoutItem.Builder(context, activityTypesAdapter::getPosition)
+                        .withWorkoutId(workoutId)
+                        .withActivityTypeKey(cursor.getString(cursor.getColumnIndex(WorkoutEntry.ACTIVITY_TYPE)))
+                        .withDurationInMinutes(cursor.getInt(cursor.getColumnIndex(WorkoutEntry.DURATION_MINUTES)))
+                        .withCalories(cursor.getInt(cursor.getColumnIndex(WorkoutEntry.CALORIES)))
+                        .withLabel(cursor.getString(cursor.getColumnIndex(WorkoutEntry.LABEL)));
+
+                newIds.add(workoutId);
                 newItems.add(newItem);
                 prevId = workoutId;
             }
 
             if (!cursor.isNull(cursor.getColumnIndex(WorkoutEntry.SCHEDULE_ID))) {
                 // more schedule data for current workout item
-                long scheduleId = cursor.getLong(cursor.getColumnIndex(WorkoutEntry.SCHEDULE_ID));
+                WorkoutItem.Builder currentWorkout = newItems.get(newItems.size() - 1);
 
-                WorkoutItem currentWorkout = newItems.get(newItems.size() - 1);
+                ScheduleItem.Builder newScheduleItem = new ScheduleItem.Builder()
+                        .withScheduleId(cursor.getLong(cursor.getColumnIndex(WorkoutEntry.SCHEDULE_ID)))
+                        .withHour(cursor.getInt(cursor.getColumnIndex(WorkoutEntry.HOUR)))
+                        .withMinute(cursor.getInt(cursor.getColumnIndex(WorkoutEntry.MINUTE)))
+                        .withDayOfWeekName(cursor.getString(cursor.getColumnIndex(WorkoutEntry.DAY_OF_WEEK)));
 
-                int minute = cursor.getInt(cursor.getColumnIndex(WorkoutEntry.MINUTE));
-                int hour = cursor.getInt(cursor.getColumnIndex(WorkoutEntry.HOUR));
-                Calendar time = Calendar.getInstance();
-                time.set(Calendar.HOUR_OF_DAY, hour);
-                time.set(Calendar.MINUTE, minute);
-                time.set(Calendar.SECOND, 0); // seconds should not be shown, but just in case
-                String timeFormatted = SimpleDateFormat.getTimeInstance(DateFormat.SHORT).format(time.getTime()); // TODO: bind formatting method instead
-
-                DayOfWeek dayOfWeek = DayOfWeek.valueOf(cursor.getString(cursor.getColumnIndex(WorkoutEntry.DAY_OF_WEEK)));
-
-                currentWorkout.addSchedule(new WorkoutItem.ScheduleItem(
-                        scheduleId,
-                        dayOfWeek,
-                        timeFormatted,
-                        minute,
-                        hour
-                ));
+                currentWorkout.addSchedule(newScheduleItem.build());
             }
         }
 
         Log.d(TAG, "loaded new items: " + newItems);
         dataset.beginBatchedUpdates();
-        dataset.addAll(newItems);
+        dataset.addAll(map(newItems, WorkoutItem.Builder::build));
         for (int i = dataset.size() - 1; i >= 0; i--) {
             if (!newIds.contains(dataset.get(i).id)) {
                 dataset.removeItemAt(i);
@@ -200,15 +183,31 @@ public class WorkoutItemRecyclerViewAdapter
     public int getPosition(long id) {
         // hack to make SortedList find the position of the item with the given id
         // depends on dataset being ordered and equaled by id
-        return dataset.indexOf(new WorkoutItem(id, 0, "", 0, 0, null));
+        return dataset.indexOf(WorkoutItem.getForIdHack(id));
     }
 
 
+    public interface OnWorkoutInteractionListener {
+        void onDoneItClick(long workoutId);
+
+        void onActivityTypeChanged(long workoutId, String newActivityTypeKey);
+
+        void onDurationMinsEditRequested(long workoutId, int oldValue);
+
+        void onLabelEditRequested(long workoutId, String oldValue);
+
+        void onCaloriesEditRequested(long workoutId, int oldValue);
+
+        void onDeleteClick(long workoutId);
+
+        void onSchedulesEditRequested(long workoutId);
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private WorkoutItem item;
         private final WorkoutListContentBinding binding;
         private final EventHandler activeEventHandler;
+        private WorkoutItem item;
 
         public ViewHolder(WorkoutListContentBinding binding) {
             super(binding.getRoot());
@@ -277,6 +276,15 @@ public class WorkoutItemRecyclerViewAdapter
             }
         };
 
+        public final View.OnClickListener schedulesClicked = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onWorkoutInteractionListener != null) {
+                    onWorkoutInteractionListener.onSchedulesEditRequested(viewHolder.item.id);
+                }
+            }
+        };
+
         public final View.OnClickListener caloriesClicked = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -298,20 +306,6 @@ public class WorkoutItemRecyclerViewAdapter
         EventHandler(ViewHolder viewHolder) {
             this.viewHolder = viewHolder;
         }
-    }
-
-    public interface OnWorkoutInteractionListener {
-        void onDoneItClick(long workoutId);
-
-        void onActivityTypeChanged(long workoutId, String newActivityTypeKey);
-
-        void onDurationMinsEditRequested(long workoutId, int oldValue);
-
-        void onLabelEditRequested(long workoutId, String oldValue);
-
-        void onCaloriesEditRequested(long workoutId, int oldValue);
-
-        void onDeleteClick(long workoutId);
     }
 
 

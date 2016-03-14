@@ -34,13 +34,12 @@ public enum DayOfWeek {
     SATURDAY(Calendar.SATURDAY, R.string.saturday),
     SUNDAY(Calendar.SUNDAY, R.string.sunday);
 
+    public final int calendarConst;
+    public final int fullNameResId;
     DayOfWeek(int calendarConst, @StringRes int fullNameResId) {
         this.calendarConst = calendarConst;
         this.fullNameResId = fullNameResId;
     }
-
-    public final int calendarConst;
-    public final int fullNameResId;
 
     public static DayOfWeek[] getWeek() {
         return getWeek(Calendar.getInstance());

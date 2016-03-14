@@ -59,19 +59,17 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
         WorkoutItemRecyclerViewAdapter.OnWorkoutInteractionListener, DurationMinutesDialogFragment.OnFragmentInteractionListener,
         LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFragmentInteractionListener {
 
-    private static final String TAG = WorkoutListActivity.class.getSimpleName();
-
     public static final String EXTRA_PLAY_API_CONNECT_RESULT = "play_api_connect_result";
+    public static final String TAG_DIALOG = "dialog";
+    private static final String TAG = WorkoutListActivity.class.getSimpleName();
     private static final int REQUEST_OAUTH = 0;
     private static final String ACCOUNT_TYPE = "com.lambdasoup.quickfit";
     private static final String KEY_AUTH_IN_PROGRESS = "auth_in_progress";
-    public static final String TAG_DIALOG = "dialog";
     private static final long NO_FRESH_INSERTION = -1;
 
     private final Account account = new Account("QuickFit", ACCOUNT_TYPE);
-
-    private WorkoutItemRecyclerViewAdapter workoutsAdapter;
     AuthProgress authProgress = AuthProgress.NONE;
+    private WorkoutItemRecyclerViewAdapter workoutsAdapter;
     private EmptyRecyclerView workoutsRecyclerView;
     private long idFreshlyInserted = NO_FRESH_INSERTION;
 
@@ -195,6 +193,12 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
     }
 
     @Override
+    public void onSchedulesEditRequested(long workoutId) {
+        // TODO: implement
+        Log.d(TAG, "schedules edit requested");
+    }
+
+    @Override
     public void onActivityTypeChanged(long workoutId, String newActivityTypeKey) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(WorkoutEntry.COL_ACTIVITY_TYPE, newActivityTypeKey);
@@ -248,6 +252,26 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
         dialogFragment.show(ft, TAG_DIALOG);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_OAUTH) {
+            authProgress = AuthProgress.DONE;
+            if (resultCode == Activity.RESULT_OK) {
+                requestSync();
+            }
+        }
+    }
+
+    private void requestSync() {
+        Bundle syncOptions = new Bundle();
+        syncOptions.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        ContentResolver.requestSync(account, QuickFitContentProvider.AUTHORITY, syncOptions);
+    }
+
+    enum AuthProgress {
+        NONE, IN_PROGRESS, DONE
+    }
+
     private class InsertSessionTask extends AsyncTask<Long, Void, Boolean> {
         @Override
         protected Boolean doInBackground(Long... params) {
@@ -289,26 +313,6 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
                 Toast.makeText(WorkoutListActivity.this, R.string.success_session_insert, Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_OAUTH) {
-            authProgress = AuthProgress.DONE;
-            if (resultCode == Activity.RESULT_OK) {
-                requestSync();
-            }
-        }
-    }
-
-    private void requestSync() {
-        Bundle syncOptions = new Bundle();
-        syncOptions.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.requestSync(account, QuickFitContentProvider.AUTHORITY, syncOptions);
-    }
-
-    enum AuthProgress {
-        NONE, IN_PROGRESS, DONE
     }
 
 }

@@ -15,7 +15,7 @@
   ~    limitations under the License.
   -->
 
-<resources>
+<resources xmlns:xliff="http://schemas.android.com/tools">
     <string name="app_name">QuickFit</string>
     <string name="action_settings">Einstellungen</string>
     <string name="title_workout_list">Workouts</string>
@@ -34,6 +34,7 @@
     <string name="calories_hint"><i>Kalorien</i></string>
     <string name="title_calories">Kalorien</string>
     <string name="button_done_calories">Neue Kalorienanzahl setzen</string>
+    <string name="schedules_hint"><i>Termin planen</i></string>
     <string name="delete_button">löschen</string>
     <string name="title_settings">Einstellungen</string>
     <string name="pref_google_account">Google-Konto</string>
@@ -63,4 +64,6 @@
     <string name="friday">Freitag</string>
     <string name="saturday">Samstag</string>
     <string name="sunday">Sonntag</string>
+
+    <string name="weekday_time_format"><xliff:g id="weekday" example="Monday">%1$s</xliff:g>  <xliff:g id="time" example="13:45">%2$s</xliff:g></string>
 </resources>
