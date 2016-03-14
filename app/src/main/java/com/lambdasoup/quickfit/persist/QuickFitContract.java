@@ -24,19 +24,25 @@ import java.util.Set;
 
 
 public class QuickFitContract {
-    abstract public static class WorkoutEntry  {
-        private WorkoutEntry() {
-            // do not instantiate
-        }
-
+    abstract public static class WorkoutEntry {
         public static final String TABLE_NAME = "workout";
-
         public static final String COL_ID = "_id";
         public static final String COL_ACTIVITY_TYPE = "activity_type";
         public static final String COL_DURATION_MINUTES = "duration_minutes";
         public static final String COL_LABEL = "label";
         public static final String COL_CALORIES = "calories";
-
+        public static final String WORKOUT_ID = "workout_id";
+        public static final String SCHEDULE_ID = "schedule_id";
+        public static final String ACTIVITY_TYPE = "workout_activity_type";
+        public static final String DURATION_MINUTES = "workout_duration_minutes";
+        public static final String LABEL = "workout_label";
+        public static final String CALORIES = "workout_calories";
+        public static final String DAY_OF_WEEK = "schedule_day_of_week";
+        public static final String HOUR = "schedule_hour";
+        public static final String MINUTE = "schedule_minute";
+        public static final String[] COLUMNS_FULL = {WORKOUT_ID, SCHEDULE_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES, DAY_OF_WEEK, HOUR, MINUTE};
+        public static final String[] COLUMNS_WORKOUT_ONLY = {WORKOUT_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES};
+        public static final String[] COLUMNS_SCHEDULE_ONLY = {WORKOUT_ID, SCHEDULE_ID, DAY_OF_WEEK, HOUR, MINUTE};
         static final String[] CREATE_STATEMENTS = {
                 "CREATE TABLE " + TABLE_NAME + " ( " +
                         COL_ID + " INTEGER PRIMARY KEY, " +
@@ -46,23 +52,9 @@ public class QuickFitContract {
                         COL_CALORIES + " INTEGER NULL " +
                         ")"
         };
-
-        public static final String WORKOUT_ID = "workout_id";
-        public static final String SCHEDULE_ID = "schedule_id";
-
-        public static final String ACTIVITY_TYPE = "workout_activity_type";
-        public static final String DURATION_MINUTES = "workout_duration_minutes";
-        public static final String LABEL = "workout_label";
-        public static final String CALORIES = "workout_calories";
-
-        public static final String DAY_OF_WEEK = "schedule_day_of_week";
-        public static final String HOUR = "schedule_hour";
-        public static final String MINUTE = "schedule_minute";
-
-        public static final String[] COLUMNS_FULL = {WORKOUT_ID, SCHEDULE_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES, DAY_OF_WEEK, HOUR, MINUTE};
-        public static final String[] COLUMNS_WORKOUT_ONLY = {WORKOUT_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES};
-        public static final String[] COLUMNS_SCHEDULE_ONLY = {WORKOUT_ID, SCHEDULE_ID, DAY_OF_WEEK, HOUR, MINUTE};
-
+        private WorkoutEntry() {
+            // do not instantiate
+        }
 
         public static Pair<String, String> toAlias(String contractColumn) {
             StringBuilder aliased = new StringBuilder();
@@ -147,20 +139,14 @@ public class QuickFitContract {
         }
     }
 
-    abstract public static class ScheduleEntry  {
-        private ScheduleEntry() {
-            // do not instantiate
-        }
+    abstract public static class ScheduleEntry {
         public static final String TABLE_NAME = "schedule";
-
         public static final String COL_ID = "_id";
         public static final String COL_WORKOUT_ID = "workout_id";
         public static final String COL_DAY_OF_WEEK = "day_of_week";
         public static final String COL_HOUR = "hour";
         public static final String COL_MINUTE = "minute";
-
         public static final String[] COLUMNS = {COL_ID, COL_WORKOUT_ID, COL_DAY_OF_WEEK, COL_HOUR, COL_MINUTE};
-
         static final String[] CREATE_STATEMENTS = {
                 "CREATE TABLE " + TABLE_NAME + " ( " +
                         COL_ID + " INTEGER PRIMARY KEY, " +
@@ -170,35 +156,36 @@ public class QuickFitContract {
                         COL_MINUTE + " INTEGER NOT NULL " +
                         ")"
         };
+
+        private ScheduleEntry() {
+            // do not instantiate
+        }
     }
 
     abstract public static class SessionEntry implements BaseColumns {
-        private SessionEntry() {
-            // do not instantiate
-        }
-
         public static final String TABLE_NAME = "session";
-
         public static final String ACTIVITY_TYPE = "activity_type";
         public static final String START_TIME = "start_time";
         public static final String END_TIME = "end_time";
         public static final String STATUS = "status";
         public static final String NAME = "title";
         public static final String CALORIES = "calories";
-
         public static final String[] COLUMNS = {_ID, ACTIVITY_TYPE, START_TIME, END_TIME, STATUS, NAME, CALORIES};
-
         static final String[] CREATE_STATEMENTS = {
-            "CREATE TABLE " + TABLE_NAME + " ( " +
-                    _ID + " INTEGER PRIMARY KEY, " +
-                    ACTIVITY_TYPE + " TEXT NOT NULL, " +
-                    START_TIME + " INTEGER NOT NULL, " +
-                    END_TIME + " INTEGER NOT NULL, " +
-                    STATUS + " TEXT NOT NULL, " +
-                    NAME + " TEXT NULL, " +
-                    CALORIES + " INTEGER NULL " +
-                    ")"
+                "CREATE TABLE " + TABLE_NAME + " ( " +
+                        _ID + " INTEGER PRIMARY KEY, " +
+                        ACTIVITY_TYPE + " TEXT NOT NULL, " +
+                        START_TIME + " INTEGER NOT NULL, " +
+                        END_TIME + " INTEGER NOT NULL, " +
+                        STATUS + " TEXT NOT NULL, " +
+                        NAME + " TEXT NULL, " +
+                        CALORIES + " INTEGER NULL " +
+                        ")"
         };
+
+        private SessionEntry() {
+            // do not instantiate
+        }
 
         public enum SessionStatus {
             NEW, SYNCED

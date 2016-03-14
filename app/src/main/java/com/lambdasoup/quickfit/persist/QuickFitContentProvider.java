@@ -38,17 +38,31 @@ import java.util.List;
 
 public class QuickFitContentProvider extends ContentProvider {
 
-    private static final String TAG = QuickFitContentProvider.class.getSimpleName();
-    private QuickFitDbHelper database;
-
     public static final String AUTHORITY = "com.lambdasoup.quickfit.provider";
-
+    private static final String TAG = QuickFitContentProvider.class.getSimpleName();
     private static final String PATH_WORKOUTS = "workouts";
     private static final String PATH_SESSIONS = "sessions";
     private static final String PATH_SCHEDULES = "schedules";
-
     private static final Uri URI_WORKOUTS = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(AUTHORITY).path(PATH_WORKOUTS).build();
     private static final Uri URI_SESSIONS = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(AUTHORITY).path(PATH_SESSIONS).build();
+    private static final int TYPE_WORKOUTS = 1;
+    private static final int TYPE_WORKOUT_ID = 2;
+    private static final int TYPE_SESSIONS = 3;
+    private static final int TYPE_SESSION_ID = 4;
+    private static final int TYPE_WORKOUT_ID_SCHEDULES = 5;
+    private static final int TYPE_WORKOUT_ID_SCHEDULE_ID = 6;
+    private static final UriMatcher uriMatcher = new UriMatcher(0);
+
+    static {
+        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS, TYPE_WORKOUTS);
+        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS + "/#", TYPE_WORKOUT_ID);
+        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS + "/#" + PATH_SCHEDULES, TYPE_WORKOUT_ID_SCHEDULES);
+        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS + "/#" + PATH_SCHEDULES + "/#", TYPE_WORKOUT_ID_SCHEDULE_ID);
+        uriMatcher.addURI(AUTHORITY, PATH_SESSIONS, TYPE_SESSIONS);
+        uriMatcher.addURI(AUTHORITY, PATH_SESSIONS + "/#", TYPE_SESSION_ID);
+    }
+
+    private QuickFitDbHelper database;
 
     public static Uri getUriWorkoutsList() {
         return URI_WORKOUTS;
@@ -69,25 +83,6 @@ public class QuickFitContentProvider extends ContentProvider {
 
     public static Uri getUriSessionsId(long sessionId) {
         return ContentUris.withAppendedId(getUriSessionsList(), sessionId);
-    }
-
-    private static final int TYPE_WORKOUTS = 1;
-    private static final int TYPE_WORKOUT_ID = 2;
-    private static final int TYPE_SESSIONS = 3;
-    private static final int TYPE_SESSION_ID = 4;
-    private static final int TYPE_WORKOUT_ID_SCHEDULES = 5;
-    private static final int TYPE_WORKOUT_ID_SCHEDULE_ID = 6;
-
-
-    private static final UriMatcher uriMatcher = new UriMatcher(0);
-
-    static {
-        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS, TYPE_WORKOUTS);
-        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS + "/#", TYPE_WORKOUT_ID);
-        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS + "/#" + PATH_SCHEDULES, TYPE_WORKOUT_ID_SCHEDULES);
-        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS + "/#" + PATH_SCHEDULES + "/#", TYPE_WORKOUT_ID_SCHEDULE_ID);
-        uriMatcher.addURI(AUTHORITY, PATH_SESSIONS, TYPE_SESSIONS);
-        uriMatcher.addURI(AUTHORITY, PATH_SESSIONS + "/#", TYPE_SESSION_ID);
     }
 
     @Override

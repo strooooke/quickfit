@@ -57,6 +57,7 @@ import java.util.concurrent.TimeUnit;
 public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final String TAG = QuickFitSyncAdapter.class.getSimpleName();
     private static final ContentValues STATUS_TRANSMITTED = new ContentValues();
+
     static {
         STATUS_TRANSMITTED.put(QuickFitContract.SessionEntry.STATUS, QuickFitContract.SessionEntry.SessionStatus.SYNCED.name());
     }

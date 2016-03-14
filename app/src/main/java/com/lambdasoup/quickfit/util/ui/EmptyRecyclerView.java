@@ -45,12 +45,12 @@
 
 package com.lambdasoup.quickfit.util.ui;
 
-        import android.content.Context;
-        import android.support.annotation.NonNull;
-        import android.support.annotation.Nullable;
-        import android.support.v7.widget.RecyclerView;
-        import android.util.AttributeSet;
-        import android.view.View;
+import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
+import android.util.AttributeSet;
+import android.view.View;
 
 public class EmptyRecyclerView extends RecyclerView {
 
@@ -61,6 +61,26 @@ public class EmptyRecyclerView extends RecyclerView {
     private int hiddenVisibility;
     // stores the current state
     private boolean isEmpty;
+    @NonNull
+    private final AdapterDataObserver observer = new AdapterDataObserver() {
+        @Override
+        public void onChanged() {
+            super.onChanged();
+            checkIfEmpty();
+        }
+
+        @Override
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            super.onItemRangeInserted(positionStart, itemCount);
+            checkIfEmpty();
+        }
+
+        @Override
+        public void onItemRangeRemoved(int positionStart, int itemCount) {
+            super.onItemRangeRemoved(positionStart, itemCount);
+            checkIfEmpty();
+        }
+    };
 
     public EmptyRecyclerView(Context context) {
         super(context);
@@ -101,27 +121,6 @@ public class EmptyRecyclerView extends RecyclerView {
         super.swapAdapter(adapter, removeAndRecycleExistingViews);
         checkIfEmpty();
     }
-
-    @NonNull
-    private final AdapterDataObserver observer = new AdapterDataObserver() {
-        @Override
-        public void onChanged() {
-            super.onChanged();
-            checkIfEmpty();
-        }
-
-        @Override
-        public void onItemRangeInserted(int positionStart, int itemCount) {
-            super.onItemRangeInserted(positionStart, itemCount);
-            checkIfEmpty();
-        }
-
-        @Override
-        public void onItemRangeRemoved(int positionStart, int itemCount) {
-            super.onItemRangeRemoved(positionStart, itemCount);
-            checkIfEmpty();
-        }
-    };
 
     /**
      * Indicates the view to be shown when the adapter for this object is empty

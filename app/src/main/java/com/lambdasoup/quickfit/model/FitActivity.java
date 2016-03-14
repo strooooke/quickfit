@@ -27,62 +27,6 @@ import java.util.Map;
 
 
 public class FitActivity {
-    @NonNull
-    public final String key;
-    @NonNull
-    public final String displayName;
-
-    private FitActivity(@NonNull String key, @NonNull String displayName) {
-        this.key = key;
-        this.displayName = displayName;
-    }
-
-    /**
-     * returns the displayname, for ease of use in an @code{android.widget.ArrayAdapter}
-     *
-     * @return displayName
-     */
-    @Override
-    public String toString() {
-        return displayName;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        FitActivity that = (FitActivity) o;
-
-        return key.equals(that.key) && displayName.equals(that.displayName);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = key.hashCode();
-        result = 31 * result + displayName.hashCode();
-        return result;
-    }
-
-    public static FitActivity fromKey(@NonNull String key, @NonNull Resources resources) {
-        Integer resId = RES_ID_BY_KEY.get(key);
-        if (resId == null) {
-            throw new IllegalArgumentException("Unknown key " + key);
-        }
-        return new FitActivity(key, resources.getString(resId));
-    }
-
-    public static FitActivity[] all(@NonNull Resources resources) {
-        FitActivity[] all = new FitActivity[RES_ID_BY_KEY.size()];
-        int i = 0;
-        for (Map.Entry<String, Integer> entry : RES_ID_BY_KEY.entrySet()) {
-            all[i] = new FitActivity(entry.getKey(), resources.getString(entry.getValue()));
-            i++;
-        }
-        return all;
-    }
-
     private static final Map<String, Integer> RES_ID_BY_KEY = new HashMap<String, Integer>() {{
         put(FitnessActivities.AEROBICS, R.string.fit_act_aerobics);
         put(FitnessActivities.BADMINTON, R.string.fit_act_badminton);
@@ -190,5 +134,60 @@ public class FitActivity {
         put(FitnessActivities.YOGA, R.string.fit_act_yoga);
         put(FitnessActivities.ZUMBA, R.string.fit_act_zumba);
     }};
+    @NonNull
+    public final String key;
+    @NonNull
+    public final String displayName;
+
+    private FitActivity(@NonNull String key, @NonNull String displayName) {
+        this.key = key;
+        this.displayName = displayName;
+    }
+
+    public static FitActivity fromKey(@NonNull String key, @NonNull Resources resources) {
+        Integer resId = RES_ID_BY_KEY.get(key);
+        if (resId == null) {
+            throw new IllegalArgumentException("Unknown key " + key);
+        }
+        return new FitActivity(key, resources.getString(resId));
+    }
+
+    public static FitActivity[] all(@NonNull Resources resources) {
+        FitActivity[] all = new FitActivity[RES_ID_BY_KEY.size()];
+        int i = 0;
+        for (Map.Entry<String, Integer> entry : RES_ID_BY_KEY.entrySet()) {
+            all[i] = new FitActivity(entry.getKey(), resources.getString(entry.getValue()));
+            i++;
+        }
+        return all;
+    }
+
+    /**
+     * returns the displayname, for ease of use in an @code{android.widget.ArrayAdapter}
+     *
+     * @return displayName
+     */
+    @Override
+    public String toString() {
+        return displayName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FitActivity that = (FitActivity) o;
+
+        return key.equals(that.key) && displayName.equals(that.displayName);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = key.hashCode();
+        result = 31 * result + displayName.hashCode();
+        return result;
+    }
 
 }

@@ -24,9 +24,9 @@ import android.util.Log;
 
 public class QuickFitDbHelper extends SQLiteOpenHelper {
 
+    public static final String TAG = QuickFitDbHelper.class.getSimpleName();
     static final String DATABASE_NAME = "quickfit.db";
     static final int DATABASE_VERSION = 6;
-    public static final String TAG = QuickFitDbHelper.class.getSimpleName();
 
     public QuickFitDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

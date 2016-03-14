@@ -26,7 +26,7 @@ import android.view.View;
 /**
  * See https://guides.codepath.com/android/floating-action-buttons
  */
-public class ScrollAwareFabBehavior extends FloatingActionButton.Behavior{
+public class ScrollAwareFabBehavior extends FloatingActionButton.Behavior {
 
     public ScrollAwareFabBehavior(Context context, AttributeSet attrs) {
         super();
@@ -37,8 +37,8 @@ public class ScrollAwareFabBehavior extends FloatingActionButton.Behavior{
     public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout, FloatingActionButton child, View directTargetChild, View target, int nestedScrollAxes) {
         return super.onStartNestedScroll(coordinatorLayout, child, directTargetChild, target, nestedScrollAxes)
                 || (nestedScrollAxes == ViewCompat.SCROLL_AXIS_VERTICAL
-                    && (!(target instanceof EmptyRecyclerView) || !((EmptyRecyclerView) target).isEmpty())
-                );
+                && (!(target instanceof EmptyRecyclerView) || !((EmptyRecyclerView) target).isEmpty())
+        );
     }
 
 

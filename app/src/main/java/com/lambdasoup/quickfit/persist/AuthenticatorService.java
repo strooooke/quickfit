@@ -25,6 +25,7 @@ import android.os.IBinder;
  */
 public class AuthenticatorService extends Service {
     private Authenticator authenticator;
+
     @Override
     public void onCreate() {
         authenticator = new Authenticator(this);

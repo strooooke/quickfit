@@ -35,7 +35,7 @@ public class DurationMinutesDialogFragment extends DialogFragment implements Dia
 
     private OnFragmentInteractionListener listener;
 
-    public DurationMinutesDialogFragment(){
+    public DurationMinutesDialogFragment() {
         // It's a fragment, it needs a default constructor
     }
 
@@ -81,11 +81,6 @@ public class DurationMinutesDialogFragment extends DialogFragment implements Dia
                 .create();
     }
 
-
-    interface OnFragmentInteractionListener {
-        void onDurationChanged(long workoutId, int newValue);
-    }
-
     @Override
     public void onClick(DialogInterface dialog, int which) {
         switch (which) {
@@ -98,5 +93,9 @@ public class DurationMinutesDialogFragment extends DialogFragment implements Dia
             default:
                 throw new IllegalStateException("No such button.");
         }
+    }
+
+    interface OnFragmentInteractionListener {
+        void onDurationChanged(long workoutId, int newValue);
     }
 }

@@ -97,10 +97,6 @@ public class LabelDialogFragment extends DialogFragment implements DialogInterfa
         return false;
     }
 
-    interface OnFragmentInteractionListener {
-        void onLabelChanged(long workoutId, String newValue);
-    }
-
     @Override
     public void onClick(DialogInterface dialog, int which) {
         switch (which) {
@@ -116,5 +112,9 @@ public class LabelDialogFragment extends DialogFragment implements DialogInterfa
         EditText editText = (EditText) getDialog().findViewById(R.id.label_input);
         String newVal = editText.getText().toString();
         listener.onLabelChanged(getArguments().getLong(KEY_WORKOUT_ID), newVal.isEmpty() ? null : newVal);
+    }
+
+    interface OnFragmentInteractionListener {
+        void onLabelChanged(long workoutId, String newValue);
     }
 }

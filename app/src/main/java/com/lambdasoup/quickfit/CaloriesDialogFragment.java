@@ -35,7 +35,7 @@ public class CaloriesDialogFragment extends DialogFragment implements DialogInte
 
     private OnFragmentInteractionListener listener;
 
-    public CaloriesDialogFragment(){
+    public CaloriesDialogFragment() {
         // It's a fragment, it needs a default constructor
     }
 
@@ -81,11 +81,6 @@ public class CaloriesDialogFragment extends DialogFragment implements DialogInte
                 .create();
     }
 
-
-    interface OnFragmentInteractionListener {
-        void onCaloriesChanged(long workoutId, int newValue);
-    }
-
     @Override
     public void onClick(DialogInterface dialog, int which) {
         switch (which) {
@@ -98,5 +93,9 @@ public class CaloriesDialogFragment extends DialogFragment implements DialogInte
             default:
                 throw new IllegalStateException("No such button.");
         }
+    }
+
+    interface OnFragmentInteractionListener {
+        void onCaloriesChanged(long workoutId, int newValue);
     }
 }
