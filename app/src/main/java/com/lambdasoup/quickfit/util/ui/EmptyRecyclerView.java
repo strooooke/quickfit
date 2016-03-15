@@ -20,8 +20,6 @@
  * Changes:
  *   - package name
  *   - added isEmpty method
- *   - makes this GONE in the empty state (allows for interaction with an app bar layout that will not scroll away its
- *     children while this recyclerview is empty)
  */
 
 
@@ -57,8 +55,6 @@ public class EmptyRecyclerView extends RecyclerView {
     @Nullable
     private View emptyView;
 
-    // stores the visibility this view should have while it is forcibly gone by being empty
-    private int hiddenVisibility;
     // stores the current state
     private boolean isEmpty;
     @NonNull
@@ -153,22 +149,11 @@ public class EmptyRecyclerView extends RecyclerView {
 
         if (isEmptyNow) {
             emptyView.setVisibility(VISIBLE);
-            hiddenVisibility = getVisibility();
-            this.setVisibility(GONE);
             isEmpty = true;
         } else {
             isEmpty = false;
             emptyView.setVisibility(GONE);
-            this.setVisibility(hiddenVisibility);
         }
     }
 
-    @Override
-    public void setVisibility(int visibility) {
-        if (isEmpty) {
-            hiddenVisibility = visibility;
-        } else {
-            super.setVisibility(visibility);
-        }
-    }
 }
