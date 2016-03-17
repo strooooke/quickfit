@@ -29,6 +29,8 @@ import java.util.Set;
  * Created by jl on 15.03.16.
  */
 public class ScheduleList {
+    private static final int POSITION_INVALID = -1;
+
     private List<ScheduleItem> dataset = new ArrayList<>();
     private Map<Long, Integer> positionForId = new HashMap<>();
 
@@ -48,10 +50,10 @@ public class ScheduleList {
         for (ScheduleItem newItem : newDataSet) {
             newIds.add(newItem.id);
 
-            Integer oldPosition = positionForId.get(newItem.id);
+            int oldPosition = getPositionForId(newItem.id);
             int newPosition = findPositionFor(newItem);
 
-            if (oldPosition == null) {
+            if (oldPosition == POSITION_INVALID) {
                 // entering item
                 dataset.add(newPosition, newItem);
                 refreshPositions();
@@ -64,16 +66,18 @@ public class ScheduleList {
                     callback.onUpdated(oldPosition);
                     if (newPosition == oldPosition) {
                         // but position in the list did not actually change
+                        dataset.set(oldPosition, newItem);
                         continue;
                     }
 
-                    if (newPosition < oldPosition) {
-                        dataset.remove(oldPosition);
-                        dataset.add(newPosition, newItem);
-                    } else {
-                        dataset.add(newPosition, newItem);
-                        dataset.remove(oldPosition);
+                    if (newPosition > oldPosition) {
+                        // new position was found with the item at oldPosition
+                        // still in place
+                        // but that item will leave now
+                        newPosition--;
                     }
+                    dataset.remove(oldPosition);
+                    dataset.add(newPosition, newItem);
                     refreshPositions();
                     callback.onMoved(oldPosition, newPosition);
                 }
@@ -82,12 +86,17 @@ public class ScheduleList {
         for (Long oldId : positionForId.keySet()) {
             if (!newIds.contains(oldId)) {
                 // leaving item
-                dataset.remove(positionForId.get(oldId).intValue());
-                Integer oldPosition = positionForId.get(oldId);
+                dataset.remove(getPositionForId(oldId));
+                int oldPosition = getPositionForId(oldId);
                 refreshPositions();
                 callback.onRemoved(oldPosition);
             }
         }
+    }
+
+    private int getPositionForId(long id) {
+        Integer pos = positionForId.get(id);
+        return pos == null ? POSITION_INVALID : pos;
     }
 
     private int findPositionFor(ScheduleItem item) {
