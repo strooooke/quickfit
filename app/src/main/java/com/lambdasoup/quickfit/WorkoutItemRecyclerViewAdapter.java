@@ -28,6 +28,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import com.lambdasoup.quickfit.databinding.WorkoutListContentBinding;
+import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.model.FitActivity;
 import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
 import com.lambdasoup.quickfit.viewmodel.ScheduleItem;
@@ -135,12 +136,13 @@ public class WorkoutItemRecyclerViewAdapter
 
         cursor.moveToPosition(-1);
 
+        DayOfWeek[] week = DayOfWeek.getWeek();
+
         Set<Long> newIds = new HashSet<>();
         List<WorkoutItem.Builder> newItems = new ArrayList<>();
         long prevId = -1;
         while (cursor.moveToNext()) {
             long workoutId = cursor.getLong(cursor.getColumnIndex(WorkoutEntry.WORKOUT_ID));
-            Log.d(TAG, "loaded workoutId " + workoutId);
             if (workoutId != prevId) {
                 // next workout, start new item
                 WorkoutItem.Builder newItem = new WorkoutItem.Builder(context, activityTypesAdapter::getPosition)
@@ -171,7 +173,7 @@ public class WorkoutItemRecyclerViewAdapter
 
         Log.d(TAG, "loaded new items: " + newItems);
         dataset.beginBatchedUpdates();
-        dataset.addAll(map(newItems, WorkoutItem.Builder::build));
+        dataset.addAll(map(newItems, newItem -> newItem.build(week)));
         for (int i = dataset.size() - 1; i >= 0; i--) {
             if (!newIds.contains(dataset.get(i).id)) {
                 dataset.removeItemAt(i);
@@ -209,7 +211,7 @@ public class WorkoutItemRecyclerViewAdapter
         private final EventHandler activeEventHandler;
         private WorkoutItem item;
 
-        public ViewHolder(WorkoutListContentBinding binding) {
+        ViewHolder(WorkoutListContentBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
             this.activeEventHandler = new EventHandler(this);

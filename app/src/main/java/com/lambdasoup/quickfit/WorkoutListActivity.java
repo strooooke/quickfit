@@ -194,8 +194,9 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
 
     @Override
     public void onSchedulesEditRequested(long workoutId) {
-        // TODO: implement
-        Log.d(TAG, "schedules edit requested");
+        Intent intent = new Intent(getApplicationContext(), SchedulesActivity.class);
+        intent.putExtra(SchedulesActivity.EXTRA_WORKOUT_ID, workoutId);
+        startActivity(intent);
     }
 
     @Override

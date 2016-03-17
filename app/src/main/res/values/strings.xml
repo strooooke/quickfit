@@ -64,6 +64,9 @@
     <string name="saturday">Saturday</string>
     <string name="sunday">Sunday</string>
 
-    <string name="weekday_time_format"><xliff:g id="weekday" example="Monday">%1$s</xliff:g>  <xliff:g id="time" example="13:45">%2$s</xliff:g></string>
+    <string name="weekday_time_format"><xliff:g example="Monday" id="weekday">%1$s</xliff:g>  <xliff:g example="13:45" id="time">%2$s</xliff:g></string>
+    <string name="title_activity_schedules">SchedulesActivity</string>
+
+    <string name="schedule_list_empty">Workout not yet scheduled.</string>
 
 </resources>

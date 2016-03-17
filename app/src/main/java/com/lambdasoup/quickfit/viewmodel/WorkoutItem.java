@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.res.Resources;
 
 import com.lambdasoup.quickfit.R;
+import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.model.FitActivity;
 import com.lambdasoup.quickfit.util.Function;
 import com.lambdasoup.quickfit.util.Strings;
@@ -85,11 +86,11 @@ public class WorkoutItem {
         }
 
 
-        public WorkoutItem build() {
+        public WorkoutItem build(DayOfWeek[] week) {
             FitActivity fitActivity = FitActivity.fromKey(activityTypeKey, context.getResources());
-            int activityTypeIndex = fitActPositionSupplier.apply(fitActivity);
+            int activityTypeIndex = (fitActPositionSupplier != null ? fitActPositionSupplier.apply(fitActivity) : 0);
 
-            Collections.sort(scheduleItems, ScheduleItem.BY_CALENDAR);
+            Collections.sort(scheduleItems, new ScheduleItem.ByCalendar(week));
 
             String schedulesDisplay = Strings.join(", ", map(scheduleItems, this::formatScheduleShort));
             return new WorkoutItem(workoutId, activityTypeIndex, fitActivity.displayName, durationInMinutes, calories, label, schedulesDisplay);

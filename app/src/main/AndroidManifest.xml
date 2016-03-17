@@ -80,6 +80,15 @@
                 android:resource="@xml/authenticator" />
         </service>
 
+        <activity
+            android:name=".SchedulesActivity"
+            android:label="@string/title_activity_schedules"
+            android:parentActivityName=".WorkoutListActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.lambdasoup.quickfit.WorkoutListActivity" />
+        </activity>
     </application>
 
 </manifest>

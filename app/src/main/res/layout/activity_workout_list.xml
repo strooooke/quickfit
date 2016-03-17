@@ -41,7 +41,6 @@
 
     <com.lambdasoup.quickfit.util.ui.EmptyRecyclerView
         android:id="@+id/workout_list"
-        android:name="com.lambdasoup.quickfit.WorkoutListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layoutManager="LinearLayoutManager"

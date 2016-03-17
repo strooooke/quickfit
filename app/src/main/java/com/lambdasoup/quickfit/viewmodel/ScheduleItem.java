@@ -16,6 +16,8 @@
 
 package com.lambdasoup.quickfit.viewmodel;
 
+import android.support.annotation.Nullable;
+
 import com.lambdasoup.quickfit.model.DayOfWeek;
 
 import java.text.DateFormat;
@@ -33,10 +35,16 @@ public class ScheduleItem {
     final public String time;
     final public int minute;
     final public int hour;
-    public static final Comparator<ScheduleItem> BY_CALENDAR = new Comparator<ScheduleItem>() {
+
+    public static class ByCalendar implements Comparator<ScheduleItem> {
+        private DayOfWeek[] week;
+
+        public ByCalendar(@Nullable DayOfWeek[] week) {
+            this.week = week == null ? new DayOfWeek[0] : week;
+        }
+
         @Override
         public int compare(ScheduleItem left, ScheduleItem right) {
-            DayOfWeek[] week = DayOfWeek.getWeek();
             for (DayOfWeek dayOfWeek : week) {
                 if (dayOfWeek == left.dayOfWeek) {
                     if (dayOfWeek == right.dayOfWeek) {
