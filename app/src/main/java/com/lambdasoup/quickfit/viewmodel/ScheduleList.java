@@ -31,6 +31,8 @@ import java.util.Set;
 public class ScheduleList {
     private static final int POSITION_INVALID = -1;
 
+    private final Object lock = new Object();
+
     private List<ScheduleItem> dataset = new ArrayList<>();
     private Map<Long, Integer> positionForId = new HashMap<>();
 
@@ -46,50 +48,58 @@ public class ScheduleList {
     }
 
     public void swapData(Iterable<ScheduleItem> newDataSet) { // TODO: async?
-        Set<Long> newIds = new HashSet<>();
-        for (ScheduleItem newItem : newDataSet) {
-            newIds.add(newItem.id);
+        synchronized (lock) { // TODO: find better solution for syncronization (swap data after merge?)
+            Set<Long> newIds = new HashSet<>();
+            for (ScheduleItem newItem : newDataSet) {
+                newIds.add(newItem.id);
 
-            int oldPosition = getPositionForId(newItem.id);
-            int newPosition = findPositionFor(newItem);
+                int oldPosition = getPositionForId(newItem.id);
+                int newPosition = findPositionFor(newItem);
 
-            if (oldPosition == POSITION_INVALID) {
-                // entering item
-                dataset.add(newPosition, newItem);
-                refreshPositions();
-                callback.onInserted(newPosition);
-            } else {
-                // persistent item
-                ScheduleItem oldItem = dataset.get(oldPosition);
-                if (ordering.compare(newItem, oldItem) != 0) {
-                    // items do not yield identical view and ordering
-                    callback.onUpdated(oldPosition);
-                    if (newPosition == oldPosition) {
-                        // but position in the list did not actually change
-                        dataset.set(oldPosition, newItem);
-                        continue;
-                    }
-
-                    if (newPosition > oldPosition) {
-                        // new position was found with the item at oldPosition
-                        // still in place
-                        // but that item will leave now
-                        newPosition--;
-                    }
-                    dataset.remove(oldPosition);
+                if (oldPosition == POSITION_INVALID) {
+                    // entering item
                     dataset.add(newPosition, newItem);
                     refreshPositions();
-                    callback.onMoved(oldPosition, newPosition);
+                    callback.onInserted(newPosition);
+                } else {
+                    // persistent item
+                    ScheduleItem oldItem = dataset.get(oldPosition);
+                    if (ordering.compare(newItem, oldItem) != 0) {
+                        // items do not yield identical view and ordering
+                        callback.onUpdated(oldPosition);
+                        if (newPosition == oldPosition) {
+                            // but position in the list did not actually change
+                            dataset.set(oldPosition, newItem);
+                            continue;
+                        }
+
+                        if (newPosition > oldPosition) {
+                            // new position was found with the item at oldPosition
+                            // still in place
+                            // but that item will leave now
+                            newPosition--;
+                        }
+                        dataset.remove(oldPosition);
+                        dataset.add(newPosition, newItem);
+                        refreshPositions();
+                        callback.onMoved(oldPosition, newPosition);
+                    }
                 }
             }
-        }
-        for (Long oldId : positionForId.keySet()) {
-            if (!newIds.contains(oldId)) {
-                // leaving item
-                dataset.remove(getPositionForId(oldId));
-                int oldPosition = getPositionForId(oldId);
-                refreshPositions();
+
+            List<Long> leavingIds = new ArrayList<>();
+            for (Long oldId : positionForId.keySet()) {
+                if (!newIds.contains(oldId)) {
+                    leavingIds.add(oldId);
+                }
+            }
+            for (Long leavingId : leavingIds) {
+                dataset.remove(getPositionForId(leavingId));
+                int oldPosition = getPositionForId(leavingId);
                 callback.onRemoved(oldPosition);
+            }
+            if (!leavingIds.isEmpty()) {
+                refreshPositions();
             }
         }
     }
@@ -122,9 +132,11 @@ public class ScheduleList {
     }
 
     public void clear() {
-        dataset.clear();
-        positionForId.clear();
-        callback.onCleared();
+        synchronized (lock) {
+            dataset.clear();
+            positionForId.clear();
+            callback.onCleared();
+        }
     }
 
     public interface ItemChangeCallback {

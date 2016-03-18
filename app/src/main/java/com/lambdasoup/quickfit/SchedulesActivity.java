@@ -17,18 +17,14 @@
 package com.lambdasoup.quickfit;
 
 import android.app.LoaderManager;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Loader;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 
-import com.google.android.gms.fitness.FitnessActivities;
 import com.lambdasoup.quickfit.databinding.ActivitySchedulesBinding;
 import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
@@ -62,7 +58,7 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
 
         setSupportActionBar(workoutBinding.toolbar);
 
-        workoutBinding.fab.setOnClickListener(v -> addNewSchedule());
+        workoutBinding.fab.setOnClickListener(v -> onAddNewSchedule());
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -70,6 +66,20 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
         schedulesAdapter.setOnScheduleInteractionListener(this);
         workoutBinding.scheduleList.setAdapter(schedulesAdapter);
         workoutBinding.scheduleList.setEmptyView(workoutBinding.scheduleListEmpty);
+
+        ItemTouchHelper swipeDismiss = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.END | ItemTouchHelper.START) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                // not supporting drag/drop
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                onRemoveSchedule(viewHolder.getItemId());
+            }
+        });
+        swipeDismiss.attachToRecyclerView(workoutBinding.scheduleList);
 
         getLoaderManager().initLoader(LOADER_WORKOUT, null, this);
         getLoaderManager().initLoader(LOADER_SCHEDULES, null, this);
@@ -148,7 +158,7 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
         getContentResolver().update(QuickFitContentProvider.getUriWorkoutsIdSchedulesId(workoutId, scheduleId), contentValues, null, null);
     }
 
-    private void addNewSchedule() {
+    private void onAddNewSchedule() {
         // initialize with current day and time
         Calendar calendar = Calendar.getInstance();
         ContentValues contentValues = new ContentValues();
@@ -156,5 +166,9 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
         contentValues.put(QuickFitContract.ScheduleEntry.COL_HOUR, calendar.get(Calendar.HOUR_OF_DAY));
         contentValues.put(QuickFitContract.ScheduleEntry.COL_MINUTE, calendar.get(Calendar.MINUTE));
         getContentResolver().insert(QuickFitContentProvider.getUriWorkoutsIdSchedules(workoutId), contentValues);
+    }
+
+    private void onRemoveSchedule(long scheduleId) {
+        getContentResolver().delete(QuickFitContentProvider.getUriWorkoutsIdSchedulesId(workoutId, scheduleId), null, null);
     }
 }
