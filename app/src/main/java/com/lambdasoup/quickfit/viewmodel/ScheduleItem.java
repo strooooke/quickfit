@@ -19,6 +19,7 @@ package com.lambdasoup.quickfit.viewmodel;
 import android.support.annotation.Nullable;
 
 import com.lambdasoup.quickfit.model.DayOfWeek;
+import com.lambdasoup.quickfit.util.Function;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -31,6 +32,7 @@ import java.util.Comparator;
  */
 public class ScheduleItem {
     final public long id;
+    final public int dayOfWeekIndex;
     final public DayOfWeek dayOfWeek;
     final public String time;
     final public int minute;
@@ -65,12 +67,20 @@ public class ScheduleItem {
             }
             throw new RuntimeException("The week seems to be missing days. Week is: " + Arrays.toString(week) + ", trying to find " + left.dayOfWeek + " and " + right.dayOfWeek);
         }
-    };
+    }
+
+    ;
 
 
     // not private for testing
     protected ScheduleItem(long id, DayOfWeek dayOfWeek, String time, int minute, int hour) {
+        this(id, -1, dayOfWeek, time, minute, hour);
+    }
+
+
+    private ScheduleItem(long id, int dayOfWeekIndex, DayOfWeek dayOfWeek, String time, int minute, int hour) {
         this.id = id;
+        this.dayOfWeekIndex = dayOfWeekIndex;
         this.dayOfWeek = dayOfWeek;
         this.time = time;
         this.minute = minute;
@@ -78,11 +88,16 @@ public class ScheduleItem {
     }
 
     public static class Builder {
+        private final Function<DayOfWeek, Integer> dayOfWeekPositionSupplier;
+
         private long scheduleId;
         private String dayOfWeekName;
         private int minute;
         private int hour;
 
+        public Builder(Function<DayOfWeek, Integer> dayOfWeekPositionSupplier){
+            this.dayOfWeekPositionSupplier = dayOfWeekPositionSupplier;
+        }
 
         public ScheduleItem build() {
             Calendar time = Calendar.getInstance();
@@ -92,9 +107,11 @@ public class ScheduleItem {
             String timeFormatted = SimpleDateFormat.getTimeInstance(DateFormat.SHORT).format(time.getTime());
 
             DayOfWeek dayOfWeek = DayOfWeek.valueOf(dayOfWeekName);
+            int dayOfWeekIndex = (dayOfWeekPositionSupplier != null ? dayOfWeekPositionSupplier.apply(dayOfWeek) : -1);
 
             return new ScheduleItem(
                     scheduleId,
+                    dayOfWeekIndex,
                     dayOfWeek,
                     timeFormatted,
                     minute,

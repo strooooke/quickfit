@@ -56,8 +56,8 @@ public class QuickFitContentProvider extends ContentProvider {
     static {
         uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS, TYPE_WORKOUTS);
         uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS + "/#", TYPE_WORKOUT_ID);
-        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS + "/#" + PATH_SCHEDULES, TYPE_WORKOUT_ID_SCHEDULES);
-        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS + "/#" + PATH_SCHEDULES + "/#", TYPE_WORKOUT_ID_SCHEDULE_ID);
+        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS + "/#/" + PATH_SCHEDULES, TYPE_WORKOUT_ID_SCHEDULES);
+        uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS + "/#/" + PATH_SCHEDULES + "/#", TYPE_WORKOUT_ID_SCHEDULE_ID);
         uriMatcher.addURI(AUTHORITY, PATH_SESSIONS, TYPE_SESSIONS);
         uriMatcher.addURI(AUTHORITY, PATH_SESSIONS + "/#", TYPE_SESSION_ID);
     }

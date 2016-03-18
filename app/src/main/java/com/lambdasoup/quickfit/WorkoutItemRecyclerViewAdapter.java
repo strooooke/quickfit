@@ -25,16 +25,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 
 import com.lambdasoup.quickfit.databinding.WorkoutListContentBinding;
 import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.model.FitActivity;
 import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
+import com.lambdasoup.quickfit.util.ConstantListAdapter;
 import com.lambdasoup.quickfit.viewmodel.ScheduleItem;
 import com.lambdasoup.quickfit.viewmodel.WorkoutItem;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -49,7 +50,7 @@ public class WorkoutItemRecyclerViewAdapter
     private final Context context;
 
     private final SortedList<WorkoutItem> dataset;
-    private final ArrayAdapter<FitActivity> activityTypesAdapter;
+    private final ConstantListAdapter<FitActivity> activityTypesAdapter;
     private OnWorkoutInteractionListener onWorkoutInteractionListener;
 
     public WorkoutItemRecyclerViewAdapter(Context context) {
@@ -94,9 +95,15 @@ public class WorkoutItemRecyclerViewAdapter
             }
         });
         setHasStableIds(true);
-        activityTypesAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, FitActivity.all(context.getResources()));
-        activityTypesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        activityTypesAdapter.sort((left, right) -> left.displayName.compareToIgnoreCase(right.displayName));
+
+        FitActivity[] fitActivities = FitActivity.all(context.getResources());
+        Arrays.sort(fitActivities, (left, right) -> left.displayName.compareToIgnoreCase(right.displayName));
+        activityTypesAdapter = new ConstantListAdapter<>(
+                context,
+                android.R.layout.simple_list_item_1,
+                android.R.layout.simple_spinner_dropdown_item,
+                fitActivities,
+                fitAct -> fitAct.displayName);
     }
 
     @Override
@@ -161,7 +168,7 @@ public class WorkoutItemRecyclerViewAdapter
                 // more schedule data for current workout item
                 WorkoutItem.Builder currentWorkout = newItems.get(newItems.size() - 1);
 
-                ScheduleItem.Builder newScheduleItem = new ScheduleItem.Builder()
+                ScheduleItem.Builder newScheduleItem = new ScheduleItem.Builder(null)
                         .withScheduleId(cursor.getLong(cursor.getColumnIndex(WorkoutEntry.SCHEDULE_ID)))
                         .withHour(cursor.getInt(cursor.getColumnIndex(WorkoutEntry.HOUR)))
                         .withMinute(cursor.getInt(cursor.getColumnIndex(WorkoutEntry.MINUTE)))
@@ -171,7 +178,6 @@ public class WorkoutItemRecyclerViewAdapter
             }
         }
 
-        Log.d(TAG, "loaded new items: " + newItems);
         dataset.beginBatchedUpdates();
         dataset.addAll(map(newItems, newItem -> newItem.build(week)));
         for (int i = dataset.size() - 1; i >= 0; i--) {
@@ -208,15 +214,15 @@ public class WorkoutItemRecyclerViewAdapter
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         private final WorkoutListContentBinding binding;
-        private final EventHandler activeEventHandler;
+        private final EventHandler eventHandler;
         private WorkoutItem item;
 
         ViewHolder(WorkoutListContentBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
-            this.activeEventHandler = new EventHandler(this);
+            this.eventHandler = new EventHandler(this);
             binding.activityTypeSpinner.setAdapter(activityTypesAdapter);
-            binding.setHandler(activeEventHandler);
+            binding.setHandler(eventHandler);
         }
 
         void bindItem(WorkoutItem item) {

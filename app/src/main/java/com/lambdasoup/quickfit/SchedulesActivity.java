@@ -17,6 +17,7 @@
 package com.lambdasoup.quickfit;
 
 import android.app.LoaderManager;
+import android.content.ContentValues;
 import android.content.Loader;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
@@ -25,26 +26,36 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 
 import com.lambdasoup.quickfit.databinding.ActivitySchedulesBinding;
 import com.lambdasoup.quickfit.model.DayOfWeek;
+import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
 import com.lambdasoup.quickfit.persist.QuickFitContract;
 import com.lambdasoup.quickfit.viewmodel.WorkoutItem;
 
-public class SchedulesActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class SchedulesActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,SchedulesRecyclerViewAdapter.OnScheduleInteractionListener {
 
     public static final String EXTRA_WORKOUT_ID = "com.lambdasoup.quickfit_workoutId";
     private static final int LOADER_WORKOUT = 0;
     private static final int LOADER_SCHEDULES = 1;
+    private static final String TAG = SchedulesActivity.class.getSimpleName();
 
     private ActivitySchedulesBinding workoutBinding;
     private SchedulesRecyclerViewAdapter schedulesAdapter;
+    private long workoutId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         workoutBinding = DataBindingUtil.setContentView(this, R.layout.activity_schedules);
+
+        if (getIntent().hasExtra(EXTRA_WORKOUT_ID)) {
+            workoutId = getIntent().getLongExtra(EXTRA_WORKOUT_ID, -1);
+        } else {
+            throw new IllegalArgumentException("Intent is missing workoutId extra");
+        }
 
         setSupportActionBar(workoutBinding.toolbar);
 
@@ -59,7 +70,8 @@ public class SchedulesActivity extends AppCompatActivity implements LoaderManage
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        schedulesAdapter = new SchedulesRecyclerViewAdapter();
+        schedulesAdapter = new SchedulesRecyclerViewAdapter(this);
+        schedulesAdapter.setOnScheduleInteractionListener(this);
         workoutBinding.scheduleList.setAdapter(schedulesAdapter);
         workoutBinding.scheduleList.setEmptyView(workoutBinding.scheduleListEmpty);
 
@@ -69,7 +81,6 @@ public class SchedulesActivity extends AppCompatActivity implements LoaderManage
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        long workoutId = getIntent().getLongExtra(EXTRA_WORKOUT_ID, -1); // TODO: use args bundle?
         switch (id) {
             case LOADER_WORKOUT:
                 return new WorkoutLoader(this, workoutId);
@@ -119,5 +130,17 @@ public class SchedulesActivity extends AppCompatActivity implements LoaderManage
         workoutBinding.setWorkout(workoutItem);
 
         workoutBinding.toolbarLayout.setTitle(workoutItem.activityTypeDisplayName);
+    }
+
+    @Override
+    public void onDayOfWeekChanged(long scheduleId, DayOfWeek newDayOfWeek) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(QuickFitContract.ScheduleEntry.COL_DAY_OF_WEEK, newDayOfWeek.name());
+        getContentResolver().update(QuickFitContentProvider.getUriWorkoutsSchedulesId(workoutId, scheduleId), contentValues, null, null);
+    }
+
+    @Override
+    public void onTimeEditRequested(long scheduleId, int oldHour, int oldMinute) {
+        Log.d(TAG, "Time edit requested: show picker!");
     }
 }

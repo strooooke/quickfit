@@ -162,14 +162,13 @@ public class FitActivity {
         return all;
     }
 
-    /**
-     * returns the displayname, for ease of use in an @code{android.widget.ArrayAdapter}
-     *
-     * @return displayName
-     */
     @Override
     public String toString() {
-        return displayName;
+        final StringBuilder sb = new StringBuilder("FitActivity{");
+        sb.append("key='").append(key).append('\'');
+        sb.append(", displayName='").append(displayName).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 
     @Override
