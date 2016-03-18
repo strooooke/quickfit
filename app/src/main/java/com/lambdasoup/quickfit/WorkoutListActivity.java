@@ -31,10 +31,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -55,12 +51,11 @@ import com.lambdasoup.quickfit.util.ui.EmptyRecyclerView;
 import java.util.concurrent.TimeUnit;
 
 
-public class WorkoutListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
+public class WorkoutListActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         WorkoutItemRecyclerViewAdapter.OnWorkoutInteractionListener, DurationMinutesDialogFragment.OnFragmentInteractionListener,
         LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFragmentInteractionListener {
 
     public static final String EXTRA_PLAY_API_CONNECT_RESULT = "play_api_connect_result";
-    public static final String TAG_DIALOG = "dialog";
     private static final String TAG = WorkoutListActivity.class.getSimpleName();
     private static final int REQUEST_OAUTH = 0;
     private static final String ACCOUNT_TYPE = "com.lambdasoup.quickfit";
@@ -240,17 +235,6 @@ public class WorkoutListActivity extends AppCompatActivity implements LoaderMana
         ContentValues contentValues = new ContentValues();
         contentValues.put(WorkoutEntry.COL_CALORIES, newValue);
         getContentResolver().update(QuickFitContentProvider.getUriWorkoutsId(workoutId), contentValues, null, null);
-    }
-
-    private void showDialog(DialogFragment dialogFragment) {
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        Fragment prev = getSupportFragmentManager().findFragmentByTag(TAG_DIALOG);
-        if (prev != null) {
-            ft.remove(prev);
-        }
-        ft.addToBackStack(null);
-
-        dialogFragment.show(ft, TAG_DIALOG);
     }
 
     @Override

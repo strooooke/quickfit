@@ -24,6 +24,8 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -35,7 +37,8 @@ import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
 import com.lambdasoup.quickfit.persist.QuickFitContract;
 import com.lambdasoup.quickfit.viewmodel.WorkoutItem;
 
-public class SchedulesActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,SchedulesRecyclerViewAdapter.OnScheduleInteractionListener {
+public class SchedulesActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>,
+        SchedulesRecyclerViewAdapter.OnScheduleInteractionListener, TimeDialogFragment.OnFragmentInteractionListener {
 
     public static final String EXTRA_WORKOUT_ID = "com.lambdasoup.quickfit_workoutId";
     private static final int LOADER_WORKOUT = 0;
@@ -141,6 +144,14 @@ public class SchedulesActivity extends AppCompatActivity implements LoaderManage
 
     @Override
     public void onTimeEditRequested(long scheduleId, int oldHour, int oldMinute) {
-        Log.d(TAG, "Time edit requested: show picker!");
+        showDialog(TimeDialogFragment.newInstance(scheduleId, oldHour, oldMinute));
+    }
+
+    @Override
+    public void onTimeChanged(long scheduleId, int newHour, int newMinute) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(QuickFitContract.ScheduleEntry.COL_HOUR, newHour);
+        contentValues.put(QuickFitContract.ScheduleEntry.COL_MINUTE, newMinute);
+        getContentResolver().update(QuickFitContentProvider.getUriWorkoutsSchedulesId(workoutId, scheduleId), contentValues, null, null);
     }
 }
