@@ -72,9 +72,12 @@ public class QuickFitContentProvider extends ContentProvider {
         return ContentUris.withAppendedId(getUriWorkoutsList(), workoutId);
     }
 
-    public static Uri getUriWorkoutsSchedulesId(long workoutId, long scheduleId) {
-        Uri uri = getUriWorkoutsId(workoutId);
-        return uri.buildUpon().appendEncodedPath(PATH_SCHEDULES).appendEncodedPath(String.valueOf(scheduleId)).build();
+    public static Uri getUriWorkoutsIdSchedules(long workoutId) {
+        return getUriWorkoutsId(workoutId).buildUpon().appendEncodedPath(PATH_SCHEDULES).build();
+    }
+
+    public static Uri getUriWorkoutsIdSchedulesId(long workoutId, long scheduleId) {
+        return ContentUris.withAppendedId(getUriWorkoutsIdSchedules(workoutId), scheduleId);
     }
 
     public static Uri getUriSessionsList() {
@@ -178,7 +181,9 @@ public class QuickFitContentProvider extends ContentProvider {
                 id = sqlDB.insert(QuickFitContract.SessionEntry.TABLE_NAME, null, values);
                 break;
             case TYPE_WORKOUT_ID_SCHEDULES:
-                id = sqlDB.insert(QuickFitContract.ScheduleEntry.TABLE_NAME, null, values);
+                ContentValues expandedValues = new ContentValues(values);
+                expandedValues.put(QuickFitContract.ScheduleEntry.COL_WORKOUT_ID, uri.getPathSegments().get(1));
+                id = sqlDB.insert(QuickFitContract.ScheduleEntry.TABLE_NAME, null, expandedValues);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid content URI:" + uri);

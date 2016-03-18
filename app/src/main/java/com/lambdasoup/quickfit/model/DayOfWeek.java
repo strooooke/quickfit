@@ -58,7 +58,7 @@ public enum DayOfWeek {
         return week;
     }
 
-    private static DayOfWeek getByCalendarConst(int calendarConst) {
+    public static DayOfWeek getByCalendarConst(int calendarConst) {
         switch (calendarConst) {
             case Calendar.MONDAY:
                 return MONDAY;
@@ -78,6 +78,5 @@ public enum DayOfWeek {
                 throw new IllegalArgumentException("Not a java.util.Calendar weekeday constant: " + calendarConst);
         }
     }
-
 
 }

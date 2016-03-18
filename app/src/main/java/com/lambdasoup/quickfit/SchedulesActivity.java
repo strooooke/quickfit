@@ -17,20 +17,25 @@
 package com.lambdasoup.quickfit;
 
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Loader;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 
+import com.google.android.gms.fitness.FitnessActivities;
 import com.lambdasoup.quickfit.databinding.ActivitySchedulesBinding;
 import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
 import com.lambdasoup.quickfit.persist.QuickFitContract;
 import com.lambdasoup.quickfit.viewmodel.WorkoutItem;
+
+import java.util.Calendar;
 
 public class SchedulesActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         SchedulesRecyclerViewAdapter.OnScheduleInteractionListener, TimeDialogFragment.OnFragmentInteractionListener {
@@ -57,14 +62,7 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
 
         setSupportActionBar(workoutBinding.toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        workoutBinding.fab.setOnClickListener(v -> addNewSchedule());
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -134,7 +132,7 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
     public void onDayOfWeekChanged(long scheduleId, DayOfWeek newDayOfWeek) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(QuickFitContract.ScheduleEntry.COL_DAY_OF_WEEK, newDayOfWeek.name());
-        getContentResolver().update(QuickFitContentProvider.getUriWorkoutsSchedulesId(workoutId, scheduleId), contentValues, null, null);
+        getContentResolver().update(QuickFitContentProvider.getUriWorkoutsIdSchedulesId(workoutId, scheduleId), contentValues, null, null);
     }
 
     @Override
@@ -147,6 +145,16 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
         ContentValues contentValues = new ContentValues();
         contentValues.put(QuickFitContract.ScheduleEntry.COL_HOUR, newHour);
         contentValues.put(QuickFitContract.ScheduleEntry.COL_MINUTE, newMinute);
-        getContentResolver().update(QuickFitContentProvider.getUriWorkoutsSchedulesId(workoutId, scheduleId), contentValues, null, null);
+        getContentResolver().update(QuickFitContentProvider.getUriWorkoutsIdSchedulesId(workoutId, scheduleId), contentValues, null, null);
+    }
+
+    private void addNewSchedule() {
+        // initialize with current day and time
+        Calendar calendar = Calendar.getInstance();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(QuickFitContract.ScheduleEntry.COL_DAY_OF_WEEK, DayOfWeek.getByCalendarConst(calendar.get(Calendar.DAY_OF_WEEK)).name());
+        contentValues.put(QuickFitContract.ScheduleEntry.COL_HOUR, calendar.get(Calendar.HOUR_OF_DAY));
+        contentValues.put(QuickFitContract.ScheduleEntry.COL_MINUTE, calendar.get(Calendar.MINUTE));
+        getContentResolver().insert(QuickFitContentProvider.getUriWorkoutsIdSchedules(workoutId), contentValues);
     }
 }
