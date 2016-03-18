@@ -38,6 +38,60 @@ public class ScheduleItem {
     final public int minute;
     final public int hour;
 
+    // not private for testing
+    protected ScheduleItem(long id, DayOfWeek dayOfWeek, String time, int minute, int hour) {
+        this(id, -1, dayOfWeek, time, minute, hour);
+    }
+
+    ;
+
+
+    private ScheduleItem(long id, int dayOfWeekIndex, DayOfWeek dayOfWeek, String time, int minute, int hour) {
+        this.id = id;
+        this.dayOfWeekIndex = dayOfWeekIndex;
+        this.dayOfWeek = dayOfWeek;
+        this.time = time;
+        this.minute = minute;
+        this.hour = hour;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ScheduleItem that = (ScheduleItem) o;
+
+        if (id != that.id) return false;
+        if (minute != that.minute) return false;
+        if (hour != that.hour) return false;
+        if (dayOfWeek != that.dayOfWeek) return false;
+        return !(time != null ? !time.equals(that.time) : that.time != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + (dayOfWeek != null ? dayOfWeek.hashCode() : 0);
+        result = 31 * result + (time != null ? time.hashCode() : 0);
+        result = 31 * result + minute;
+        result = 31 * result + hour;
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ScheduleItem{");
+        sb.append("id=").append(id);
+        sb.append(", dayOfWeek=").append(dayOfWeek);
+        sb.append(", time='").append(time).append('\'');
+        sb.append(", minute=").append(minute);
+        sb.append(", hour=").append(hour);
+        sb.append('}');
+        return sb.toString();
+    }
+
     public static class ByCalendar implements Comparator<ScheduleItem> {
         private DayOfWeek[] week;
 
@@ -67,24 +121,6 @@ public class ScheduleItem {
             }
             throw new RuntimeException("The week seems to be missing days. Week is: " + Arrays.toString(week) + ", trying to find " + left.dayOfWeek + " and " + right.dayOfWeek);
         }
-    }
-
-    ;
-
-
-    // not private for testing
-    protected ScheduleItem(long id, DayOfWeek dayOfWeek, String time, int minute, int hour) {
-        this(id, -1, dayOfWeek, time, minute, hour);
-    }
-
-
-    private ScheduleItem(long id, int dayOfWeekIndex, DayOfWeek dayOfWeek, String time, int minute, int hour) {
-        this.id = id;
-        this.dayOfWeekIndex = dayOfWeekIndex;
-        this.dayOfWeek = dayOfWeek;
-        this.time = time;
-        this.minute = minute;
-        this.hour = hour;
     }
 
     public static class Builder {
@@ -138,42 +174,5 @@ public class ScheduleItem {
             this.dayOfWeekName = dayOfWeekName;
             return this;
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ScheduleItem that = (ScheduleItem) o;
-
-        if (id != that.id) return false;
-        if (minute != that.minute) return false;
-        if (hour != that.hour) return false;
-        if (dayOfWeek != that.dayOfWeek) return false;
-        return !(time != null ? !time.equals(that.time) : that.time != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
-        result = 31 * result + (dayOfWeek != null ? dayOfWeek.hashCode() : 0);
-        result = 31 * result + (time != null ? time.hashCode() : 0);
-        result = 31 * result + minute;
-        result = 31 * result + hour;
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("ScheduleItem{");
-        sb.append("id=").append(id);
-        sb.append(", dayOfWeek=").append(dayOfWeek);
-        sb.append(", time='").append(time).append('\'');
-        sb.append(", minute=").append(minute);
-        sb.append(", hour=").append(hour);
-        sb.append('}');
-        return sb.toString();
     }
 }

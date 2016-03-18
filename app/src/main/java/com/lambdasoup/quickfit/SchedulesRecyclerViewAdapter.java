@@ -38,9 +38,9 @@ import java.util.List;
  * Created by jl on 15.03.16.
  */
 public class SchedulesRecyclerViewAdapter extends RecyclerView.Adapter<SchedulesRecyclerViewAdapter.ViewHolder> {
-    private ScheduleList dataset;
     private final Context context;
     private final ConstantListAdapter<DayOfWeek> dayOfWeekAdapter;
+    private ScheduleList dataset;
     private OnScheduleInteractionListener onScheduleInteractionListener;
 
     public SchedulesRecyclerViewAdapter(Context context) {

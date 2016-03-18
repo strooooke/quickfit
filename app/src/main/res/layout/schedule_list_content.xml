@@ -17,12 +17,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
         <variable
             name="schedule"
             type="com.lambdasoup.quickfit.viewmodel.ScheduleItem" />
+
         <variable
             name="handler"
-            type="com.lambdasoup.quickfit.SchedulesRecyclerViewAdapter.EventHandler"/>
+            type="com.lambdasoup.quickfit.SchedulesRecyclerViewAdapter.EventHandler" />
     </data>
 
     <LinearLayout
@@ -36,8 +38,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
-            app:selection="@{schedule.dayOfWeekIndex}"
-            app:onItemSelectedListener="@{handler.dayOfWeekSpinnerItemSelected}"/>
+            app:onItemSelectedListener="@{handler.dayOfWeekSpinnerItemSelected}"
+            app:selection="@{schedule.dayOfWeekIndex}" />
 
         <TextView
             android:id="@+id/time"
@@ -45,10 +47,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:padding="4dp"
             android:text="@{schedule.time}"
-            app:onClickListener="@{handler.timeClicked}"/>
+            app:onClickListener="@{handler.timeClicked}" />
     </LinearLayout>
 </layout>

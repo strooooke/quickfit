@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2016 Juliane Lehmann <jl@lambdasoup.com>
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -65,7 +64,7 @@
     <string name="saturday">Samstag</string>
     <string name="sunday">Sonntag</string>
 
-    <string name="weekday_time_format"><xliff:g id="weekday" example="Monday">%1$s</xliff:g>  <xliff:g id="time" example="13:45">%2$s</xliff:g></string>
+    <string name="weekday_time_format"><xliff:g example="Monday" id="weekday">%1$s</xliff:g>  <xliff:g example="13:45" id="time">%2$s</xliff:g></string>
     <string name="schedule_list_empty">Keine Termine geplant.</string>
 
 </resources>
