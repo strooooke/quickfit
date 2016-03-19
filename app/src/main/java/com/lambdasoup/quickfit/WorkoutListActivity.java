@@ -85,7 +85,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         workoutsAdapter.setOnWorkoutInteractionListener(this);
 
         workoutsRecyclerView.setAdapter(workoutsAdapter);
-        workoutsRecyclerView.addItemDecoration(new DividerItemDecoration(this));
+        workoutsRecyclerView.addItemDecoration(new DividerItemDecoration(this, false));
         workoutsRecyclerView.setEmptyView(findViewById(R.id.workout_list_empty));
 
         if (savedInstanceState != null) {

@@ -27,15 +27,20 @@ import android.view.View;
 
 /**
  * See https://gist.github.com/alexfu/0f464fc3742f134ccd1e
+ * <p>
+ * and http://stackoverflow.com/a/30386358/1428514
  */
 public class DividerItemDecoration extends RecyclerView.ItemDecoration {
 
+    private static final String TAG = DividerItemDecoration.class.getSimpleName();
     private final Drawable divider;
+    private final boolean drawAtEnd;
 
-    public DividerItemDecoration(Context context) {
+    public DividerItemDecoration(Context context, boolean drawAtEnd) {
         final TypedArray a = context.obtainStyledAttributes(new int[]{android.R.attr.listDivider});
         divider = a.getDrawable(0);
         a.recycle();
+        this.drawAtEnd = drawAtEnd;
     }
 
 
@@ -53,12 +58,14 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         final int left = parent.getPaddingLeft();
         final int right = parent.getWidth() - parent.getPaddingRight();
 
-        final int childCount = parent.getChildCount();
-        for (int i = 0; i < childCount - 1; i++) {
+        final int lastDecoratedChild = getLastDecoratedChild(parent);
+        for (int i = 0; i < lastDecoratedChild; i++) {
             final View child = parent.getChildAt(i);
-            final int top = manager.getDecoratedBottom(child);
-            final int bottom = top + divider.getIntrinsicHeight();
-            divider.setBounds(left, top, right, bottom);
+            final int ty = (int) (child.getTranslationY() + 0.5f);
+            final int tx = (int) (child.getTranslationX() + 0.5f);
+            final int bottom = manager.getDecoratedBottom(child) + ty;
+            final int top = bottom - divider.getIntrinsicHeight();
+            divider.setBounds(left + tx, top, right + tx, bottom);
             divider.draw(c);
         }
     }
@@ -68,22 +75,32 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         final int top = parent.getPaddingTop();
         final int bottom = parent.getHeight() - parent.getPaddingBottom();
 
-        final int childCount = parent.getChildCount();
-        for (int i = 0; i < childCount - 1; i++) {
+        final int lastDecoratedChild = getLastDecoratedChild(parent);
+        for (int i = 0; i < lastDecoratedChild; i++) {
             final View child = parent.getChildAt(i);
-            final int left = manager.getDecoratedLeft(child);
-            final int right = left + divider.getIntrinsicWidth();
-            divider.setBounds(left, top, right, bottom);
+            final int ty = (int) (child.getTranslationY() + 0.5f);
+            final int tx = (int) (child.getTranslationX() + 0.5f);
+            final int right = manager.getDecoratedRight(child) + tx;
+            final int left = right - divider.getIntrinsicWidth();
+            divider.setBounds(left, top + ty, right, bottom + ty);
             divider.draw(c);
         }
     }
 
+    private int getLastDecoratedChild(RecyclerView parent) {
+        return parent.getChildCount() - (drawAtEnd ? 0 : 1);
+    }
+
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-        if (getOrientation(parent) == LinearLayoutManager.VERTICAL) {
-            outRect.set(0, 0, 0, divider.getIntrinsicHeight());
+        if (parent.getChildAdapterPosition(view) <= getLastDecoratedChild(parent)) {
+            if (getOrientation(parent) == LinearLayoutManager.VERTICAL) {
+                outRect.set(0, 0, 0, divider.getIntrinsicHeight());
+            } else {
+                outRect.set(0, 0, divider.getIntrinsicWidth(), 0);
+            }
         } else {
-            outRect.set(0, 0, divider.getIntrinsicWidth(), 0);
+            outRect.set(0, 0, 0, 0);
         }
     }
 

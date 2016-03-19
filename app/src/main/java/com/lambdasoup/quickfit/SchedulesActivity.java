@@ -29,6 +29,7 @@ import com.lambdasoup.quickfit.databinding.ActivitySchedulesBinding;
 import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
 import com.lambdasoup.quickfit.persist.QuickFitContract;
+import com.lambdasoup.quickfit.util.ui.DividerItemDecoration;
 import com.lambdasoup.quickfit.viewmodel.WorkoutItem;
 
 import java.util.Calendar;
@@ -80,6 +81,8 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
             }
         });
         swipeDismiss.attachToRecyclerView(workoutBinding.scheduleList);
+
+        workoutBinding.scheduleList.addItemDecoration(new DividerItemDecoration(this, true));
 
         getLoaderManager().initLoader(LOADER_WORKOUT, null, this);
         getLoaderManager().initLoader(LOADER_SCHEDULES, null, this);
