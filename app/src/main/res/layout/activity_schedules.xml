@@ -60,8 +60,8 @@
                         style="?attr/subtitleTextAppearance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="4dp"
-                        android:paddingStart="0dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
                         android:text="@{workout.label}"
                         tools:text="My fantastic label" />
 
@@ -70,8 +70,8 @@
                         style="?attr/subtitleTextAppearance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="4dp"
-                        android:paddingStart="0dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
                         android:text="@{@plurals/duration_mins_format(workout.durationInMinutes, workout.durationInMinutes)}"
                         tools:text="123 minutes" />
                 </LinearLayout>
@@ -90,7 +90,7 @@
         <com.lambdasoup.quickfit.util.ui.EmptyRecyclerView
             android:id="@+id/schedule_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             app:layoutManager="LinearLayoutManager"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:listitem="@layout/schedule_list_content" />

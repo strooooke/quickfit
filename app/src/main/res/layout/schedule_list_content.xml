@@ -27,32 +27,69 @@
             type="com.lambdasoup.quickfit.SchedulesRecyclerViewAdapter.EventHandler" />
     </data>
 
-    <LinearLayout
+
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/list_item_height"
-        android:orientation="horizontal">
+        android:layout_height="?listPreferredItemHeight"
+        >
 
-        <Spinner
-            android:id="@+id/day_of_week"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            app:onItemSelectedListener="@{handler.dayOfWeekSpinnerItemSelected}"
-            app:selection="@{schedule.dayOfWeekIndex}" />
+        <FrameLayout
+            android:id="@+id/leave_behind_end"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorAccent">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:layout_gravity="center_vertical|end"
+                android:src="@drawable/ic_delete_54perc_black_24dp"
+                android:contentDescription="@string/delete_button"/>
+        </FrameLayout>
 
-        <TextView
-            android:id="@+id/time"
-            style="?attr/textAppearanceListItem"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:padding="4dp"
-            android:text="@{schedule.time}"
-            app:onClickListener="@{handler.timeClicked}" />
-    </LinearLayout>
+        <FrameLayout
+            android:id="@+id/leave_behind_start"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorAccent">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:layout_gravity="center_vertical|start"
+                android:src="@drawable/ic_delete_54perc_black_24dp"
+                android:contentDescription="@string/delete_button"/>
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/list_item"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?android:colorBackground"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/day_of_week"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_weight="1"
+                app:onItemSelectedListener="@{handler.dayOfWeekSpinnerItemSelected}"
+                app:selection="@{schedule.dayOfWeekIndex}" />
+
+            <TextView
+                android:id="@+id/time"
+                style="?attr/textAppearanceListItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_weight="1"
+                android:padding="4dp"
+                android:text="@{schedule.time}"
+                app:onClickListener="@{handler.timeClicked}" />
+        </LinearLayout>
+    </FrameLayout>
 </layout>

@@ -28,6 +28,7 @@ import com.lambdasoup.quickfit.databinding.ScheduleListContentBinding;
 import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.persist.QuickFitContract;
 import com.lambdasoup.quickfit.util.ConstantListAdapter;
+import com.lambdasoup.quickfit.util.ui.LeaveBehind;
 import com.lambdasoup.quickfit.viewmodel.ScheduleItem;
 import com.lambdasoup.quickfit.viewmodel.ScheduleList;
 
@@ -38,6 +39,7 @@ import java.util.List;
  * Created by jl on 15.03.16.
  */
 public class SchedulesRecyclerViewAdapter extends RecyclerView.Adapter<SchedulesRecyclerViewAdapter.ViewHolder> {
+    private static final String TAG = SchedulesRecyclerViewAdapter.class.getSimpleName();
     private final Context context;
     private final ConstantListAdapter<DayOfWeek> dayOfWeekAdapter;
     private ScheduleList dataset;
@@ -136,13 +138,14 @@ public class SchedulesRecyclerViewAdapter extends RecyclerView.Adapter<Schedules
         void onTimeEditRequested(long scheduleId, int oldHour, int oldMinute);
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends LeaveBehind.LeaveBehindViewHolder {
         private final ScheduleListContentBinding binding;
         private final EventHandler eventHandler;
         private ScheduleItem item;
 
+
         ViewHolder(ScheduleListContentBinding binding) {
-            super(binding.getRoot());
+            super(binding.getRoot(), binding.listItem, binding.leaveBehindEnd, binding.leaveBehindStart);
             this.binding = binding;
             this.eventHandler = new EventHandler(this);
             binding.dayOfWeek.setAdapter(dayOfWeekAdapter);

@@ -48,6 +48,15 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".SchedulesActivity"
+            android:label="@string/title_activity_schedules"
+            android:parentActivityName=".WorkoutListActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.lambdasoup.quickfit.WorkoutListActivity" />
+        </activity>
+        <activity
             android:name=".SettingsActivity"
             android:label="@string/title_settings"
             android:parentActivityName=".WorkoutListActivity" />
@@ -80,15 +89,7 @@
                 android:resource="@xml/authenticator" />
         </service>
 
-        <activity
-            android:name=".SchedulesActivity"
-            android:label="@string/title_activity_schedules"
-            android:parentActivityName=".WorkoutListActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.lambdasoup.quickfit.WorkoutListActivity" />
-        </activity>
+
     </application>
 
 </manifest>

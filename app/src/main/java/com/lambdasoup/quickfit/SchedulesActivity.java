@@ -30,6 +30,7 @@ import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
 import com.lambdasoup.quickfit.persist.QuickFitContract;
 import com.lambdasoup.quickfit.util.ui.DividerItemDecoration;
+import com.lambdasoup.quickfit.util.ui.LeaveBehind;
 import com.lambdasoup.quickfit.viewmodel.WorkoutItem;
 
 import java.util.Calendar;
@@ -68,13 +69,8 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
         workoutBinding.scheduleList.setAdapter(schedulesAdapter);
         workoutBinding.scheduleList.setEmptyView(workoutBinding.scheduleListEmpty);
 
-        ItemTouchHelper swipeDismiss = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.END | ItemTouchHelper.START) {
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                // not supporting drag/drop
-                return false;
-            }
 
+        ItemTouchHelper swipeDismiss = new ItemTouchHelper(new LeaveBehind() {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 onRemoveSchedule(viewHolder.getItemId());
