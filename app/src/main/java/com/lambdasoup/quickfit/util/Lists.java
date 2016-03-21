@@ -17,6 +17,7 @@
 package com.lambdasoup.quickfit.util;
 
 import java.util.AbstractList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -41,5 +42,29 @@ public class Lists {
                 return source.size();
             }
         };
+    }
+
+    /**
+     * Assumes that list is ordered according to ordering. If not, results
+     * are undefined.
+     * Finds index i, such that list.get(j) for all j < i is less than item
+     * according to ordering, and list.get(j) for all j>= i is at least item
+     * according to ordering. In other words, the left-most possible insertion
+     * point for item that keeps list ordered is found.
+     */
+    public static <T> int bisectLeft(List<T> list, Comparator<T> ordering, T item) {
+        int low = 0;
+        int high = list.size();
+        int mid;
+
+        while (low < high) {
+            mid = (low + high) / 2;
+            if (ordering.compare(item, list.get(mid)) <= 0) {
+                high = mid;
+            } else {
+                low = mid + 1;
+            }
+        }
+        return low;
     }
 }

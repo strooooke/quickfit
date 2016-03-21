@@ -17,13 +17,16 @@
 package com.lambdasoup.quickfit.viewmodel;
 
 import com.lambdasoup.quickfit.model.DayOfWeek;
+import com.lambdasoup.quickfit.util.Lists;
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by jl on 15.03.16.
@@ -31,7 +34,7 @@ import java.util.Set;
 public class ScheduleList {
     private static final int POSITION_INVALID = -1;
 
-    private final Object lock = new Object();
+    private AtomicBoolean writing = new AtomicBoolean(false);
 
     private List<ScheduleItem> dataset = new ArrayList<>();
     private Map<Long, Integer> positionForId = new HashMap<>();
@@ -47,61 +50,62 @@ public class ScheduleList {
         return dataset.size();
     }
 
-    public void swapData(Iterable<ScheduleItem> newDataSet) { // TODO: async?
-        synchronized (lock) { // TODO: find better solution for syncronization (swap data after merge?)
-            Set<Long> newIds = new HashSet<>();
-            for (ScheduleItem newItem : newDataSet) {
-                newIds.add(newItem.id);
+    public void swapData(Iterable<ScheduleItem> newDataSet) {
+        obtainWriteLock();
+        Set<Long> newIds = new HashSet<>();
+        for (ScheduleItem newItem : newDataSet) {
+            newIds.add(newItem.id);
 
-                int oldPosition = getPositionForId(newItem.id);
-                int newPosition = findPositionFor(newItem);
+            int oldPosition = getPositionForId(newItem.id);
+            int newPosition = findPositionFor(newItem);
 
-                if (oldPosition == POSITION_INVALID) {
-                    // entering item
+            if (oldPosition == POSITION_INVALID) {
+                // entering item
+                dataset.add(newPosition, newItem);
+                refreshPositions();
+                callback.onInserted(newPosition);
+            } else {
+                // persistent item
+                ScheduleItem oldItem = dataset.get(oldPosition);
+                if (ordering.compare(newItem, oldItem) != 0) {
+                    // items do not yield identical view and ordering
+                    callback.onUpdated(oldPosition);
+                    if (newPosition == oldPosition) {
+                        // but position in the list did not actually change
+                        dataset.set(oldPosition, newItem);
+                        continue;
+                    }
+
+                    if (newPosition > oldPosition) {
+                        // new position was found with the item at oldPosition
+                        // still in place
+                        // but that item will leave now
+                        newPosition--;
+                    }
+                    dataset.remove(oldPosition);
                     dataset.add(newPosition, newItem);
                     refreshPositions();
-                    callback.onInserted(newPosition);
-                } else {
-                    // persistent item
-                    ScheduleItem oldItem = dataset.get(oldPosition);
-                    if (ordering.compare(newItem, oldItem) != 0) {
-                        // items do not yield identical view and ordering
-                        callback.onUpdated(oldPosition);
-                        if (newPosition == oldPosition) {
-                            // but position in the list did not actually change
-                            dataset.set(oldPosition, newItem);
-                            continue;
-                        }
-
-                        if (newPosition > oldPosition) {
-                            // new position was found with the item at oldPosition
-                            // still in place
-                            // but that item will leave now
-                            newPosition--;
-                        }
-                        dataset.remove(oldPosition);
-                        dataset.add(newPosition, newItem);
-                        refreshPositions();
-                        callback.onMoved(oldPosition, newPosition);
-                    }
+                    callback.onMoved(oldPosition, newPosition);
                 }
-            }
-
-            List<Long> leavingIds = new ArrayList<>();
-            for (Long oldId : positionForId.keySet()) {
-                if (!newIds.contains(oldId)) {
-                    leavingIds.add(oldId);
-                }
-            }
-            for (Long leavingId : leavingIds) {
-                dataset.remove(getPositionForId(leavingId));
-                int oldPosition = getPositionForId(leavingId);
-                callback.onRemoved(oldPosition);
-            }
-            if (!leavingIds.isEmpty()) {
-                refreshPositions();
             }
         }
+
+        List<Long> leavingIds = new ArrayList<>();
+        for (Long oldId : positionForId.keySet()) {
+            if (!newIds.contains(oldId)) {
+                leavingIds.add(oldId);
+            }
+        }
+        for (Long leavingId : leavingIds) {
+            dataset.remove(getPositionForId(leavingId));
+            int oldPosition = getPositionForId(leavingId);
+            callback.onRemoved(oldPosition);
+        }
+        if (!leavingIds.isEmpty()) {
+            refreshPositions();
+        }
+        releaseWriteLock();
+
     }
 
     private int getPositionForId(long id) {
@@ -110,14 +114,7 @@ public class ScheduleList {
     }
 
     private int findPositionFor(ScheduleItem item) {
-        // TODO: improve performance - bisect instead of linear
-        for (int i = 0; i < dataset.size(); i++) {
-            ScheduleItem currentItem = dataset.get(i);
-            if (ordering.compare(item, currentItem) <= 0) {
-                return i;
-            }
-        }
-        return dataset.size();
+        return Lists.bisectLeft(dataset, ordering, item);
     }
 
     private void refreshPositions() {
@@ -128,14 +125,33 @@ public class ScheduleList {
     }
 
     public ScheduleItem get(int position) {
+        throwIfWriting();
         return dataset.get(position);
     }
 
     public void clear() {
-        synchronized (lock) {
-            dataset.clear();
-            positionForId.clear();
-            callback.onCleared();
+        obtainWriteLock();
+        dataset.clear();
+        positionForId.clear();
+        callback.onCleared();
+        releaseWriteLock();
+    }
+
+    private void obtainWriteLock() throws ConcurrentModificationException {
+        if (!writing.compareAndSet(false, true)) {
+            throw new ConcurrentModificationException("ScheduleList is already currently being modified");
+        }
+    }
+
+    private void releaseWriteLock() throws ConcurrentModificationException {
+        if (!writing.compareAndSet(true, false)) {
+            throw new ConcurrentModificationException("Something is wrong with the locking logic.");
+        }
+    }
+
+    private void throwIfWriting() throws ConcurrentModificationException {
+        if (writing.get()) {
+            throw new ConcurrentModificationException("ScheduleList is currently being modified.");
         }
     }
 
