@@ -90,7 +90,7 @@
         <com.lambdasoup.quickfit.util.ui.EmptyRecyclerView
             android:id="@+id/schedule_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             app:layoutManager="LinearLayoutManager"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:listitem="@layout/schedule_list_content" />
