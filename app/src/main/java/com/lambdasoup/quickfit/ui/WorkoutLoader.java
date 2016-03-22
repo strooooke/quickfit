@@ -14,24 +14,24 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit;
+package com.lambdasoup.quickfit.ui;
 
 import android.content.Context;
 import android.content.CursorLoader;
 
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
-import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
+import com.lambdasoup.quickfit.persist.QuickFitContract;
 
-
-public class WorkoutListLoader extends CursorLoader {
-    public WorkoutListLoader(Context context) {
-        super(
-                context,
-                QuickFitContentProvider.getUriWorkoutsList(),
-                WorkoutEntry.COLUMNS_FULL,
+/**
+ * Created by jl on 15.03.16.
+ */
+public class WorkoutLoader extends CursorLoader {
+    public WorkoutLoader(Context context, long workoutId) {
+        super(context,
+                QuickFitContentProvider.getUriWorkoutsId(workoutId),
+                QuickFitContract.WorkoutEntry.COLUMNS_WORKOUT_ONLY,
                 null,
                 null,
-                WorkoutEntry.WORKOUT_ID + " ASC, " + WorkoutEntry.SCHEDULE_ID + " ASC"
-        );
+                null);
     }
 }

@@ -14,24 +14,19 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit;
+package com.lambdasoup.quickfit.ui;
 
-import android.content.Context;
-import android.content.CursorLoader;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.webkit.WebView;
 
-import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
-import com.lambdasoup.quickfit.persist.QuickFitContract;
+public class AboutActivity extends AppCompatActivity {
 
-/**
- * Created by jl on 15.03.16.
- */
-public class SchedulesLoader extends CursorLoader {
-    public SchedulesLoader(Context context, long workoutId) {
-        super(context,
-                QuickFitContentProvider.getUriWorkoutsId(workoutId),
-                QuickFitContract.WorkoutEntry.COLUMNS_SCHEDULE_ONLY,
-                null,
-                null,
-                null);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        WebView webView = new WebView(this);
+        setContentView(webView);
+        webView.loadUrl("file:///android_asset/html/about.html");
     }
 }

@@ -38,7 +38,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".WorkoutListActivity"
+            android:name=".ui.WorkoutListActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -48,22 +48,22 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SchedulesActivity"
+            android:name=".ui.SchedulesActivity"
             android:label="@string/title_activity_schedules"
-            android:parentActivityName=".WorkoutListActivity"
+            android:parentActivityName=".ui.WorkoutListActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.lambdasoup.quickfit.WorkoutListActivity" />
+                android:value=".ui.WorkoutListActivity" />
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name=".ui.SettingsActivity"
             android:label="@string/title_settings"
-            android:parentActivityName=".WorkoutListActivity" />
+            android:parentActivityName=".ui.WorkoutListActivity" />
         <activity
-            android:name=".AboutActivity"
+            android:name=".ui.AboutActivity"
             android:label="@string/title_about"
-            android:parentActivityName=".WorkoutListActivity" />
+            android:parentActivityName=".ui.WorkoutListActivity" />
 
         <service
             android:name=".persist.SyncService"

@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit;
+package com.lambdasoup.quickfit.ui;
 
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;

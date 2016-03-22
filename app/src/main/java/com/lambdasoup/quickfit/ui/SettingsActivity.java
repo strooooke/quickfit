@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit;
+package com.lambdasoup.quickfit.ui;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -27,6 +27,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
+import com.lambdasoup.quickfit.R;
 
 public class SettingsActivity extends AppCompatActivity {
 

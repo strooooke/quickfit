@@ -25,7 +25,7 @@
 
         <variable
             name="handler"
-            type="com.lambdasoup.quickfit.WorkoutItemRecyclerViewAdapter.EventHandler" />
+            type="com.lambdasoup.quickfit.ui.WorkoutItemRecyclerViewAdapter.EventHandler" />
     </data>
 
     <RelativeLayout

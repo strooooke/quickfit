@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit;
+package com.lambdasoup.quickfit.ui;
 
 import android.app.LoaderManager;
 import android.content.ContentValues;
@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 
+import com.lambdasoup.quickfit.R;
 import com.lambdasoup.quickfit.databinding.ActivitySchedulesBinding;
 import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider;

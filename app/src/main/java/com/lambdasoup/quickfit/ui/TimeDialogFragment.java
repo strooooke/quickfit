@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit;
+package com.lambdasoup.quickfit.ui;
 
 import android.app.Activity;
 import android.app.Dialog;

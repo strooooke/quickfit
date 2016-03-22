@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit;
+package com.lambdasoup.quickfit.ui;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -30,6 +30,8 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.lambdasoup.quickfit.R;
 
 public class LabelDialogFragment extends DialogFragment implements DialogInterface.OnClickListener, TextView.OnEditorActionListener {
 

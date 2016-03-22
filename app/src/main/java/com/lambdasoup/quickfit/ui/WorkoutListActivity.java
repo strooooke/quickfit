@@ -14,11 +14,10 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit;
+package com.lambdasoup.quickfit.ui;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -41,6 +40,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.fitness.FitnessActivities;
+import com.lambdasoup.quickfit.R;
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
 import com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry;
 import com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry.SessionStatus;
@@ -241,7 +241,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_OAUTH) {
             authProgress = AuthProgress.DONE;
-            if (resultCode == Activity.RESULT_OK) {
+            if (resultCode == RESULT_OK) {
                 requestSync();
             }
         }
