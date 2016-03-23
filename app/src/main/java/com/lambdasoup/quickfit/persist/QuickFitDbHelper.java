@@ -21,12 +21,16 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.lambdasoup.quickfit.persist.QuickFitContract.ScheduleEntry;
+import com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry;
+import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
+
 
 public class QuickFitDbHelper extends SQLiteOpenHelper {
 
     public static final String TAG = QuickFitDbHelper.class.getSimpleName();
     static final String DATABASE_NAME = "quickfit.db";
-    static final int DATABASE_VERSION = 6;
+    static final int DATABASE_VERSION = 7;
 
     public QuickFitDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -38,15 +42,7 @@ public class QuickFitDbHelper extends SQLiteOpenHelper {
     }
 
     public void onCreate(SQLiteDatabase database) {
-        for (String stmt : QuickFitContract.WorkoutEntry.CREATE_STATEMENTS) {
-            database.execSQL(stmt);
-        }
-        for (String stmt : QuickFitContract.ScheduleEntry.CREATE_STATEMENTS) {
-            database.execSQL(stmt);
-        }
-        for (String stmt : QuickFitContract.SessionEntry.CREATE_STATEMENTS) {
-            database.execSQL(stmt);
-        }
+        onUpgrade(database, 0, DATABASE_VERSION);
     }
 
     public void onUpgrade(SQLiteDatabase database, int oldVersion,
@@ -54,30 +50,63 @@ public class QuickFitDbHelper extends SQLiteOpenHelper {
         Log.w(TAG, "Upgrading database from version "
                 + oldVersion + " to " + newVersion);
 
-        if (newVersion > 6) {
-            Log.e(TAG, "No upgrading procedure for version " + newVersion + " implemented yet!");
+        for (int versionStep = oldVersion + 1; versionStep <= newVersion; versionStep++) {
+            upgradeStep(database, versionStep);
+        }
+    }
+
+    private void upgradeStep(SQLiteDatabase database, int newVersion) {
+        if (newVersion <= 5) {
+            // version 5 was the first version in the wild
+            database.execSQL("DROP TABLE IF EXISTS " + WorkoutEntry.TABLE_NAME);
+            database.execSQL("DROP TABLE IF EXISTS " + SessionEntry.TABLE_NAME);
+
+            final String createWorkout = "CREATE TABLE " + WorkoutEntry.TABLE_NAME + " ( " +
+                    WorkoutEntry.COL_ID + " INTEGER PRIMARY KEY, " +
+                    WorkoutEntry.COL_ACTIVITY_TYPE + " TEXT NOT NULL, " +
+                    WorkoutEntry.COL_DURATION_MINUTES + " INTEGER NOT NULL, " +
+                    WorkoutEntry.COL_LABEL + " TEXT NULL, " +
+                    WorkoutEntry.COL_CALORIES + " INTEGER NULL " +
+                    ")";
+            database.execSQL(createWorkout);
+
+            final String createSession = "CREATE TABLE " + SessionEntry.TABLE_NAME + " ( " +
+                    SessionEntry._ID + " INTEGER PRIMARY KEY, " +
+                    SessionEntry.ACTIVITY_TYPE + " TEXT NOT NULL, " +
+                    SessionEntry.START_TIME + " INTEGER NOT NULL, " +
+                    SessionEntry.END_TIME + " INTEGER NOT NULL, " +
+                    SessionEntry.STATUS + " TEXT NOT NULL, " +
+                    SessionEntry.NAME + " TEXT NULL, " +
+                    SessionEntry.CALORIES + " INTEGER NULL " +
+                    ")";
+            database.execSQL(createSession);
             return;
         }
-
-        if (oldVersion < 5) {
-            database.execSQL("DROP TABLE IF EXISTS " + QuickFitContract.WorkoutEntry.TABLE_NAME);
-            database.execSQL("DROP TABLE IF EXISTS " + QuickFitContract.SessionEntry.TABLE_NAME);
-
-            for (String stmt : QuickFitContract.WorkoutEntry.CREATE_STATEMENTS) {
-                database.execSQL(stmt);
-            }
-            for (String stmt : QuickFitContract.SessionEntry.CREATE_STATEMENTS) {
-                database.execSQL(stmt);
-            }
-        }
-
-
         if (newVersion == 6) {
-            for (String stmt : QuickFitContract.ScheduleEntry.CREATE_STATEMENTS) {
-                database.execSQL(stmt);
-            }
+            final String createSchedule = "CREATE TABLE " + ScheduleEntry.TABLE_NAME + " ( " +
+                    ScheduleEntry.COL_ID + " INTEGER PRIMARY KEY, " +
+                    ScheduleEntry.COL_WORKOUT_ID + " INTEGER NOT NULL REFERENCES " + WorkoutEntry.TABLE_NAME + "(" + WorkoutEntry.COL_ID + ") ON DELETE CASCADE, " +
+                    ScheduleEntry.COL_DAY_OF_WEEK + " TEXT NOT NULL, " +
+                    ScheduleEntry.COL_HOUR + " INTEGER NOT NULL, " +
+                    ScheduleEntry.COL_MINUTE + " INTEGER NOT NULL " +
+                    ")";
+            database.execSQL(createSchedule);
+            return;
         }
-
+        if (newVersion == 7) {
+            // version 6 was never in the wild
+            database.execSQL("DROP TABLE " + ScheduleEntry.TABLE_NAME);
+            final String createSchedule = "CREATE TABLE " + ScheduleEntry.TABLE_NAME + " ( " +
+                    ScheduleEntry.COL_ID + " INTEGER PRIMARY KEY, " +
+                    ScheduleEntry.COL_WORKOUT_ID + " INTEGER NOT NULL REFERENCES " + WorkoutEntry.TABLE_NAME + "(" + WorkoutEntry.COL_ID + ") ON DELETE CASCADE, " +
+                    ScheduleEntry.COL_DAY_OF_WEEK + " TEXT NOT NULL, " +
+                    ScheduleEntry.COL_HOUR + " INTEGER NOT NULL, " +
+                    ScheduleEntry.COL_MINUTE + " INTEGER NOT NULL, " +
+                    ScheduleEntry.COL_NEXT_ALARM_MILLIS + " INTEGER NOT NULL " +
+                    ")";
+            database.execSQL(createSchedule);
+            return;
+        }
 
     }
 }

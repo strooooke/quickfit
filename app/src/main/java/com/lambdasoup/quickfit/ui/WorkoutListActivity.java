@@ -55,18 +55,22 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         WorkoutItemRecyclerViewAdapter.OnWorkoutInteractionListener, DurationMinutesDialogFragment.OnFragmentInteractionListener,
         LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFragmentInteractionListener {
 
-    public static final String EXTRA_PLAY_API_CONNECT_RESULT = "play_api_connect_result";
+    public static final String EXTRA_PLAY_API_CONNECT_RESULT = "com.lambdasoup.quickfit.play_api_connect_result";
+    public static final String EXTRA_SHOW_WORKOUT_ID = "com.lambdasoup.quickfit.show_workout_id";
+
     private static final String TAG = WorkoutListActivity.class.getSimpleName();
+
     private static final int REQUEST_OAUTH = 0;
     private static final String ACCOUNT_TYPE = "com.lambdasoup.quickfit";
-    private static final String KEY_AUTH_IN_PROGRESS = "auth_in_progress";
-    private static final long NO_FRESH_INSERTION = -1;
+    private static final String KEY_AUTH_IN_PROGRESS = "com.lambdasoup.quickfit.auth_in_progress";
+    private static final String KEY_SHOW_WORKOUT_ID = "com.lambdasoup.quickfit.show_workout_id";
+    private static final long NO_ID = -1;
 
     private final Account account = new Account("QuickFit", ACCOUNT_TYPE);
     AuthProgress authProgress = AuthProgress.NONE;
     private WorkoutItemRecyclerViewAdapter workoutsAdapter;
     private EmptyRecyclerView workoutsRecyclerView;
-    private long idFreshlyInserted = NO_FRESH_INSERTION;
+    private long idToScrollTo = NO_ID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,8 +92,13 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         workoutsRecyclerView.addItemDecoration(new DividerItemDecoration(this, false));
         workoutsRecyclerView.setEmptyView(findViewById(R.id.workout_list_empty));
 
+        if (getIntent().hasExtra(EXTRA_SHOW_WORKOUT_ID)) {
+            idToScrollTo = getIntent().getLongExtra(EXTRA_SHOW_WORKOUT_ID, NO_ID);
+        }
+
         if (savedInstanceState != null) {
             authProgress = AuthProgress.valueOf(savedInstanceState.getString(KEY_AUTH_IN_PROGRESS, AuthProgress.NONE.name()));
+            idToScrollTo = savedInstanceState.getLong(KEY_SHOW_WORKOUT_ID, NO_ID);
         }
 
         if (AccountManager.get(getApplicationContext()).addAccountExplicitly(account, null, null)) {
@@ -122,6 +131,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_AUTH_IN_PROGRESS, authProgress.name());
+        outState.putLong(KEY_SHOW_WORKOUT_ID, idToScrollTo);
     }
 
     @Override
@@ -155,12 +165,12 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         workoutsAdapter.swapCursor(data);
-        if (idFreshlyInserted != NO_FRESH_INSERTION) {
-            int pos = workoutsAdapter.getPosition(idFreshlyInserted);
+        if (idToScrollTo != NO_ID) {
+            int pos = workoutsAdapter.getPosition(idToScrollTo);
             if (pos != SortedList.INVALID_POSITION) {
                 workoutsRecyclerView.smoothScrollToPosition(pos);
             }
-            idFreshlyInserted = NO_FRESH_INSERTION;
+            idToScrollTo = NO_ID;
         }
     }
 
@@ -174,7 +184,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         contentValues.put(WorkoutEntry.COL_ACTIVITY_TYPE, FitnessActivities.AEROBICS);
         contentValues.put(WorkoutEntry.COL_DURATION_MINUTES, 30);
         Uri newWorkoutUri = getContentResolver().insert(QuickFitContentProvider.getUriWorkoutsList(), contentValues);
-        idFreshlyInserted = ContentUris.parseId(newWorkoutUri);
+        idToScrollTo = ContentUris.parseId(newWorkoutUri);
     }
 
     @Override

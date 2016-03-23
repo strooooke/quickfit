@@ -129,6 +129,11 @@ public class ScheduleList {
         return dataset.get(position);
     }
 
+    public ScheduleItem getById(long scheduleId) {
+        throwIfWriting();
+        return dataset.get(positionForId.get(scheduleId));
+    }
+
     public void clear() {
         obtainWriteLock();
         dataset.clear();

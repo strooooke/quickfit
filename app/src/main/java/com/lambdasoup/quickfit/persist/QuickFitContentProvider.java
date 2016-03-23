@@ -31,6 +31,10 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
+import com.lambdasoup.quickfit.persist.QuickFitContract.ScheduleEntry;
+import com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry;
+import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -107,13 +111,13 @@ public class QuickFitContentProvider extends ContentProvider {
             case TYPE_WORKOUT_ID_SCHEDULE_ID:
             case TYPE_WORKOUT_ID_SCHEDULES:
             case TYPE_WORKOUTS:
-                Pair<String, String[]> tableAndProjection = QuickFitContract.WorkoutEntry.toAlias(projection);
+                Pair<String, String[]> tableAndProjection = WorkoutEntry.toAlias(projection);
                 aliasedProjection = tableAndProjection.second;
                 queryBuilder.setTables(tableAndProjection.first);
                 break;
             case TYPE_SESSION_ID:
             case TYPE_SESSIONS:
-                queryBuilder.setTables(QuickFitContract.SessionEntry.TABLE_NAME);
+                queryBuilder.setTables(SessionEntry.TABLE_NAME);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid content URI:" + uri);
@@ -121,15 +125,15 @@ public class QuickFitContentProvider extends ContentProvider {
         switch (type) {
             case TYPE_WORKOUT_ID:
             case TYPE_WORKOUT_ID_SCHEDULES:
-                queryBuilder.appendWhere(QuickFitContract.WorkoutEntry.WORKOUT_ID + "=?");
+                queryBuilder.appendWhere(WorkoutEntry.TABLE_NAME + "." + WorkoutEntry.COL_ID + "=?");
                 moreSelectionArgs.add(uri.getPathSegments().get(1));
                 break;
             case TYPE_WORKOUT_ID_SCHEDULE_ID:
-                queryBuilder.appendWhere(QuickFitContract.WorkoutEntry.SCHEDULE_ID + "=?");
+                queryBuilder.appendWhere(ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_ID + "=?");
                 moreSelectionArgs.add(uri.getLastPathSegment());
                 break;
             case TYPE_SESSION_ID:
-                queryBuilder.appendWhere(QuickFitContract.SessionEntry._ID + "=?");
+                queryBuilder.appendWhere(SessionEntry._ID + "=?");
                 moreSelectionArgs.add(uri.getLastPathSegment());
                 break;
             case TYPE_WORKOUTS:
@@ -139,7 +143,7 @@ public class QuickFitContentProvider extends ContentProvider {
 
         String[] expandedSelectionArgs = expandSelectionArgs(selectionArgs, moreSelectionArgs);
 
-        SQLiteDatabase db = database.getWritableDatabase();
+        SQLiteDatabase db = database.getReadableDatabase();
         Cursor cursor = queryBuilder.query(db, aliasedProjection, selection,
                 expandedSelectionArgs, null, null, sortOrder);
         //noinspection ConstantConditions
@@ -175,15 +179,15 @@ public class QuickFitContentProvider extends ContentProvider {
         long id;
         switch (uriMatcher.match(uri)) {
             case TYPE_WORKOUTS:
-                id = sqlDB.insert(QuickFitContract.WorkoutEntry.TABLE_NAME, null, values);
+                id = sqlDB.insert(WorkoutEntry.TABLE_NAME, null, values);
                 break;
             case TYPE_SESSIONS:
-                id = sqlDB.insert(QuickFitContract.SessionEntry.TABLE_NAME, null, values);
+                id = sqlDB.insert(SessionEntry.TABLE_NAME, null, values);
                 break;
             case TYPE_WORKOUT_ID_SCHEDULES:
                 ContentValues expandedValues = new ContentValues(values);
-                expandedValues.put(QuickFitContract.ScheduleEntry.COL_WORKOUT_ID, uri.getPathSegments().get(1));
-                id = sqlDB.insert(QuickFitContract.ScheduleEntry.TABLE_NAME, null, expandedValues);
+                expandedValues.put(ScheduleEntry.COL_WORKOUT_ID, uri.getPathSegments().get(1));
+                id = sqlDB.insert(ScheduleEntry.TABLE_NAME, null, expandedValues);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid content URI:" + uri);
@@ -200,51 +204,51 @@ public class QuickFitContentProvider extends ContentProvider {
         int rowsDeleted;
         switch (uriMatcher.match(uri)) {
             case TYPE_WORKOUTS: {
-                rowsDeleted = sqlDB.delete(QuickFitContract.WorkoutEntry.TABLE_NAME, selection,
+                rowsDeleted = sqlDB.delete(WorkoutEntry.TABLE_NAME, selection,
                         selectionArgs);
                 break;
             }
             case TYPE_WORKOUT_ID: {
                 if (TextUtils.isEmpty(selection)) {
-                    rowsDeleted = sqlDB.delete(QuickFitContract.WorkoutEntry.TABLE_NAME,
-                            QuickFitContract.WorkoutEntry.COL_ID + "=?",
+                    rowsDeleted = sqlDB.delete(WorkoutEntry.TABLE_NAME,
+                            WorkoutEntry.COL_ID + "=?",
                             new String[]{uri.getLastPathSegment()});
                 } else {
-                    rowsDeleted = sqlDB.delete(QuickFitContract.WorkoutEntry.TABLE_NAME,
-                            QuickFitContract.WorkoutEntry.COL_ID + "=? and " + selection,
+                    rowsDeleted = sqlDB.delete(WorkoutEntry.TABLE_NAME,
+                            WorkoutEntry.COL_ID + "=? and " + selection,
                             expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
                 }
                 break;
             }
             case TYPE_SESSIONS: {
-                rowsDeleted = sqlDB.delete(QuickFitContract.SessionEntry.TABLE_NAME, selection,
+                rowsDeleted = sqlDB.delete(SessionEntry.TABLE_NAME, selection,
                         selectionArgs);
                 break;
             }
             case TYPE_SESSION_ID: {
                 if (TextUtils.isEmpty(selection)) {
-                    rowsDeleted = sqlDB.delete(QuickFitContract.SessionEntry.TABLE_NAME,
-                            QuickFitContract.SessionEntry._ID + "=?",
+                    rowsDeleted = sqlDB.delete(SessionEntry.TABLE_NAME,
+                            SessionEntry._ID + "=?",
                             new String[]{uri.getLastPathSegment()});
                 } else {
-                    rowsDeleted = sqlDB.delete(QuickFitContract.SessionEntry.TABLE_NAME,
-                            QuickFitContract.SessionEntry._ID + "=? and " + selection,
+                    rowsDeleted = sqlDB.delete(SessionEntry.TABLE_NAME,
+                            SessionEntry._ID + "=? and " + selection,
                             expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
                 }
                 break;
             }
             case TYPE_WORKOUT_ID_SCHEDULES: {
-                rowsDeleted = sqlDB.delete(QuickFitContract.ScheduleEntry.TABLE_NAME, selection, selectionArgs);
+                rowsDeleted = sqlDB.delete(ScheduleEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             }
             case TYPE_WORKOUT_ID_SCHEDULE_ID: {
                 if (TextUtils.isEmpty(selection)) {
-                    rowsDeleted = sqlDB.delete(QuickFitContract.ScheduleEntry.TABLE_NAME,
-                            QuickFitContract.ScheduleEntry.COL_ID + "=?",
+                    rowsDeleted = sqlDB.delete(ScheduleEntry.TABLE_NAME,
+                            ScheduleEntry.COL_ID + "=?",
                             new String[]{uri.getLastPathSegment()});
                 } else {
-                    rowsDeleted = sqlDB.delete(QuickFitContract.ScheduleEntry.TABLE_NAME,
-                            QuickFitContract.ScheduleEntry.COL_ID + "=? and " + selection,
+                    rowsDeleted = sqlDB.delete(ScheduleEntry.TABLE_NAME,
+                            ScheduleEntry.COL_ID + "=? and " + selection,
                             expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
                 }
                 break;
@@ -264,56 +268,56 @@ public class QuickFitContentProvider extends ContentProvider {
         int rowsUpdated;
         switch (uriMatcher.match(uri)) {
             case TYPE_WORKOUTS:
-                rowsUpdated = sqlDB.update(QuickFitContract.WorkoutEntry.TABLE_NAME,
+                rowsUpdated = sqlDB.update(WorkoutEntry.TABLE_NAME,
                         values,
                         selection,
                         selectionArgs);
                 break;
             case TYPE_WORKOUT_ID:
                 if (TextUtils.isEmpty(selection)) {
-                    rowsUpdated = sqlDB.update(QuickFitContract.WorkoutEntry.TABLE_NAME,
+                    rowsUpdated = sqlDB.update(WorkoutEntry.TABLE_NAME,
                             values,
-                            QuickFitContract.WorkoutEntry.COL_ID + "=?",
+                            WorkoutEntry.COL_ID + "=?",
                             new String[]{uri.getLastPathSegment()});
                 } else {
-                    rowsUpdated = sqlDB.update(QuickFitContract.WorkoutEntry.TABLE_NAME,
+                    rowsUpdated = sqlDB.update(WorkoutEntry.TABLE_NAME,
                             values,
-                            QuickFitContract.WorkoutEntry.COL_ID + "=? and " + selection,
+                            WorkoutEntry.COL_ID + "=? and " + selection,
                             expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
                 }
                 break;
             case TYPE_SESSIONS:
-                rowsUpdated = sqlDB.update(QuickFitContract.SessionEntry.TABLE_NAME,
+                rowsUpdated = sqlDB.update(SessionEntry.TABLE_NAME,
                         values,
                         selection,
                         selectionArgs);
                 break;
             case TYPE_SESSION_ID:
                 if (TextUtils.isEmpty(selection)) {
-                    rowsUpdated = sqlDB.update(QuickFitContract.SessionEntry.TABLE_NAME,
+                    rowsUpdated = sqlDB.update(SessionEntry.TABLE_NAME,
                             values,
-                            QuickFitContract.SessionEntry._ID + "=?",
+                            SessionEntry._ID + "=?",
                             new String[]{uri.getLastPathSegment()});
                 } else {
-                    rowsUpdated = sqlDB.update(QuickFitContract.SessionEntry.TABLE_NAME,
+                    rowsUpdated = sqlDB.update(SessionEntry.TABLE_NAME,
                             values,
-                            QuickFitContract.SessionEntry._ID + "=? and " + selection,
+                            SessionEntry._ID + "=? and " + selection,
                             expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
                 }
                 break;
             case TYPE_WORKOUT_ID_SCHEDULES:
-                rowsUpdated = sqlDB.update(QuickFitContract.ScheduleEntry.TABLE_NAME, values, selection, selectionArgs);
+                rowsUpdated = sqlDB.update(ScheduleEntry.TABLE_NAME, values, selection, selectionArgs);
                 break;
             case TYPE_WORKOUT_ID_SCHEDULE_ID:
                 if (TextUtils.isEmpty(selection)) {
-                    rowsUpdated = sqlDB.update(QuickFitContract.ScheduleEntry.TABLE_NAME,
+                    rowsUpdated = sqlDB.update(ScheduleEntry.TABLE_NAME,
                             values,
-                            QuickFitContract.ScheduleEntry.COL_ID + "=?",
+                            ScheduleEntry.COL_ID + "=?",
                             new String[]{uri.getLastPathSegment()});
                 } else {
-                    rowsUpdated = sqlDB.update(QuickFitContract.ScheduleEntry.TABLE_NAME,
+                    rowsUpdated = sqlDB.update(ScheduleEntry.TABLE_NAME,
                             values,
-                            QuickFitContract.ScheduleEntry.COL_ID + "=? and " + selection,
+                            ScheduleEntry.COL_ID + "=? and " + selection,
                             expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
                 }
                 break;

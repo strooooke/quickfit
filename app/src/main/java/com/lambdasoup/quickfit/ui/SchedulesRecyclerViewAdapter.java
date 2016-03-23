@@ -132,6 +132,10 @@ public class SchedulesRecyclerViewAdapter extends RecyclerView.Adapter<Schedules
         dataset.swapData(newItems);
     }
 
+    public ScheduleItem getById(long scheduleId) {
+        return dataset.getById(scheduleId);
+    }
+
     public interface OnScheduleInteractionListener {
         void onDayOfWeekChanged(long scheduleId, DayOfWeek newDayOfWeek);
 

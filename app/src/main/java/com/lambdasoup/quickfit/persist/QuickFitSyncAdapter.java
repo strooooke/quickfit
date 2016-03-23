@@ -50,7 +50,7 @@ import com.google.android.gms.fitness.data.Session;
 import com.google.android.gms.fitness.request.SessionInsertRequest;
 import com.lambdasoup.quickfit.Constants;
 import com.lambdasoup.quickfit.R;
-import com.lambdasoup.quickfit.WorkoutListActivity;
+import com.lambdasoup.quickfit.ui.WorkoutListActivity;
 
 import java.util.concurrent.TimeUnit;
 

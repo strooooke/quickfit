@@ -14,16 +14,20 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit;
+package com.lambdasoup.quickfit.alarm;
 
-// TODO: might want to become the Application (context)
-public class Constants {
-    public static final int NOTIFICATION_PLAY_INTERACTION = 0;
-    public static final int NOTIFICATION_ALARM = 1;
-    public static final int PENDING_INTENT_ALARM_RECEIVER = 0;
-    public static final int PENDING_INTENT_WORKOUT_LIST = 1;
+import android.content.Context;
+import android.content.Intent;
+import android.support.v4.content.WakefulBroadcastReceiver;
 
-    private Constants() {
-        // do not instantiate
+/**
+ * Created by jl on 22.03.16.
+ */
+public class AlarmReceiver extends WakefulBroadcastReceiver {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Intent notifyAlarmsIntent = new Intent(context, AlarmService.class);
+        notifyAlarmsIntent.setAction(AlarmService.ACTION_NOTIFY_ALARMS);
+        startWakefulService(context, notifyAlarmsIntent);
     }
 }

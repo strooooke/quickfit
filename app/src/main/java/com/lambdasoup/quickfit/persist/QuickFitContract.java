@@ -43,15 +43,6 @@ public class QuickFitContract {
         public static final String[] COLUMNS_FULL = {WORKOUT_ID, SCHEDULE_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES, DAY_OF_WEEK, HOUR, MINUTE};
         public static final String[] COLUMNS_WORKOUT_ONLY = {WORKOUT_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES};
         public static final String[] COLUMNS_SCHEDULE_ONLY = {WORKOUT_ID, SCHEDULE_ID, DAY_OF_WEEK, HOUR, MINUTE};
-        static final String[] CREATE_STATEMENTS = {
-                "CREATE TABLE " + TABLE_NAME + " ( " +
-                        COL_ID + " INTEGER PRIMARY KEY, " +
-                        COL_ACTIVITY_TYPE + " TEXT NOT NULL, " +
-                        COL_DURATION_MINUTES + " INTEGER NOT NULL, " +
-                        COL_LABEL + " TEXT NULL, " +
-                        COL_CALORIES + " INTEGER NULL " +
-                        ")"
-        };
         private WorkoutEntry() {
             // do not instantiate
         }
@@ -146,16 +137,8 @@ public class QuickFitContract {
         public static final String COL_DAY_OF_WEEK = "day_of_week";
         public static final String COL_HOUR = "hour";
         public static final String COL_MINUTE = "minute";
-        public static final String[] COLUMNS = {COL_ID, COL_WORKOUT_ID, COL_DAY_OF_WEEK, COL_HOUR, COL_MINUTE};
-        static final String[] CREATE_STATEMENTS = {
-                "CREATE TABLE " + TABLE_NAME + " ( " +
-                        COL_ID + " INTEGER PRIMARY KEY, " +
-                        COL_WORKOUT_ID + " INTEGER NOT NULL REFERENCES " + WorkoutEntry.TABLE_NAME + "(" + WorkoutEntry.COL_ID + ") ON DELETE CASCADE, " +
-                        COL_DAY_OF_WEEK + " TEXT NOT NULL, " +
-                        COL_HOUR + " INTEGER NOT NULL, " +
-                        COL_MINUTE + " INTEGER NOT NULL " +
-                        ")"
-        };
+        public static final String COL_NEXT_ALARM_MILLIS = "next_alarm_millis";
+        public static final String[] COLUMNS = {COL_ID, COL_WORKOUT_ID, COL_DAY_OF_WEEK, COL_HOUR, COL_MINUTE, COL_NEXT_ALARM_MILLIS};
 
         private ScheduleEntry() {
             // do not instantiate
@@ -171,17 +154,6 @@ public class QuickFitContract {
         public static final String NAME = "title";
         public static final String CALORIES = "calories";
         public static final String[] COLUMNS = {_ID, ACTIVITY_TYPE, START_TIME, END_TIME, STATUS, NAME, CALORIES};
-        static final String[] CREATE_STATEMENTS = {
-                "CREATE TABLE " + TABLE_NAME + " ( " +
-                        _ID + " INTEGER PRIMARY KEY, " +
-                        ACTIVITY_TYPE + " TEXT NOT NULL, " +
-                        START_TIME + " INTEGER NOT NULL, " +
-                        END_TIME + " INTEGER NOT NULL, " +
-                        STATUS + " TEXT NOT NULL, " +
-                        NAME + " TEXT NULL, " +
-                        CALORIES + " INTEGER NULL " +
-                        ")"
-        };
 
         private SessionEntry() {
             // do not instantiate
@@ -191,4 +163,5 @@ public class QuickFitContract {
             NEW, SYNCED
         }
     }
+
 }

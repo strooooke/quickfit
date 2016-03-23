@@ -68,5 +68,6 @@
     <string name="title_activity_schedules">SchedulesActivity</string>
 
     <string name="schedule_list_empty">Workout not yet scheduled.</string>
+    <string name="notification_alarm_title">Time for <xliff:g example="Aerobics" id="fit_activity_display_name">%1$s</xliff:g>!</string>
 
 </resources>

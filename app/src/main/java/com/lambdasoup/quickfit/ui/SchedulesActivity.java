@@ -18,6 +18,7 @@ package com.lambdasoup.quickfit.ui;
 
 import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
@@ -26,12 +27,15 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 
 import com.lambdasoup.quickfit.R;
+import com.lambdasoup.quickfit.alarm.AlarmService;
 import com.lambdasoup.quickfit.databinding.ActivitySchedulesBinding;
 import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
 import com.lambdasoup.quickfit.persist.QuickFitContract;
+import com.lambdasoup.quickfit.util.DateTimes;
 import com.lambdasoup.quickfit.util.ui.DividerItemDecoration;
 import com.lambdasoup.quickfit.util.ui.LeaveBehind;
+import com.lambdasoup.quickfit.viewmodel.ScheduleItem;
 import com.lambdasoup.quickfit.viewmodel.WorkoutItem;
 
 import java.util.Calendar;
@@ -140,9 +144,15 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
 
     @Override
     public void onDayOfWeekChanged(long scheduleId, DayOfWeek newDayOfWeek) {
+        ScheduleItem oldScheduleItem = schedulesAdapter.getById(scheduleId);
+        long nextAlarmMillis = DateTimes.getNextOccurence(System.currentTimeMillis(), newDayOfWeek, oldScheduleItem.hour, oldScheduleItem.minute);
+
         ContentValues contentValues = new ContentValues();
         contentValues.put(QuickFitContract.ScheduleEntry.COL_DAY_OF_WEEK, newDayOfWeek.name());
+        contentValues.put(QuickFitContract.ScheduleEntry.COL_NEXT_ALARM_MILLIS, nextAlarmMillis);
         getContentResolver().update(QuickFitContentProvider.getUriWorkoutsIdSchedulesId(workoutId, scheduleId), contentValues, null, null);
+
+        setAlarm();
     }
 
     @Override
@@ -152,20 +162,40 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
 
     @Override
     public void onTimeChanged(long scheduleId, int newHour, int newMinute) {
+        ScheduleItem oldScheduleItem = schedulesAdapter.getById(scheduleId);
+        long nextAlarmMillis = DateTimes.getNextOccurence(System.currentTimeMillis(), oldScheduleItem.dayOfWeek, newHour, newMinute);
+
         ContentValues contentValues = new ContentValues();
         contentValues.put(QuickFitContract.ScheduleEntry.COL_HOUR, newHour);
         contentValues.put(QuickFitContract.ScheduleEntry.COL_MINUTE, newMinute);
+        contentValues.put(QuickFitContract.ScheduleEntry.COL_NEXT_ALARM_MILLIS, nextAlarmMillis);
         getContentResolver().update(QuickFitContentProvider.getUriWorkoutsIdSchedulesId(workoutId, scheduleId), contentValues, null, null);
+
+        setAlarm();
     }
 
     private void onAddNewSchedule() {
         // initialize with current day and time
         Calendar calendar = Calendar.getInstance();
+        DayOfWeek dayOfWeek = DayOfWeek.getByCalendarConst(calendar.get(Calendar.DAY_OF_WEEK));
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+        long nextAlarmMillis = DateTimes.getNextOccurence(System.currentTimeMillis(), dayOfWeek, hour, minute);
+
         ContentValues contentValues = new ContentValues();
-        contentValues.put(QuickFitContract.ScheduleEntry.COL_DAY_OF_WEEK, DayOfWeek.getByCalendarConst(calendar.get(Calendar.DAY_OF_WEEK)).name());
-        contentValues.put(QuickFitContract.ScheduleEntry.COL_HOUR, calendar.get(Calendar.HOUR_OF_DAY));
-        contentValues.put(QuickFitContract.ScheduleEntry.COL_MINUTE, calendar.get(Calendar.MINUTE));
+        contentValues.put(QuickFitContract.ScheduleEntry.COL_DAY_OF_WEEK, dayOfWeek.name());
+        contentValues.put(QuickFitContract.ScheduleEntry.COL_HOUR, hour);
+        contentValues.put(QuickFitContract.ScheduleEntry.COL_MINUTE, minute);
+        contentValues.put(QuickFitContract.ScheduleEntry.COL_NEXT_ALARM_MILLIS, nextAlarmMillis);
         getContentResolver().insert(QuickFitContentProvider.getUriWorkoutsIdSchedules(workoutId), contentValues);
+
+        setAlarm();
+    }
+
+    private void setAlarm() {
+        Intent setAlarm = new Intent(getApplicationContext(), AlarmService.class);
+        setAlarm.setAction(AlarmService.ACTION_SET_ALARM);
+        startService(setAlarm);
     }
 
     private void onRemoveSchedule(long scheduleId) {
