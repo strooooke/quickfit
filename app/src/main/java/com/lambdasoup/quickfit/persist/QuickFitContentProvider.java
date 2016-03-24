@@ -33,6 +33,7 @@ import android.util.Pair;
 
 import com.lambdasoup.quickfit.persist.QuickFitContract.ScheduleEntry;
 import com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry;
+import com.lambdasoup.quickfit.persist.QuickFitContract.TablesAndAliases;
 import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
 
 import java.util.ArrayList;
@@ -111,34 +112,35 @@ public class QuickFitContentProvider extends ContentProvider {
             case TYPE_WORKOUT_ID_SCHEDULE_ID:
             case TYPE_WORKOUT_ID_SCHEDULES:
             case TYPE_WORKOUTS:
-                Pair<String, String[]> tableAndProjection = WorkoutEntry.toAlias(projection);
-                aliasedProjection = tableAndProjection.second;
-                queryBuilder.setTables(tableAndProjection.first);
+                TablesAndAliases tableAndProjection = WorkoutEntry.toAlias(projection);
+                aliasedProjection = tableAndProjection.aliases;
+                queryBuilder.setTables(tableAndProjection.tableExpression);
+                switch (type) {
+                    case TYPE_WORKOUT_ID:
+                    case TYPE_WORKOUT_ID_SCHEDULES:
+                        if (tableAndProjection.tables.contains(WorkoutEntry.TABLE_NAME)) {
+                            queryBuilder.appendWhere(WorkoutEntry.TABLE_NAME + "." + WorkoutEntry.COL_ID + "=?");
+                        } else {
+                            queryBuilder.appendWhere(ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_WORKOUT_ID + "=?");
+                        }
+                        moreSelectionArgs.add(uri.getPathSegments().get(1));
+                        break;
+                    case TYPE_WORKOUT_ID_SCHEDULE_ID:
+                        queryBuilder.appendWhere(ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_ID + "=?");
+                        moreSelectionArgs.add(uri.getLastPathSegment());
+                        break;
+                    case TYPE_WORKOUTS:
+                        break;
+                }
                 break;
             case TYPE_SESSION_ID:
+                queryBuilder.appendWhere(SessionEntry._ID + "=?");
+                moreSelectionArgs.add(uri.getLastPathSegment());
             case TYPE_SESSIONS:
                 queryBuilder.setTables(SessionEntry.TABLE_NAME);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid content URI:" + uri);
-        }
-        switch (type) {
-            case TYPE_WORKOUT_ID:
-            case TYPE_WORKOUT_ID_SCHEDULES:
-                queryBuilder.appendWhere(WorkoutEntry.TABLE_NAME + "." + WorkoutEntry.COL_ID + "=?");
-                moreSelectionArgs.add(uri.getPathSegments().get(1));
-                break;
-            case TYPE_WORKOUT_ID_SCHEDULE_ID:
-                queryBuilder.appendWhere(ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_ID + "=?");
-                moreSelectionArgs.add(uri.getLastPathSegment());
-                break;
-            case TYPE_SESSION_ID:
-                queryBuilder.appendWhere(SessionEntry._ID + "=?");
-                moreSelectionArgs.add(uri.getLastPathSegment());
-                break;
-            case TYPE_WORKOUTS:
-            case TYPE_SESSIONS:
-                break;
         }
 
         String[] expandedSelectionArgs = expandSelectionArgs(selectionArgs, moreSelectionArgs);

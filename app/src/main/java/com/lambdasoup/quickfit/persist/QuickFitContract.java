@@ -17,8 +17,8 @@
 package com.lambdasoup.quickfit.persist;
 
 import android.provider.BaseColumns;
-import android.util.Pair;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,15 +43,17 @@ public class QuickFitContract {
         public static final String[] COLUMNS_FULL = {WORKOUT_ID, SCHEDULE_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES, DAY_OF_WEEK, HOUR, MINUTE};
         public static final String[] COLUMNS_WORKOUT_ONLY = {WORKOUT_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES};
         public static final String[] COLUMNS_SCHEDULE_ONLY = {WORKOUT_ID, SCHEDULE_ID, DAY_OF_WEEK, HOUR, MINUTE};
+
         private WorkoutEntry() {
             // do not instantiate
         }
 
-        public static Pair<String, String> toAlias(String contractColumn) {
+        public static TableAndAlias toAlias(String contractColumn) {
             StringBuilder aliased = new StringBuilder();
             String table;
             switch (contractColumn) {
                 case WORKOUT_ID:
+                    throw new IllegalArgumentException("WORKOUT_ID needs special handling");
                 case ACTIVITY_TYPE:
                 case DURATION_MINUTES:
                 case LABEL:
@@ -71,9 +73,6 @@ public class QuickFitContract {
             }
             aliased.append(".");
             switch (contractColumn) {
-                case WORKOUT_ID:
-                    aliased.append(WorkoutEntry.COL_ID);
-                    break;
                 case ACTIVITY_TYPE:
                     aliased.append(WorkoutEntry.COL_ACTIVITY_TYPE);
                     break;
@@ -101,16 +100,32 @@ public class QuickFitContract {
             }
             aliased.append(" as ");
             aliased.append(contractColumn);
-            return new Pair<>(table, aliased.toString());
+            return new TableAndAlias(table, aliased.toString());
         }
 
-        public static Pair<String, String[]> toAlias(String[] contractConstants) {
+        public static TablesAndAliases toAlias(String[] contractConstants) {
             String[] aliased = new String[contractConstants.length];
             Set<String> tables = new HashSet<>();
-            for (int i = 0; i < contractConstants.length; i++) {
-                Pair<String, String> tableAndAlias = toAlias(contractConstants[i]);
-                aliased[i] = tableAndAlias.second;
-                tables.add(tableAndAlias.first);
+            boolean withWorkoutId = false;
+            for (int i = 0, j = 0; i < contractConstants.length; i++) {
+                if (WORKOUT_ID.equals(contractConstants[i])) {
+                    // handle this after collecting all other tables and aliases
+                    withWorkoutId = true;
+                } else {
+                    TableAndAlias tableAndAlias = toAlias(contractConstants[i]);
+                    aliased[j] = tableAndAlias.alias;
+                    tables.add(tableAndAlias.table);
+                    j++;
+                }
+            }
+
+            if (withWorkoutId) {
+                if (tables.size() == 1 && tables.iterator().next().equals(ScheduleEntry.TABLE_NAME)) {
+                    aliased[aliased.length - 1] = ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_WORKOUT_ID + " as " + WORKOUT_ID;
+                } else {
+                    tables.add(WorkoutEntry.TABLE_NAME);
+                    aliased[aliased.length - 1] = WorkoutEntry.TABLE_NAME + "." + WorkoutEntry.COL_ID + " as " + WORKOUT_ID;
+                }
             }
 
             String tablesExpression;
@@ -126,7 +141,7 @@ public class QuickFitContract {
                 default:
                     throw new IllegalArgumentException("what do you want to alias an empty array for?");
             }
-            return new Pair<>(tablesExpression, aliased);
+            return new TablesAndAliases(tables, aliased, tablesExpression);
         }
     }
 
@@ -164,4 +179,25 @@ public class QuickFitContract {
         }
     }
 
+    static class TableAndAlias {
+        public final String table;
+        public final String alias;
+
+        TableAndAlias(String table, String alias) {
+            this.table = table;
+            this.alias = alias;
+        }
+    }
+
+    static class TablesAndAliases {
+        public final Set<String> tables;
+        public final String[] aliases;
+        public final String tableExpression;
+
+        TablesAndAliases(Set<String> tables, String[] aliases, String tableExpression) {
+            this.tables = Collections.unmodifiableSet(tables);
+            this.aliases = aliases;
+            this.tableExpression = tableExpression;
+        }
+    }
 }
