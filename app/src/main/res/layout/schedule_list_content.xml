@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
                 android:layout_gravity="center_vertical|end"
-                android:src="@drawable/ic_delete_54perc_black_24dp"
+                android:src="@drawable/ic_delete_white_24dp"
                 android:contentDescription="@string/delete_button"/>
         </FrameLayout>
 
@@ -57,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
                 android:layout_gravity="center_vertical|start"
-                android:src="@drawable/ic_delete_54perc_black_24dp"
+                android:src="@drawable/ic_delete_white_24dp"
                 android:contentDescription="@string/delete_button"/>
         </FrameLayout>
 
