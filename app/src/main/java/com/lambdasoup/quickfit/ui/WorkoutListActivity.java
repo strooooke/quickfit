@@ -40,7 +40,9 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.fitness.FitnessActivities;
+import com.lambdasoup.quickfit.FitActivityService;
 import com.lambdasoup.quickfit.R;
+import com.lambdasoup.quickfit.alarm.AlarmService;
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
 import com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry;
 import com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry.SessionStatus;
@@ -61,12 +63,12 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
     private static final String TAG = WorkoutListActivity.class.getSimpleName();
 
     private static final int REQUEST_OAUTH = 0;
-    private static final String ACCOUNT_TYPE = "com.lambdasoup.quickfit";
+
     private static final String KEY_AUTH_IN_PROGRESS = "com.lambdasoup.quickfit.auth_in_progress";
     private static final String KEY_SHOW_WORKOUT_ID = "com.lambdasoup.quickfit.show_workout_id";
     private static final long NO_ID = -1;
 
-    private final Account account = new Account("QuickFit", ACCOUNT_TYPE);
+
     AuthProgress authProgress = AuthProgress.NONE;
     private WorkoutItemRecyclerViewAdapter workoutsAdapter;
     private EmptyRecyclerView workoutsRecyclerView;
@@ -99,10 +101,6 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         if (savedInstanceState != null) {
             authProgress = AuthProgress.valueOf(savedInstanceState.getString(KEY_AUTH_IN_PROGRESS, AuthProgress.NONE.name()));
             idToScrollTo = savedInstanceState.getLong(KEY_SHOW_WORKOUT_ID, NO_ID);
-        }
-
-        if (AccountManager.get(getApplicationContext()).addAccountExplicitly(account, null, null)) {
-            ContentResolver.setIsSyncable(account, QuickFitContentProvider.AUTHORITY, 1);
         }
 
         getLoaderManager().initLoader(0, null, this);
@@ -189,7 +187,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
     @Override
     public void onDoneItClick(long workoutId) {
-        new InsertSessionTask().execute(workoutId);
+        startService(FitActivityService.getIntentInsertSession(getApplicationContext(), workoutId));
     }
 
     @Override
@@ -252,62 +250,15 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         if (requestCode == REQUEST_OAUTH) {
             authProgress = AuthProgress.DONE;
             if (resultCode == RESULT_OK) {
-                requestSync();
+                startService(FitActivityService.getIntentSyncSession(getApplicationContext()));
             }
         }
     }
 
-    private void requestSync() {
-        Bundle syncOptions = new Bundle();
-        syncOptions.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.requestSync(account, QuickFitContentProvider.AUTHORITY, syncOptions);
-    }
 
     enum AuthProgress {
         NONE, IN_PROGRESS, DONE
     }
 
-    private class InsertSessionTask extends AsyncTask<Long, Void, Boolean> {
-        @Override
-        protected Boolean doInBackground(Long... params) {
-            long workoutId = params[0];
-
-            Cursor cursor = getContentResolver().query(
-                    QuickFitContentProvider.getUriWorkoutsId(workoutId),
-                    WorkoutEntry.COLUMNS_WORKOUT_ONLY,
-                    null,
-                    null,
-                    null);
-            if (cursor == null || !cursor.moveToFirst()) {
-                Log.w(TAG, "Workout missing with id: " + workoutId);
-                return false;
-            }
-
-            int durationInMinutes = cursor.getInt(cursor.getColumnIndex(WorkoutEntry.DURATION_MINUTES));
-            long endTime = System.currentTimeMillis();
-            long startTime = endTime - TimeUnit.MINUTES.toMillis(durationInMinutes);
-
-            ContentValues values = new ContentValues();
-            values.put(SessionEntry.ACTIVITY_TYPE, cursor.getString(cursor.getColumnIndex(WorkoutEntry.ACTIVITY_TYPE)));
-            values.put(SessionEntry.START_TIME, startTime);
-            values.put(SessionEntry.END_TIME, endTime);
-            values.put(SessionEntry.STATUS, SessionStatus.NEW.name());
-            values.put(SessionEntry.NAME, cursor.getString(cursor.getColumnIndex(WorkoutEntry.LABEL)));
-            values.put(SessionEntry.CALORIES, cursor.getInt(cursor.getColumnIndex(WorkoutEntry.CALORIES)));
-
-            cursor.close();
-
-            getContentResolver().insert(QuickFitContentProvider.getUriSessionsList(), values);
-            requestSync();
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            if (success) {
-                Toast.makeText(WorkoutListActivity.this, R.string.success_session_insert, Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
 
 }

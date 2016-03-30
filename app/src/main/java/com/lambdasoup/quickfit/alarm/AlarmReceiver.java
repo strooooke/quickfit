@@ -26,8 +26,6 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 public class AlarmReceiver extends WakefulBroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        Intent notifyAlarmsIntent = new Intent(context, AlarmService.class);
-        notifyAlarmsIntent.setAction(AlarmService.ACTION_NOTIFY_ALARMS);
-        startWakefulService(context, notifyAlarmsIntent);
+        startWakefulService(context, AlarmService.getIntentScheduleNextAlarms(context));
     }
 }

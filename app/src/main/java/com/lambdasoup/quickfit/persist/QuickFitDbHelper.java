@@ -30,7 +30,7 @@ public class QuickFitDbHelper extends SQLiteOpenHelper {
 
     public static final String TAG = QuickFitDbHelper.class.getSimpleName();
     static final String DATABASE_NAME = "quickfit.db";
-    static final int DATABASE_VERSION = 7;
+    static final int DATABASE_VERSION = 9;
 
     public QuickFitDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -107,6 +107,35 @@ public class QuickFitDbHelper extends SQLiteOpenHelper {
             database.execSQL(createSchedule);
             return;
         }
-
+        if (newVersion == 8) {
+            // version 7 was never in the wild
+            database.execSQL("DROP TABLE " + ScheduleEntry.TABLE_NAME);
+            final String createSchedule = "CREATE TABLE " + ScheduleEntry.TABLE_NAME + " ( " +
+                    ScheduleEntry.COL_ID + " INTEGER PRIMARY KEY, " +
+                    ScheduleEntry.COL_WORKOUT_ID + " INTEGER NOT NULL REFERENCES " + WorkoutEntry.TABLE_NAME + "(" + WorkoutEntry.COL_ID + ") ON DELETE CASCADE, " +
+                    ScheduleEntry.COL_DAY_OF_WEEK + " TEXT NOT NULL, " +
+                    ScheduleEntry.COL_HOUR + " INTEGER NOT NULL, " +
+                    ScheduleEntry.COL_MINUTE + " INTEGER NOT NULL, " +
+                    ScheduleEntry.COL_NEXT_ALARM_MILLIS + " INTEGER NOT NULL, " +
+                    ScheduleEntry.COL_SHOW_NOTIFICATION + " INTEGER NOT NULL " +
+                    ")";
+            database.execSQL(createSchedule);
+            return;
+        }
+        if (newVersion == 9) {
+            // version 9 was never in the wild
+            database.execSQL("DROP TABLE " + ScheduleEntry.TABLE_NAME);
+            final String createSchedule = "CREATE TABLE " + ScheduleEntry.TABLE_NAME + " ( " +
+                    ScheduleEntry.COL_ID + " INTEGER PRIMARY KEY, " +
+                    ScheduleEntry.COL_WORKOUT_ID + " INTEGER NOT NULL REFERENCES " + WorkoutEntry.TABLE_NAME + "(" + WorkoutEntry.COL_ID + ") ON DELETE CASCADE, " +
+                    ScheduleEntry.COL_DAY_OF_WEEK + " TEXT NOT NULL, " +
+                    ScheduleEntry.COL_HOUR + " INTEGER NOT NULL, " +
+                    ScheduleEntry.COL_MINUTE + " INTEGER NOT NULL, " +
+                    ScheduleEntry.COL_NEXT_ALARM_MILLIS + " INTEGER NOT NULL, " +
+                    ScheduleEntry.COL_SHOW_NOTIFICATION + " INTEGER NOT NULL DEFAULT " + ScheduleEntry.SHOW_NOTIFICATION_NO +
+                    ")";
+            database.execSQL(createSchedule);
+            return;
+        }
     }
 }

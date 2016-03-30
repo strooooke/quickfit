@@ -40,6 +40,8 @@ public class QuickFitContract {
         public static final String DAY_OF_WEEK = "schedule_day_of_week";
         public static final String HOUR = "schedule_hour";
         public static final String MINUTE = "schedule_minute";
+        public static final String NEXT_ALARM_MILLIS = "schedule_next_alarm_millis";
+        public static final String SHOW_NOTIFICATION = "schedule_show_notification";
         public static final String[] COLUMNS_FULL = {WORKOUT_ID, SCHEDULE_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES, DAY_OF_WEEK, HOUR, MINUTE};
         public static final String[] COLUMNS_WORKOUT_ONLY = {WORKOUT_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES};
         public static final String[] COLUMNS_SCHEDULE_ONLY = {WORKOUT_ID, SCHEDULE_ID, DAY_OF_WEEK, HOUR, MINUTE};
@@ -65,6 +67,8 @@ public class QuickFitContract {
                 case DAY_OF_WEEK:
                 case HOUR:
                 case MINUTE:
+                case NEXT_ALARM_MILLIS:
+                case SHOW_NOTIFICATION:
                     aliased.append(ScheduleEntry.TABLE_NAME);
                     table = ScheduleEntry.TABLE_NAME;
                     break;
@@ -96,6 +100,12 @@ public class QuickFitContract {
                     break;
                 case MINUTE:
                     aliased.append(ScheduleEntry.COL_MINUTE);
+                    break;
+                case NEXT_ALARM_MILLIS:
+                    aliased.append(ScheduleEntry.COL_NEXT_ALARM_MILLIS);
+                    break;
+                case SHOW_NOTIFICATION:
+                    aliased.append(ScheduleEntry.COL_SHOW_NOTIFICATION);
                     break;
             }
             aliased.append(" as ");
@@ -153,8 +163,11 @@ public class QuickFitContract {
         public static final String COL_HOUR = "hour";
         public static final String COL_MINUTE = "minute";
         public static final String COL_NEXT_ALARM_MILLIS = "next_alarm_millis";
-        public static final String[] COLUMNS = {COL_ID, COL_WORKOUT_ID, COL_DAY_OF_WEEK, COL_HOUR, COL_MINUTE, COL_NEXT_ALARM_MILLIS};
+        public static final String COL_SHOW_NOTIFICATION = "show_notification";
+        public static final String[] COLUMNS = {COL_ID, COL_WORKOUT_ID, COL_DAY_OF_WEEK, COL_HOUR, COL_MINUTE, COL_NEXT_ALARM_MILLIS, COL_SHOW_NOTIFICATION};
 
+        public static final int SHOW_NOTIFICATION_NO = 0;
+        public static final int SHOW_NOTIFICATION_YES = 1;
         private ScheduleEntry() {
             // do not instantiate
         }
@@ -179,7 +192,7 @@ public class QuickFitContract {
         }
     }
 
-    static class TableAndAlias {
+    public static class TableAndAlias {
         public final String table;
         public final String alias;
 
@@ -189,7 +202,7 @@ public class QuickFitContract {
         }
     }
 
-    static class TablesAndAliases {
+    public static class TablesAndAliases {
         public final Set<String> tables;
         public final String[] aliases;
         public final String tableExpression;

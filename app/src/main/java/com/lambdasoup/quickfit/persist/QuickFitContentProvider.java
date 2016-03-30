@@ -31,6 +31,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
+import com.lambdasoup.quickfit.alarm.AlarmService;
 import com.lambdasoup.quickfit.persist.QuickFitContract.ScheduleEntry;
 import com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry;
 import com.lambdasoup.quickfit.persist.QuickFitContract.TablesAndAliases;
@@ -50,12 +51,15 @@ public class QuickFitContentProvider extends ContentProvider {
     private static final String PATH_SCHEDULES = "schedules";
     private static final Uri URI_WORKOUTS = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(AUTHORITY).path(PATH_WORKOUTS).build();
     private static final Uri URI_SESSIONS = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(AUTHORITY).path(PATH_SESSIONS).build();
+    private static final Uri URI_SCHEDULES = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(AUTHORITY).path(PATH_SCHEDULES).build();
     private static final int TYPE_WORKOUTS = 1;
     private static final int TYPE_WORKOUT_ID = 2;
     private static final int TYPE_SESSIONS = 3;
     private static final int TYPE_SESSION_ID = 4;
     private static final int TYPE_WORKOUT_ID_SCHEDULES = 5;
     private static final int TYPE_WORKOUT_ID_SCHEDULE_ID = 6;
+    private static final int TYPE_SCHEDULES = 7;
+    private static final int TYPE_SCHEDULE_ID = 8;
     private static final UriMatcher uriMatcher = new UriMatcher(0);
 
     static {
@@ -65,6 +69,8 @@ public class QuickFitContentProvider extends ContentProvider {
         uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS + "/#/" + PATH_SCHEDULES + "/#", TYPE_WORKOUT_ID_SCHEDULE_ID);
         uriMatcher.addURI(AUTHORITY, PATH_SESSIONS, TYPE_SESSIONS);
         uriMatcher.addURI(AUTHORITY, PATH_SESSIONS + "/#", TYPE_SESSION_ID);
+        uriMatcher.addURI(AUTHORITY, PATH_SCHEDULES, TYPE_SCHEDULES);
+        uriMatcher.addURI(AUTHORITY, PATH_SCHEDULES + "/#", TYPE_SCHEDULE_ID);
     }
 
     private QuickFitDbHelper database;
@@ -83,6 +89,12 @@ public class QuickFitContentProvider extends ContentProvider {
 
     public static Uri getUriWorkoutsIdSchedulesId(long workoutId, long scheduleId) {
         return ContentUris.withAppendedId(getUriWorkoutsIdSchedules(workoutId), scheduleId);
+    }
+
+    public static Uri getUriSchedulesList() {return URI_SCHEDULES;}
+
+    public static Uri getUriSchedulesId(long scheduleId) {
+        return ContentUris.withAppendedId(getUriSchedulesList(), scheduleId);
     }
 
     public static Uri getUriSessionsList() {
@@ -133,6 +145,12 @@ public class QuickFitContentProvider extends ContentProvider {
                         break;
                 }
                 break;
+            case TYPE_SCHEDULE_ID:
+                queryBuilder.appendWhere(ScheduleEntry.COL_ID + "=?");
+                moreSelectionArgs.add(uri.getLastPathSegment());
+            case TYPE_SCHEDULES:
+                queryBuilder.setTables(ScheduleEntry.TABLE_NAME);
+                break;
             case TYPE_SESSION_ID:
                 queryBuilder.appendWhere(SessionEntry._ID + "=?");
                 moreSelectionArgs.add(uri.getLastPathSegment());
@@ -166,8 +184,10 @@ public class QuickFitContentProvider extends ContentProvider {
             case TYPE_SESSIONS:
                 return ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".session";
             case TYPE_WORKOUT_ID_SCHEDULES:
+            case TYPE_SCHEDULES:
                 return ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".schedule";
             case TYPE_WORKOUT_ID_SCHEDULE_ID:
+            case TYPE_SCHEDULE_ID:
                 return ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd." + AUTHORITY + ".schedule";
             default:
                 throw new IllegalArgumentException("Invalid content URI:" + uri);
@@ -190,6 +210,9 @@ public class QuickFitContentProvider extends ContentProvider {
                 ContentValues expandedValues = new ContentValues(values);
                 expandedValues.put(ScheduleEntry.COL_WORKOUT_ID, uri.getPathSegments().get(1));
                 id = sqlDB.insert(ScheduleEntry.TABLE_NAME, null, expandedValues);
+                break;
+            case TYPE_SCHEDULES:
+                id = sqlDB.insert(ScheduleEntry.TABLE_NAME, null, values);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid content URI:" + uri);
@@ -239,10 +262,12 @@ public class QuickFitContentProvider extends ContentProvider {
                 }
                 break;
             }
+            case TYPE_SCHEDULES:
             case TYPE_WORKOUT_ID_SCHEDULES: {
                 rowsDeleted = sqlDB.delete(ScheduleEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             }
+            case TYPE_SCHEDULE_ID:
             case TYPE_WORKOUT_ID_SCHEDULE_ID: {
                 if (TextUtils.isEmpty(selection)) {
                     rowsDeleted = sqlDB.delete(ScheduleEntry.TABLE_NAME,
@@ -307,9 +332,11 @@ public class QuickFitContentProvider extends ContentProvider {
                             expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
                 }
                 break;
+            case TYPE_SCHEDULES:
             case TYPE_WORKOUT_ID_SCHEDULES:
                 rowsUpdated = sqlDB.update(ScheduleEntry.TABLE_NAME, values, selection, selectionArgs);
                 break;
+            case TYPE_SCHEDULE_ID:
             case TYPE_WORKOUT_ID_SCHEDULE_ID:
                 if (TextUtils.isEmpty(selection)) {
                     rowsUpdated = sqlDB.update(ScheduleEntry.TABLE_NAME,

@@ -20,7 +20,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- legacy (only pre-23) -->
     <uses-permission
@@ -92,15 +92,19 @@
         <!-- TODO: permissions -->
         <service
             android:name=".alarm.AlarmService"
-            android:exported="false">
-
-        </service>
+            android:exported="false" />
 
         <!-- TODO: permissions, intents -->
+        <receiver android:name=".alarm.AlarmReceiver" />
+
+        <service
+            android:name=".FitActivityService"
+            android:exported="false" />
+
         <receiver
-            android:name=".alarm.AlarmReceiver"
-            >
-        </receiver>
+            android:name=".alarm.DidItReceiver"
+            android:enabled="true"
+            android:exported="false"/>
     </application>
 
 </manifest>
