@@ -21,6 +21,7 @@
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <!-- legacy (only pre-23) -->
     <uses-permission
@@ -89,22 +90,27 @@
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
         </service>
-        <!-- TODO: permissions -->
+
         <service
             android:name=".alarm.AlarmService"
             android:exported="false" />
-
-        <!-- TODO: permissions, intents -->
-        <receiver android:name=".alarm.AlarmReceiver" />
-
         <service
             android:name=".FitActivityService"
             android:exported="false" />
 
+        <!-- TODO: permissions, intents -->
+        <receiver android:name=".alarm.AlarmReceiver" android:exported="true" android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+
         <receiver
             android:name=".alarm.DidItReceiver"
             android:enabled="true"
-            android:exported="false"/>
+            android:exported="false" />
     </application>
 
 </manifest>
