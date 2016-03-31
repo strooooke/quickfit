@@ -20,18 +20,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
-/**
- * WakefuleBroadcastReceiver that runs
- * 1) on boot
- * 2) on alarm
- * and
- * a) checks the database for what schedules' next occurence is now in the past
- * b) updates the 'show notification' flag in the database
- * c) applies the current state of the 'show notifications' flag to the actual notification
- */
-public class AlarmReceiver extends WakefulBroadcastReceiver {
+public class TimeChangeReceiver extends WakefulBroadcastReceiver {
+    public TimeChangeReceiver() {
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        startWakefulService(context, AlarmService.getIntentOnAlarmReceived(context));
+        startWakefulService(context, AlarmService.getIntentOnTimeChanged(context));
     }
 }

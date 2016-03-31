@@ -20,13 +20,7 @@ import com.lambdasoup.quickfit.persist.QuickFitContract;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * An {@link IntentService} subclass for handling asynchronous task requests in
- * a service on a separate handler thread.
- * <p>
- * TODO: should this really be an intent service?
- * helper methods.
- */
+
 public class FitActivityService extends IntentService {
     private static final String ACTION_INSERT_SESSION = "com.lambdasoup.quickfit.action.INSERT_SESSION";
     private static final String ACTION_SESSION_SYNC = "com.lambdasoup.quickfit.action.SESSION_SYNC";

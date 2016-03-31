@@ -36,6 +36,7 @@ import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.lambdasoup.quickfit.Constants;
+import com.lambdasoup.quickfit.FitActivityService;
 import com.lambdasoup.quickfit.R;
 import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.model.FitActivity;
@@ -47,6 +48,8 @@ import com.lambdasoup.quickfit.ui.WorkoutListActivity;
 import com.lambdasoup.quickfit.util.DateTimes;
 import com.lambdasoup.quickfit.util.IntentServiceCompat;
 
+import java.util.Arrays;
+
 import static com.lambdasoup.quickfit.Constants.PENDING_INTENT_ALARM_RECEIVER;
 
 /**
@@ -56,11 +59,16 @@ import static com.lambdasoup.quickfit.Constants.PENDING_INTENT_ALARM_RECEIVER;
 public class AlarmService extends IntentServiceCompat {
     private static final String TAG = AlarmService.class.getSimpleName();
 
-    private static final String ACTION_SCHEDULE_NEXT_ALARMS = "com.lambdasoup.quickfit.alarm.action.SCHEDULE_NEXT_ALARMS";
-    private static final String ACTION_SET_ALARM = "com.lambdasoup.quickfit.alarm.action.SET_ALARM";
-    private static final String ACTION_CANCEL_NOTIFICATIONS = "com.lambdasoup.quickfit.alarm.action.CANCEL_NOTIFICATIONS";
-    private static final String ACTION_SNOOZE = "com.lambdasoup.quickfit.alarm.action.SNOOZE";
+    private static final String ACTION_ON_ALARM_RECEIVED = "com.lambdasoup.quickfit.alarm.action.ON_ALARM_RECEIVED";
+    private static final String ACTION_ON_TIME_CHANGED = "com.lambdasoup.quickfit.alarm.action.ON_TIME_CHANGED";
+    private static final String ACTION_ON_NEXT_OCC_CHANGED = "com.lambdasoup.quickfit.alarm.action.ON_NEXT_OCC_CHANGED";
+    private static final String ACTION_ON_NOTIFICATIONS_CANCELED = "com.lambdasoup.quickfit.alarm.action.ON_NOTIFICATIONS_CANCELED";
+    private static final String ACTION_ON_SNOOZE = "com.lambdasoup.quickfit.alarm.action.ON_SNOOZE";
+    private static final String ACTION_ON_DID_IT = "com.lambdasoup.quickfit.alarm.action.ON_DID_IT";
+
     private static final String EXTRA_SCHEDULE_ID = "com.lambdasoup.quickfit.alarm.extra.SCHEDULE_ID";
+    private static final String EXTRA_SCHEDULE_IDS = "com.lambdasoup.quickfit.alarm.extra.SCHEDULE_IDS";
+    private static final String EXTRA_WORKOUT_ID = "com.lambdasoup.quickfit.alarm.WORKOUT_ID";
 
     private static final String QUERY_SELECT_MIN_NEXT_ALERT = "SELECT " + ScheduleEntry.COL_NEXT_ALARM_MILLIS + " FROM " + ScheduleEntry.TABLE_NAME +
             " ORDER BY " + ScheduleEntry.COL_NEXT_ALARM_MILLIS + " ASC LIMIT 1";
@@ -72,35 +80,68 @@ public class AlarmService extends IntentServiceCompat {
         dbHelper = new QuickFitDbHelper(this);
     }
 
-    public static Intent getIntentScheduleNextAlarms(Context context) {
+    /**
+     * For use by the AlarmReceiver. As alarms can occur during doze mode etc.,
+     * this is a wakeful broadcast receiver, and this action needs to take care to release
+     * the wake lock carried by the intent at the end.
+     */
+    public static Intent getIntentOnAlarmReceived(Context context) {
         Intent intent = new Intent(context, AlarmService.class);
-        intent.setAction(ACTION_SCHEDULE_NEXT_ALARMS);
+        intent.setAction(ACTION_ON_ALARM_RECEIVED);
         return intent;
     }
 
-    public static Intent getIntentSetAlarm(Context context) {
+    /**
+     * For use by the TimeChangeReceiver. As time changes can occur during doze mode etc.,
+     * this is a wakeful broadcast receiver, and this action needs to take care to release
+     * the wake lock carried by the intent at the end.
+     */
+    public static Intent getIntentOnTimeChanged(Context context) {
         Intent intent = new Intent(context, AlarmService.class);
-        intent.setAction(ACTION_SET_ALARM);
+        intent.setAction(ACTION_ON_TIME_CHANGED);
         return intent;
     }
 
-    public static Intent getIntentCancelNotifications(Context context) {
+    /**
+     * For use by the activity, which takes care of updating next occurence data
+     * for schedules itself. This action sets the alarm, to allow the AlarmReceiver
+     * to react on the occurence of the very next scheduled event.
+     */
+    public static Intent getIntentOnNextOccChanged(Context context) {
         Intent intent = new Intent(context, AlarmService.class);
-        intent.setAction(ACTION_CANCEL_NOTIFICATIONS);
+        intent.setAction(ACTION_ON_NEXT_OCC_CHANGED);
         return intent;
     }
 
-    public static Intent getIntentCancelNotification(Context context, long scheduleId) {
+    /**
+     * For use by the Notification main actions; marks the schedules as
+     * "don't show notification".
+     */
+    public static Intent getIntentOnNotificationsCanceled(Context context, long[] scheduleIds) {
         Intent intent = new Intent(context, AlarmService.class);
-        intent.setAction(ACTION_CANCEL_NOTIFICATIONS);
+        intent.setAction(ACTION_ON_NOTIFICATIONS_CANCELED);
+        intent.putExtra(EXTRA_SCHEDULE_IDS, scheduleIds);
+        return intent;
+    }
+
+    /**
+     * Action of the Notification snooze action.
+     */
+    private static Intent getIntentOnSnooze(Context context, long scheduleId) {
+        Intent intent = new Intent(context, AlarmService.class);
+        intent.setAction(ACTION_ON_SNOOZE);
         intent.putExtra(EXTRA_SCHEDULE_ID, scheduleId);
         return intent;
     }
 
-    private static Intent getIntentSnooze(Context context, long scheduleId) {
+    /**
+     * Action of the Notification DidIt action.
+     */
+    private static Intent getIntentOnDidIt(Context context, long scheduleId, long workoutId) {
         Intent intent = new Intent(context, AlarmService.class);
-        intent.setAction(ACTION_SNOOZE);
+        intent.setAction(ACTION_ON_DID_IT);
         intent.putExtra(EXTRA_SCHEDULE_ID, scheduleId);
+        intent.putExtra(EXTRA_WORKOUT_ID, workoutId);
         return intent;
     }
 
@@ -110,44 +151,88 @@ public class AlarmService extends IntentServiceCompat {
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             final String action = intent.getAction();
-            if (ACTION_SET_ALARM.equals(action)) {
-                handleSetAlarms(intent);
-            } else if (ACTION_SCHEDULE_NEXT_ALARMS.equals(action)) {
-                handleScheduleNextAlarms(intent);
-            } else if (ACTION_CANCEL_NOTIFICATIONS.equals(action)) {
-                if (intent.hasExtra(EXTRA_SCHEDULE_ID)) {
-                    handleCancelNotification(intent.getLongExtra(EXTRA_SCHEDULE_ID, -1));
-                } else {
-                    handleCancelNotifications();
-                }
-            } else if (ACTION_SNOOZE.equals(action)) {
+            if (ACTION_ON_ALARM_RECEIVED.equals(action)) {
+                handleOnAlarmReceived(intent);
+            } else if (ACTION_ON_TIME_CHANGED.equals(action)) {
+                handleOnTimeChanged(intent);
+            } else if (ACTION_ON_NEXT_OCC_CHANGED.equals(action)) {
+                handleOnNextOccChanged();
+            } else if (ACTION_ON_NOTIFICATIONS_CANCELED.equals(action)) {
+                long[] scheduleIds = intent.getLongArrayExtra(EXTRA_SCHEDULE_IDS);
+                handleOnNotificationsCanceled(scheduleIds);
+            } else if (ACTION_ON_DID_IT.equals(action)) {
                 long scheduleId = intent.getLongExtra(EXTRA_SCHEDULE_ID, -1);
-                handleSnooze(scheduleId);
+                long workoutId = intent.getLongExtra(EXTRA_WORKOUT_ID, -1);
+                handleOnDidIt(scheduleId, workoutId);
+            } else if (ACTION_ON_SNOOZE.equals(action)) {
+                long scheduleId = intent.getLongExtra(EXTRA_SCHEDULE_ID, -1);
+                handleOnSnooze(scheduleId);
             }
         }
     }
 
 
-    // TODO: proper names for the actions!
-
-    /**
-     * Apply database state to the AlarmManager:
-     * Set the next Alarm as necessitated by the data in schedule.next_alarm. in the provided background thread,
-     * releasing the wake lock associated with the intent if one exists.
-     */
     @WorkerThread
-    private void handleSetAlarms(Intent intent) {
+    private void handleOnAlarmReceived(Intent intent) {
         try {
-            setAlarms();
+            processOldEvents();
+            refreshNotificationDisplay();
+            setNextAlarm();
         } finally {
             WakefulBroadcastReceiver.completeWakefulIntent(intent);
         }
     }
 
     @WorkerThread
-    private void setAlarms() {
-        Log.d(TAG, "setAlarms() called with: " + "");
-        updateNotification();
+    private void handleOnTimeChanged(Intent intent) {
+        try {
+            // ignores snooze; time change events should happen only when
+            // - user is currently traveling (probably does not care deeply about doing sports)
+            // - DST change, deep at night
+            // - user wilfully plays around with their system time settings (we're not caring for that)
+            recalculateNextOccForAll();
+            setNextAlarm();
+        } finally {
+            WakefulBroadcastReceiver.completeWakefulIntent(intent);
+        }
+    }
+
+    @WorkerThread
+    private void handleOnNextOccChanged() {
+        setNextAlarm();
+    }
+
+    @WorkerThread
+    private void handleOnNotificationsCanceled(long[] scheduleIds) {
+        setDontShowNotificationForIds(scheduleIds);
+    }
+
+    @WorkerThread
+    private void handleOnDidIt(long scheduleId, long workoutId) {
+        startService(FitActivityService.getIntentInsertSession(getApplicationContext(), workoutId));
+        setDontShowNotificationForIds(new long[]{scheduleId});
+        refreshNotificationDisplay();
+    }
+
+    @WorkerThread
+    private void handleOnSnooze(long scheduleId) {
+        ContentValues values = new ContentValues(2);
+        values.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, System.currentTimeMillis() + Constants.SNOOZE_DELAY_MILLIS);
+        values.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
+        getContentResolver().update(QuickFitContentProvider.getUriSchedulesId(scheduleId), values, null, null);
+
+        setNextAlarm();
+        setDontShowNotificationForIds(new long[]{scheduleId});
+        refreshNotificationDisplay();
+    }
+
+
+    /**
+     * sets the alarm with the alarm manager for the next occurence of any scheduled event according
+     * to the current db state
+     */
+    @WorkerThread
+    private void setNextAlarm() {
         try (SQLiteDatabase db = dbHelper.getReadableDatabase();
              Cursor cursor = db.rawQuery(QUERY_SELECT_MIN_NEXT_ALERT, null)) {
             // if cursor is empty, no schedules exist, no alarms to set
@@ -165,69 +250,55 @@ public class AlarmService extends IntentServiceCompat {
                 }
             }
         }
-        Log.d(TAG, "setAlarms() returned: ");
     }
 
     /**
-     * Apply current system time to database:
-     * Collect all events with next_alarm in the past, post notifications for each,
-     * update next_alarm time for each.
-     * Then perform set alarm action, releasing the wakelock carried by the intent, if any.
-     *
-     * @param intent Intent to release wakelock on
+     * Updates time for next occurence and flag that notification is needed in single pass;
+     * for all events with next occurence in the past.
      */
     @WorkerThread
-    private void handleScheduleNextAlarms(Intent intent) {
-        Log.d(TAG, "handleScheduleNextAlarms() called with: " + "intent = [" + intent + "]");
+    private void processOldEvents() {
         long now = System.currentTimeMillis();
         Schedule[] schedules;
 
-        try {
-            try (Cursor pastEvents = getContentResolver().query(
-                    QuickFitContentProvider.getUriSchedulesList(),
-                    new String[]{ScheduleEntry.COL_ID, ScheduleEntry.COL_DAY_OF_WEEK, ScheduleEntry.COL_HOUR, ScheduleEntry.COL_MINUTE},
-                    ScheduleEntry.COL_NEXT_ALARM_MILLIS + "<=?",
-                    new String[]{Long.toString(now)},
-                    ScheduleEntry.COL_NEXT_ALARM_MILLIS + " ASC")) {
-                if (pastEvents == null) {
-                    schedules = new Schedule[0];
-                } else {
-                    schedules = new Schedule[pastEvents.getCount()];
-                    int i = 0;
-                    while (pastEvents.moveToNext()) {
-                        schedules[i] = Schedule.fromRow(pastEvents);
-                        i++;
-                    }
+        try (Cursor pastEvents = getContentResolver().query(
+                QuickFitContentProvider.getUriSchedulesList(),
+                new String[]{ScheduleEntry.COL_ID, ScheduleEntry.COL_DAY_OF_WEEK, ScheduleEntry.COL_HOUR, ScheduleEntry.COL_MINUTE},
+                ScheduleEntry.COL_NEXT_ALARM_MILLIS + "<=?",
+                new String[]{Long.toString(now)},
+                ScheduleEntry.COL_NEXT_ALARM_MILLIS + " ASC")) {
+            if (pastEvents == null) {
+                schedules = new Schedule[0];
+            } else {
+                schedules = new Schedule[pastEvents.getCount()];
+                int i = 0;
+                while (pastEvents.moveToNext()) {
+                    schedules[i] = Schedule.fromRow(pastEvents);
+                    i++;
                 }
             }
-
-            // set time for next alarm and flag that notification is needed in single pass
-            try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
-                db.beginTransactionNonExclusive();
-                try {
-                    for (Schedule schedule : schedules) {
-                        long nextAlarmMillis = DateTimes.getNextOccurence(now, schedule.dayOfWeek, schedule.hour, schedule.minute);
-                        ContentValues contentValues = new ContentValues(2);
-                        contentValues.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, nextAlarmMillis);
-                        contentValues.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_YES);
-                        db.update(ScheduleEntry.TABLE_NAME, contentValues, ScheduleEntry.COL_ID + "=?", new String[]{Long.toString(schedule.id)});
-                    }
-                    db.setTransactionSuccessful();
-                } finally {
-                    db.endTransaction();
-                }
-            }
-
-        } finally {
-            handleSetAlarms(intent);
         }
-        Log.d(TAG, "handleScheduleNextAlarms() returned: ");
+
+        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
+            db.beginTransactionNonExclusive();
+            try {
+                for (Schedule schedule : schedules) {
+                    long nextAlarmMillis = DateTimes.getNextOccurence(now, schedule.dayOfWeek, schedule.hour, schedule.minute);
+                    ContentValues contentValues = new ContentValues(2);
+                    contentValues.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, nextAlarmMillis);
+                    contentValues.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_YES);
+                    db.update(ScheduleEntry.TABLE_NAME, contentValues, ScheduleEntry.COL_ID + "=?", new String[]{Long.toString(schedule.id)});
+                }
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+        }
     }
 
 
     @WorkerThread
-    private void updateNotification() {
-        Log.d(TAG, "updateNotification() called with: " + "");
+    private void refreshNotificationDisplay() {
         try (Cursor toNotify = getContentResolver().query(
                 QuickFitContentProvider.getUriWorkoutsList(),
                 new String[]{WorkoutEntry.SCHEDULE_ID, WorkoutEntry.WORKOUT_ID, WorkoutEntry.ACTIVITY_TYPE, WorkoutEntry.LABEL, WorkoutEntry.DURATION_MINUTES},
@@ -237,23 +308,32 @@ public class AlarmService extends IntentServiceCompat {
         )) {
             int count = toNotify == null ? 0 : toNotify.getCount();
             if (count == 0) {
-                Log.d(TAG, "updateNotification: 0 notifications");
+                Log.d(TAG, "refreshNotificationDisplay: no events");
                 NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 notificationManager.cancel(Constants.NOTIFICATION_ALARM);
                 return;
             }
+
             NotificationCompat.Builder notification;
             if (count == 1) {
-                Log.d(TAG, "updateNotification: single notification");
+                Log.d(TAG, "refreshNotificationDisplay: single event");
                 toNotify.moveToFirst();
                 notification = notifySingleEvent(toNotify);
             } else {
-                Log.d(TAG, "updateNotification: multiple notifications");
+                Log.d(TAG, "refreshNotificationDisplay: multiple events");
                 toNotify.moveToPosition(-1);
                 notification = notifyMultipleEvents(toNotify);
             }
 
-            PendingIntent cancelIntent = PendingIntent.getService(getApplicationContext(), 0, getIntentCancelNotifications(this), PendingIntent.FLAG_UPDATE_CURRENT);
+            long[] scheduleIds = new long[count];
+            int i = 0;
+            toNotify.moveToPosition(-1);
+            while (toNotify.moveToNext()) {
+                scheduleIds[i] = toNotify.getLong(toNotify.getColumnIndex(WorkoutEntry.SCHEDULE_ID));
+                i++;
+            }
+
+            PendingIntent cancelIntent = PendingIntent.getService(getApplicationContext(), 0, getIntentOnNotificationsCanceled(this, scheduleIds), PendingIntent.FLAG_UPDATE_CURRENT);
 
             notification.setAutoCancel(true);
             notification.setPriority(Notification.PRIORITY_HIGH);
@@ -312,17 +392,17 @@ public class AlarmService extends IntentServiceCompat {
 
         long scheduleId = cursor.getLong(cursor.getColumnIndex(WorkoutEntry.SCHEDULE_ID));
 
-        PendingIntent didItIntent = PendingIntent.getBroadcast(
+        PendingIntent didItIntent = PendingIntent.getService(
                 getApplicationContext(),
                 Constants.PENDING_INTENT_DID_IT,
-                DidItReceiver.getIntentDidIt(getApplicationContext(), workoutId, scheduleId),
+                getIntentOnDidIt(getApplicationContext(), scheduleId, workoutId),
                 PendingIntent.FLAG_UPDATE_CURRENT);
         notification.addAction(R.drawable.ic_done_white_24dp, getString(R.string.notification_action_did_it), didItIntent);
 
         PendingIntent snoozeIntent = PendingIntent.getService(
                 getApplicationContext(),
                 Constants.PENDING_INTENT_SNOOZE,
-                AlarmService.getIntentSnooze(this, scheduleId),
+                AlarmService.getIntentOnSnooze(this, scheduleId),
                 PendingIntent.FLAG_UPDATE_CURRENT
         );
         notification.addAction(R.drawable.ic_alarm_white_24dp, getString(R.string.notification_action_remind_me_later), snoozeIntent);
@@ -375,57 +455,58 @@ public class AlarmService extends IntentServiceCompat {
     }
 
     @WorkerThread
-    private void handleCancelNotification(long scheduleId) {
-        Log.d(TAG, "handleCancelNotification() called with: " + "scheduleId = [" + scheduleId + "]");
-        ContentValues contentValues = new ContentValues(1);
-        contentValues.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
-        getContentResolver().update(
-                QuickFitContentProvider.getUriSchedulesId(scheduleId),
-                contentValues,
-                null,
-                null
-        );
-        Log.d(TAG, "handleCancelNotifications() returned: ");
-    }
-
-    @WorkerThread
-    private void handleCancelNotifications() {
-        Log.d(TAG, "handleCancelNotifications() called with: " + "");
-        ContentValues contentValues = new ContentValues(1);
-        contentValues.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
-        getContentResolver().update(
-                QuickFitContentProvider.getUriSchedulesList(),
-                contentValues,
-                null,
-                null
-        );
-        Log.d(TAG, "handleCancelNotifications() returned: ");
-    }
-
-    @WorkerThread
-    private void handleSnooze(long scheduleId) {
-        Log.d(TAG, "handleSnooze() called with: " + "scheduleId = [" + scheduleId + "]");
-        long oldNextAlarmMillis;
-        try (Cursor scheduleToSnooze =
-                     getContentResolver().query(
-                             QuickFitContentProvider.getUriSchedulesId(scheduleId),
-                             new String[]{ScheduleEntry.COL_ID, ScheduleEntry.COL_NEXT_ALARM_MILLIS},
-                             null,
-                             null,
-                             null)) {
-            if (scheduleToSnooze == null || scheduleToSnooze.getCount() != 1) {
-                Log.w(TAG, "Cannot snooze schedule with id " + scheduleId + " : missing.");
-                return;
-            }
-            scheduleToSnooze.moveToFirst();
-            oldNextAlarmMillis = scheduleToSnooze.getLong(scheduleToSnooze.getColumnIndex(ScheduleEntry.COL_NEXT_ALARM_MILLIS));
+    private void setDontShowNotificationForIds(long[] scheduleIds) {
+        Log.d(TAG, "setDontShowNotificationForIds() called with: " + "scheduleIds = [" + Arrays.toString(scheduleIds) + "]");
+        for (long scheduleId : scheduleIds) {
+            ContentValues contentValues = new ContentValues(1);
+            contentValues.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
+            getContentResolver().update(
+                    QuickFitContentProvider.getUriSchedulesId(scheduleId),
+                    contentValues,
+                    null,
+                    null
+            );
         }
-        ContentValues values = new ContentValues(2);
-        values.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, oldNextAlarmMillis + Constants.SNOOZE_DELAY_MILLIS);
-        values.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
-        getContentResolver().update(QuickFitContentProvider.getUriSchedulesId(scheduleId), values, null, null);
-        setAlarms();
-        Log.d(TAG, "handleSnooze() returned: ");
+    }
+
+
+    @WorkerThread
+    private void recalculateNextOccForAll() {
+        long now = System.currentTimeMillis();
+        Schedule[] schedules;
+
+        try (Cursor allSchedules = getContentResolver().query(
+                QuickFitContentProvider.getUriSchedulesList(),
+                new String[]{ScheduleEntry.COL_ID, ScheduleEntry.COL_DAY_OF_WEEK, ScheduleEntry.COL_HOUR, ScheduleEntry.COL_MINUTE},
+                null,
+                null,
+                null)) {
+            if (allSchedules == null) {
+                schedules = new Schedule[0];
+            } else {
+                schedules = new Schedule[allSchedules.getCount()];
+                int i = 0;
+                while (allSchedules.moveToNext()) {
+                    schedules[i] = Schedule.fromRow(allSchedules);
+                    i++;
+                }
+            }
+        }
+
+        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
+            db.beginTransactionNonExclusive();
+            try {
+                for (Schedule schedule : schedules) {
+                    long nextAlarmMillis = DateTimes.getNextOccurence(now, schedule.dayOfWeek, schedule.hour, schedule.minute);
+                    ContentValues contentValues = new ContentValues(1);
+                    contentValues.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, nextAlarmMillis);
+                    db.update(ScheduleEntry.TABLE_NAME, contentValues, ScheduleEntry.COL_ID + "=?", new String[]{Long.toString(schedule.id)});
+                }
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+        }
     }
 
 

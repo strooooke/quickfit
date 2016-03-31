@@ -18,7 +18,6 @@ package com.lambdasoup.quickfit.ui;
 
 import android.app.LoaderManager;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
@@ -154,7 +153,7 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
         contentValues.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
         getContentResolver().update(QuickFitContentProvider.getUriWorkoutsIdSchedulesId(workoutId, scheduleId), contentValues, null, null);
 
-        setAlarm();
+        refreshAlarm();
     }
 
     @Override
@@ -174,7 +173,7 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
         contentValues.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
         getContentResolver().update(QuickFitContentProvider.getUriWorkoutsIdSchedulesId(workoutId, scheduleId), contentValues, null, null);
 
-        setAlarm();
+        refreshAlarm();
     }
 
     private void onAddNewSchedule() {
@@ -193,11 +192,11 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
         contentValues.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
         getContentResolver().insert(QuickFitContentProvider.getUriWorkoutsIdSchedules(workoutId), contentValues);
 
-        setAlarm();
+        refreshAlarm();
     }
 
-    private void setAlarm() {
-        startService(AlarmService.getIntentSetAlarm(getApplicationContext()));
+    private void refreshAlarm() {
+        startService(AlarmService.getIntentOnNextOccChanged(getApplicationContext()));
     }
 
     private void onRemoveSchedule(long scheduleId) {
