@@ -14,7 +14,8 @@
   ~    limitations under the License.
   -->
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory
         android:key="pref_key_account_settings"
         android:title="@string/pref_google_account">
@@ -22,5 +23,46 @@
             android:key="pref_key_disconnect_g_fit"
             android:summary="@string/pref_disconnect_g_fit_summary"
             android:title="@string/pref_disconnect_g_fit_title" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="pref_key_notifications"
+        android:title="@string/pref_notifications">
+        <RingtonePreference
+            android:key="pref_key_notification_ringtone"
+            android:title="@string/pref_notification_ringtone_title"
+            android:ringtoneType="notification"
+            android:showDefault="true"
+            android:showSilent="true"
+            android:defaultValue="content://settings/system/notification_sound"
+            android:persistent="true"/>
+
+        <SwitchPreference
+            android:key="pref_key_notification_led"
+            android:title="@string/pref_notification_led_title"
+            android:summaryOff="@string/pref_notification_led_summary_off"
+            android:summaryOn="@string/pref_notification_led_summary_on"
+            android:defaultValue="true"
+            android:persistent="true"/>
+
+        <SwitchPreference
+            android:key="pref_key_notification_vibrate"
+            android:title="@string/pref_notification_vibrate_title"
+            android:summaryOff="@string/pref_notification_vibrate_summary_off"
+            android:summaryOn="@string/pref_notification_vibrate_summary_on"
+            android:defaultValue="true"
+            android:persistent="true"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="pref_key_snooze"
+        android:title="@string/pref_snooze">
+        <ListPreference
+            android:key="pref_key_snooze_duration_mins"
+            android:title="@string/pref_snooze_title"
+            android:summary="%s"
+            android:dialogTitle="@string/pref_snooze_title"
+            android:entries="@array/pref_snooze_durations"
+            android:entryValues="@array/pref_snooze_duration_mins_values"
+            android:defaultValue="60"
+            android:persistent="true"/>
     </PreferenceCategory>
 </PreferenceScreen>

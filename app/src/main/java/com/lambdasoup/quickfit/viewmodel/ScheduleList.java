@@ -34,13 +34,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ScheduleList {
     private static final int POSITION_INVALID = -1;
 
-    private AtomicBoolean writing = new AtomicBoolean(false);
+    private final AtomicBoolean writing = new AtomicBoolean(false);
 
-    private List<ScheduleItem> dataset = new ArrayList<>();
-    private Map<Long, Integer> positionForId = new HashMap<>();
+    private final List<ScheduleItem> dataset = new ArrayList<>();
+    private final Map<Long, Integer> positionForId = new HashMap<>();
 
-    private ItemChangeCallback callback;
-    private ScheduleItem.ByCalendar ordering = new ScheduleItem.ByCalendar(DayOfWeek.getWeek());
+    private final ItemChangeCallback callback;
+    private final ScheduleItem.ByCalendar ordering = new ScheduleItem.ByCalendar(DayOfWeek.getWeek());
 
     public ScheduleList(ItemChangeCallback callback) {
         this.callback = callback;

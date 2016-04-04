@@ -17,8 +17,15 @@
 package com.lambdasoup.quickfit.ui;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.v14.preference.PreferenceFragment;
+import android.preference.Preference;
+import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
+import android.preference.RingtonePreference;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
@@ -27,11 +34,14 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
+import com.lambdasoup.quickfit.Constants;
 import com.lambdasoup.quickfit.R;
 
 public class SettingsActivity extends AppCompatActivity {
 
     private static final String PREF_KEY_DISCONNECT_G_FIT = "pref_key_disconnect_g_fit";
+    private static final String PREF_KEY_NOTIFICATION_RINGTONE = "pref_key_notification_ringtone";
+    private static final String PREF_KEY_SNOOZE_DURATION_MINS = "pref_key_snooze_duration_mins";
     private static final String TAG = SettingsActivity.class.getSimpleName();
 
 
@@ -48,22 +58,57 @@ public class SettingsActivity extends AppCompatActivity {
     public static class SettingsFragment extends PreferenceFragment {
 
         private static final String TAG = SettingsFragment.class.getSimpleName();
+        private Preference disconnectGoogleFitPref;
+        private RingtonePreference notificationRingtonePref;
         private GoogleApiClient googleApiClient;
 
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            findPreference(PREF_KEY_DISCONNECT_G_FIT).setOnPreferenceClickListener(preference -> {
-                        disconnectGoogleFit();
-                        return true;
-                    }
-            );
+            addPreferencesFromResource(R.xml.preferences);
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+
+            notificationRingtonePref = (RingtonePreference) findPreference(PREF_KEY_NOTIFICATION_RINGTONE);
+            disconnectGoogleFitPref = findPreference(PREF_KEY_DISCONNECT_G_FIT);
+
+            updateRingtoneSummary(notificationRingtonePref, prefs.getString(Constants.PREF_NOTIFICATION_RINGTONE, RingtoneManager.getActualDefaultRingtoneUri(getActivity(), RingtoneManager.TYPE_NOTIFICATION).toString()));
         }
 
         @Override
-        public void onCreatePreferences(Bundle bundle, String s) {
-            addPreferencesFromResource(R.xml.preferences);
+        public void onStart() {
+            super.onStart();
+            notificationRingtonePref.setOnPreferenceChangeListener((preference, newValue) -> {
+                updateRingtoneSummary(preference, (String) newValue);
+                return true;
+            });
+
+            disconnectGoogleFitPref.setOnPreferenceClickListener(preference -> {
+                disconnectGoogleFit();
+                return true;
+            });
+
+        }
+
+        @Override
+        public void onStop() {
+            super.onStop();
+            notificationRingtonePref.setOnPreferenceChangeListener(null);
+            disconnectGoogleFitPref.setOnPreferenceClickListener(null);
+        }
+
+
+        private void updateRingtoneSummary(Preference preference, String strUri) {
+            String name;
+            if (strUri.isEmpty()) {
+                name = getString(R.string.pref_notification_ringtone_silent);
+            } else {
+                Uri ringtoneUri = Uri.parse(strUri);
+                Ringtone ringtone = RingtoneManager.getRingtone(getActivity(), ringtoneUri);
+                name = ringtone.getTitle(getActivity());
+            }
+            preference.setSummary(name);
         }
 
 

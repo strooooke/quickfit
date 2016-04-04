@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
  * Created by jl on 21.03.16.
  */
 public class ListsTest {
-    private Comparator<String> ordering = String.CASE_INSENSITIVE_ORDER;
+    private static final Comparator<String> ordering = String.CASE_INSENSITIVE_ORDER;
 
     @Test
     public void bisectLeft_singleton() {

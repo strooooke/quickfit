@@ -17,13 +17,9 @@
 package com.lambdasoup.quickfit.util;
 
 import android.app.IntentService;
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.content.res.Resources.NotFoundException;
 import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
-import android.support.annotation.IdRes;
 
 /**
  * Created by jl on 24.03.16.
@@ -47,13 +43,14 @@ public abstract class IntentServiceCompat extends IntentService {
      *           entry. The value 0 is an invalid identifier.
      * @return A single color value in the form 0xAARRGGBB.
      * @throws android.content.res.Resources.NotFoundException if the given ID
-     *         does not exist.
+     *                                                         does not exist.
      */
     @ColorInt
     public int getColorCompat(@ColorRes int id) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return getColor(id);
         } else {
+            //noinspection deprecation
             return getResources().getColor(id);
         }
     }

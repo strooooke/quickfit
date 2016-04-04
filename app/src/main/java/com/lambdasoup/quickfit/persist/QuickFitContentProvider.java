@@ -29,9 +29,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Pair;
 
-import com.lambdasoup.quickfit.alarm.AlarmService;
 import com.lambdasoup.quickfit.persist.QuickFitContract.ScheduleEntry;
 import com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry;
 import com.lambdasoup.quickfit.persist.QuickFitContract.TablesAndAliases;
@@ -91,7 +89,9 @@ public class QuickFitContentProvider extends ContentProvider {
         return ContentUris.withAppendedId(getUriWorkoutsIdSchedules(workoutId), scheduleId);
     }
 
-    public static Uri getUriSchedulesList() {return URI_SCHEDULES;}
+    public static Uri getUriSchedulesList() {
+        return URI_SCHEDULES;
+    }
 
     public static Uri getUriSchedulesId(long scheduleId) {
         return ContentUris.withAppendedId(getUriSchedulesList(), scheduleId);

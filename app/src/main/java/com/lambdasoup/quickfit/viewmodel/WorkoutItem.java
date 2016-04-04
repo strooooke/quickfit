@@ -78,7 +78,7 @@ public class WorkoutItem {
         private int durationInMinutes;
         private int calories;
         private String label;
-        private List<ScheduleItem> scheduleItems = new ArrayList<>();
+        private final List<ScheduleItem> scheduleItems = new ArrayList<>();
 
         public Builder(Context context, Function<FitActivity, Integer> fitActPositionSupplier) {
             this.context = context;

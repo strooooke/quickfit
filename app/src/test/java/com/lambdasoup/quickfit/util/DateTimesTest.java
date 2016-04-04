@@ -18,20 +18,19 @@ package com.lambdasoup.quickfit.util;
 
 import com.lambdasoup.quickfit.model.DayOfWeek;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by jl on 22.03.16.
  */
 public class DateTimesTest {
 
-    private static long JULY_FIRST_2016; // 2016-07-01T13:00Z+02:00, Friday
+    private static final long JULY_FIRST_2016; // 2016-07-01T13:00Z+02:00, Friday
 
     static {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"));

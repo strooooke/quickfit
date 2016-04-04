@@ -16,9 +16,6 @@
 
 package com.lambdasoup.quickfit;
 
-import java.util.concurrent.TimeUnit;
-
-// TODO: might want to become the Application (context)
 public class Constants {
     public static final int NOTIFICATION_PLAY_INTERACTION = 0;
     public static final int NOTIFICATION_ALARM = 1;
@@ -26,7 +23,11 @@ public class Constants {
     public static final int PENDING_INTENT_WORKOUT_LIST = 1;
     public static final int PENDING_INTENT_DID_IT = 2;
     public static final int PENDING_INTENT_SNOOZE = 3;
-    public static final long SNOOZE_DELAY_MILLIS = TimeUnit.HOURS.toMillis(1);
+
+    public static final String PREF_NOTIFICATION_RINGTONE = "pref_key_notification_ringtone";
+    public static final String PREF_NOTIFICATION_LED_ON = "pref_key_notification_led";
+    public static final String PREF_NOTIFICATION_VIBRATION_ON = "pref_key_notification_vibrate";
+    public static final String PREF_SNOOZE_DURATION_MINS = "pref_key_snooze_duration_mins";
 
     private Constants() {
         // do not instantiate

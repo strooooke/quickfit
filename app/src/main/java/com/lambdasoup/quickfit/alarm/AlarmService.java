@@ -24,9 +24,12 @@ import android.app.TaskStackBuilder;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 import android.support.v4.app.NotificationCompat.InboxStyle;
@@ -49,6 +52,7 @@ import com.lambdasoup.quickfit.util.DateTimes;
 import com.lambdasoup.quickfit.util.IntentServiceCompat;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import static com.lambdasoup.quickfit.Constants.PENDING_INTENT_ALARM_RECEIVER;
 
@@ -216,8 +220,10 @@ public class AlarmService extends IntentServiceCompat {
 
     @WorkerThread
     private void handleOnSnooze(long scheduleId) {
+        String durationMinsStr = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREF_SNOOZE_DURATION_MINS, "60");
+        int durationMins = Integer.parseInt(durationMinsStr);
         ContentValues values = new ContentValues(2);
-        values.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, System.currentTimeMillis() + Constants.SNOOZE_DELAY_MILLIS);
+        values.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(durationMins));
         values.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
         getContentResolver().update(QuickFitContentProvider.getUriSchedulesId(scheduleId), values, null, null);
 
@@ -243,7 +249,6 @@ public class AlarmService extends IntentServiceCompat {
                 PendingIntent alarmReceiverIntent = PendingIntent.getBroadcast(this, PENDING_INTENT_ALARM_RECEIVER, new Intent(getApplicationContext(), AlarmReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager.cancel(alarmReceiverIntent);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    // TODO: test if setAndAllowWhileIdle is sufficient
                     alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextAlarmMillis, alarmReceiverIntent);
                 } else {
                     alarmManager.setWindow(AlarmManager.RTC_WAKEUP, nextAlarmMillis, DateUtils.MINUTE_IN_MILLIS, alarmReceiverIntent);
@@ -334,13 +339,20 @@ public class AlarmService extends IntentServiceCompat {
             }
 
             PendingIntent cancelIntent = PendingIntent.getService(getApplicationContext(), 0, getIntentOnNotificationsCanceled(this, scheduleIds), PendingIntent.FLAG_UPDATE_CURRENT);
-
+            notification.setDeleteIntent(cancelIntent);
             notification.setAutoCancel(true);
             notification.setPriority(Notification.PRIORITY_HIGH);
             notification.setSmallIcon(R.drawable.ic_stat_quickfit_icon);
             notification.setColor(getColorCompat(R.color.colorPrimary));
-            notification.setDefaults(Notification.DEFAULT_ALL);
-            notification.setDeleteIntent(cancelIntent);
+
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            String ringtoneUriStr = preferences.getString(Constants.PREF_NOTIFICATION_RINGTONE, "");
+            if (!ringtoneUriStr.isEmpty()) {
+                notification.setSound(Uri.parse(ringtoneUriStr));
+            }
+            boolean ledOn = preferences.getBoolean(Constants.PREF_NOTIFICATION_LED_ON, true);
+            boolean vibrationOn = preferences.getBoolean(Constants.PREF_NOTIFICATION_VIBRATION_ON, true);
+            notification.setDefaults((ledOn ? Notification.DEFAULT_LIGHTS : 0) | (vibrationOn ? Notification.DEFAULT_VIBRATE : 0));
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 notification.setCategory(Notification.CATEGORY_ALARM);

@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.text.format.DateFormat;
 import android.widget.TimePicker;
@@ -65,6 +66,7 @@ public class TimeDialogFragment extends DialogFragment implements TimePickerDial
         listener = null;
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         int hour = getArguments().getInt(KEY_OLD_HOUR);

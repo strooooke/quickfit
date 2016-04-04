@@ -16,10 +16,7 @@
 
 package com.lambdasoup.quickfit.ui;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.LoaderManager;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -27,7 +24,6 @@ import android.content.IntentSender;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.util.SortedList;
@@ -36,21 +32,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.fitness.FitnessActivities;
 import com.lambdasoup.quickfit.FitActivityService;
 import com.lambdasoup.quickfit.R;
-import com.lambdasoup.quickfit.alarm.AlarmService;
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
-import com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry;
-import com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry.SessionStatus;
 import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
 import com.lambdasoup.quickfit.util.ui.DividerItemDecoration;
 import com.lambdasoup.quickfit.util.ui.EmptyRecyclerView;
-
-import java.util.concurrent.TimeUnit;
 
 
 public class WorkoutListActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>,
@@ -81,9 +71,11 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        //noinspection ConstantConditions
         toolbar.setTitle(getTitle());
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        //noinspection ConstantConditions
         fab.setOnClickListener(view -> addNewWorkout());
 
         workoutsRecyclerView = (EmptyRecyclerView) findViewById(R.id.workout_list);

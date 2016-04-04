@@ -121,7 +121,7 @@ public class EmptyRecyclerView extends RecyclerView {
     /**
      * Indicates the view to be shown when the adapter for this object is empty
      *
-     * @param emptyView
+     * @param emptyView the empty view
      */
     public void setEmptyView(@Nullable View emptyView) {
         if (this.emptyView != null) {

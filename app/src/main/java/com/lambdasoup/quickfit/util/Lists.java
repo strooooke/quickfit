@@ -30,7 +30,6 @@ public class Lists {
     }
 
     public static <S, T> List<T> map(List<S> source, Function<S, T> transformation) {
-        final Iterator<S> sourceIterator = source.iterator();
         return new AbstractList<T>() {
             @Override
             public T get(int location) {

@@ -43,8 +43,6 @@ public class ScheduleItem {
         this(id, -1, dayOfWeek, time, minute, hour);
     }
 
-    ;
-
 
     private ScheduleItem(long id, int dayOfWeekIndex, DayOfWeek dayOfWeek, String time, int minute, int hour) {
         this.id = id;
@@ -93,7 +91,7 @@ public class ScheduleItem {
     }
 
     public static class ByCalendar implements Comparator<ScheduleItem> {
-        private DayOfWeek[] week;
+        private final DayOfWeek[] week;
 
         public ByCalendar(@Nullable DayOfWeek[] week) {
             this.week = week == null ? new DayOfWeek[0] : week;
