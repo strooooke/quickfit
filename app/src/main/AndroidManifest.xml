@@ -22,7 +22,7 @@
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <!-- legacy (only pre-23) -->
     <uses-permission
@@ -62,7 +62,15 @@
         <activity
             android:name=".ui.SettingsActivity"
             android:label="@string/title_settings"
-            android:parentActivityName=".ui.WorkoutListActivity" />
+            android:parentActivityName=".ui.WorkoutListActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.NOTIFICATION_PREFERENCES" />
+            </intent-filter>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.WorkoutListActivity" />
+        </activity>
         <activity
             android:name=".ui.AboutActivity"
             android:label="@string/title_about"
@@ -117,7 +125,7 @@
                 <action android:name="android.intent.action.TIME_SET" />
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
     </application>
