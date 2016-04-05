@@ -18,6 +18,7 @@
     <string name="app_name">QuickFit</string>
     <string name="action_settings">Einstellungen</string>
     <string name="title_workout_list">Workouts</string>
+    <string name="title_activity_schedules">Termine</string>
     <string name="insert_session_button">Hab\' ich getan!</string>
     <string name="success_session_insert">Workout-Sitzung wurde vermerkt.</string>
     <string name="permission_needed_play_service">QuickFit benötigt das Recht, auf deine Google Fit-Kontodaten zuzugreifen.</string>
@@ -79,11 +80,11 @@
     <string name="pref_notification_ringtone_title">Ton</string>
     <string name="pref_notification_ringtone_silent">Aus</string>
     <string name="pref_notification_led_title">Benachrichtigungslicht</string>
-    <string name="pref_notification_led_summary_off">Licht blinkt.</string>
-    <string name="pref_notification_led_summary_on">Licht blinkt nicht.</string>
+    <string name="pref_notification_led_summary_off">Licht blinkt</string>
+    <string name="pref_notification_led_summary_on">Licht blinkt nicht</string>
     <string name="pref_notification_vibrate_title">Vibrieren</string>
-    <string name="pref_notification_vibrate_summary_off">Nicht vibrieren.</string>
-    <string name="pref_notification_vibrate_summary_on">Vibrieren.</string>
+    <string name="pref_notification_vibrate_summary_off">Nicht vibrieren</string>
+    <string name="pref_notification_vibrate_summary_on">Vibrieren</string>
     <string name="pref_snooze">Schlummerfunktion</string>
     <string name="pref_snooze_title">Dauer</string>
 
