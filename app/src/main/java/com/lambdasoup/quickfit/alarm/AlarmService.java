@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -347,8 +348,10 @@ public class AlarmService extends IntentServiceCompat {
             notification.setColor(getColorCompat(R.color.colorPrimary));
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            String ringtoneUriStr = preferences.getString(getString(R.string.pref_key_notification_ringtone), Settings.System.NOTIFICATION_SOUND);
-            if (!ringtoneUriStr.isEmpty()) {
+            String ringtoneUriStr = preferences.getString(getString(R.string.pref_key_notification_ringtone), null);
+            if (ringtoneUriStr == null) {
+                notification.setSound(RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_NOTIFICATION));
+            } else if (!ringtoneUriStr.isEmpty()) {
                 notification.setSound(Uri.parse(ringtoneUriStr));
             }
             boolean ledOn = preferences.getBoolean(getString(R.string.pref_key_notification_led), true);
