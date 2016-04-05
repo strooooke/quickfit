@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2016 Juliane Lehmann <jl@lambdasoup.com>
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string-array name="pref_snooze_duration_mins_values">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>120</item>
+        <item>240</item>
+        <item>480</item>
+        <item>1440</item>
+    </string-array>
+
+    <string name="pref_key_disconnect_g_fit">com.lambdasoup.quickfit.preference.DISCONNECT_G_FIT</string>
+    <string name="pref_key_notification_ringtone">com.lambdasoup.quickfit.preference.NOTIFICATION_RINGTONE</string>
+    <string name="pref_key_snooze_duration_mins">com.lambdasoup.quickfit.preference.SNOOZE_DURATION_MINS</string>
+    <string name="pref_key_snooze">com.lambdasoup.quickfit.preference.CATEGORY_SNOOZE</string>
+    <string name="pref_key_notification_vibrate">com.lambdasoup.quickfit.preference.NOTIFICATION_VIBRATE</string>
+    <string name="pref_key_notification_led">com.lambdasoup.quickfit.preference.NOTIFICATION_LED</string>
+    <string name="pref_key_notifications">com.lambdasoup.quickfit.preference.CATEGORY_NOTIFICATIONS</string>
+    <string name="pref_key_account_settings">com.lambdasoup.quickfit.preference.CATEGORY_GOOGLE_ACCOUNT</string>
+</resources>

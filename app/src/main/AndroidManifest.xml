@@ -20,6 +20,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <!-- legacy (only pre-23) -->
     <uses-permission
@@ -33,12 +36,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <provider
-            android:name=".QuickFitContentProvider"
+            android:name=".persist.QuickFitContentProvider"
             android:authorities="com.lambdasoup.quickfit.provider"
             android:exported="false" />
 
         <activity
-            android:name=".WorkoutListActivity"
+            android:name=".ui.WorkoutListActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -48,16 +51,33 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
-            android:label="@string/title_settings"
-            android:parentActivityName=".WorkoutListActivity" />
+            android:name=".ui.SchedulesActivity"
+            android:label="@string/title_activity_schedules"
+            android:parentActivityName=".ui.WorkoutListActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.WorkoutListActivity" />
+        </activity>
         <activity
-            android:name=".AboutActivity"
+            android:name=".ui.SettingsActivity"
+            android:label="@string/title_settings"
+            android:parentActivityName=".ui.WorkoutListActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.NOTIFICATION_PREFERENCES" />
+            </intent-filter>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.WorkoutListActivity" />
+        </activity>
+        <activity
+            android:name=".ui.AboutActivity"
             android:label="@string/title_about"
-            android:parentActivityName=".WorkoutListActivity" />
+            android:parentActivityName=".ui.WorkoutListActivity" />
 
         <service
-            android:name=".SyncService"
+            android:name=".persist.SyncService"
             android:exported="false"
             android:process=":sync">
             <intent-filter>
@@ -69,7 +89,7 @@
                 android:resource="@xml/syncadapter" />
         </service>
         <service
-            android:name=".AuthenticatorService"
+            android:name=".persist.AuthenticatorService"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
@@ -79,7 +99,35 @@
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
         </service>
+        <service
+            android:name=".alarm.AlarmService"
+            android:exported="false" />
+        <service
+            android:name=".FitActivityService"
+            android:exported="false" />
 
+        <receiver
+            android:name=".alarm.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".alarm.TimeChangeReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

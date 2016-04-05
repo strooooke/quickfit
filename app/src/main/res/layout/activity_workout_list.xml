@@ -19,8 +19,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".WorkoutListActivity">
+    tools:context=".ui.WorkoutListActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar"
@@ -39,9 +38,8 @@
     </android.support.design.widget.AppBarLayout>
 
 
-    <com.lambdasoup.quickfit.EmptyRecyclerView
+    <com.lambdasoup.quickfit.util.ui.EmptyRecyclerView
         android:id="@+id/workout_list"
-        android:name="com.lambdasoup.quickfit.WorkoutListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layoutManager="LinearLayoutManager"
@@ -64,7 +62,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/ic_add_white_24dp"
-        app:layout_behavior="com.lambdasoup.quickfit.ScrollAwareFabBehavior" />
+        app:layout_behavior="com.lambdasoup.quickfit.util.ui.ScrollAwareFabBehavior" />
 
 
 </android.support.design.widget.CoordinatorLayout>

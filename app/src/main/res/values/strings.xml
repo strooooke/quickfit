@@ -14,10 +14,11 @@
   ~    limitations under the License.
   -->
 
-<resources>
+<resources xmlns:xliff="http://schemas.android.com/tools">
     <string name="app_name">QuickFit</string>
     <string name="action_settings">Settings</string>
     <string name="title_workout_list">Workouts</string>
+    <string name="title_activity_schedules">Schedule</string>
     <string name="insert_session_button">Just did it!</string>
     <string name="success_session_insert">Your workout session was noted.</string>
     <string name="permission_needed_play_service">QuickFit needs your permission to access your Google Fit data</string>
@@ -33,14 +34,9 @@
     <string name="calories_hint"><i>Calories</i></string>
     <string name="title_calories">Calories</string>
     <string name="button_done_calories">Set new calorie amount</string>
+    <string name="schedules_hint"><i>Schedule workout</i></string>
     <string name="delete_button">delete</string>
-    <string name="title_settings">Settings</string>
-    <string name="pref_google_account">Google account</string>
-    <string name="pref_disconnect_g_fit_title">Disconnect from Google Fit</string>
-    <string name="pref_disconnect_g_fit_summary">QuickFit will stop being able to read or write your Google Fit data.</string>
-    <string name="msg_fit_disconnect_success">QuickFit is now disconnected from Google Fit.</string>
-    <string name="msg_fit_disconnect_failure">Could not disconnect from Google Fit. Please try again later.</string>
-    <string name="msg_fit_disconnect_no_connection">Could not disconnect from Google Fit. Please try again later when network is available.</string>
+
 
     <plurals name="duration_mins_format">
         <item quantity="one">%d minute</item>
@@ -55,4 +51,52 @@
     <string name="action_about">About…</string>
     <string name="workout_list_empty">No workouts scheduled.</string>
 
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
+
+    <string name="weekday_time_format"><xliff:g example="Monday" id="weekday">%1$s</xliff:g>  <xliff:g example="13:45" id="time">%2$s</xliff:g></string>
+
+    <string name="schedule_list_empty">Workout not yet scheduled.</string>
+    <string name="notification_alarm_title_single">Time for <xliff:g example="Aerobics" id="fit_activity_display_name">%1$s</xliff:g>!</string>
+    <string name="notification_alarm_content_single"><xliff:g example="25 minutes" id="duration_minutes_formatted">%1$s</xliff:g> <b><xliff:g example="Tango with Frank" id="workout_label">%2$s</xliff:g></b></string>
+    <string name="notification_alarm_title_multi">Time for fitness!</string>
+    <string name="notification_alarm_content_summary_multi"><xliff:g example="3" id="activities_count">%1$d</xliff:g> workouts planned</string>
+    <string name="notification_alarm_content_line_multi"><b><xliff:g example="Aerobics" id="fit_activity_display_name">%1$s</xliff:g></b> <xliff:g example="25 minutes" id="duration_minutes_formatted">%2$s</xliff:g> <b><xliff:g example="Tango with Frank" id="workout_label">%3$s</xliff:g></b></string>
+    <string name="notification_action_did_it">Did it!</string>
+    <string name="notification_action_remind_me_later">Snooze</string>
+
+
+    <string name="title_settings">Settings</string>
+    <string name="pref_google_account">Google account</string>
+    <string name="pref_disconnect_g_fit_title">Disconnect from Google Fit</string>
+    <string name="pref_disconnect_g_fit_summary">QuickFit will stop being able to read or write your Google Fit data.</string>
+    <string name="msg_fit_disconnect_success">QuickFit is now disconnected from Google Fit.</string>
+    <string name="msg_fit_disconnect_failure">Could not disconnect from Google Fit. Please try again later.</string>
+    <string name="msg_fit_disconnect_no_connection">Could not disconnect from Google Fit. Please try again later when network is available.</string>
+    <string name="pref_notifications">Notifications</string>
+    <string name="pref_notification_ringtone_title">Sound</string>
+    <string name="pref_notification_ringtone_silent">Silent</string>
+    <string name="pref_notification_led_title">LED</string>
+    <string name="pref_notification_led_summary_off">Don\'t blink LED</string>
+    <string name="pref_notification_led_summary_on">Blink LED</string>
+    <string name="pref_notification_vibrate_title">Vibration</string>
+    <string name="pref_notification_vibrate_summary_off">Don\'t vibrate</string>
+    <string name="pref_notification_vibrate_summary_on">Vibrate</string>
+    <string name="pref_snooze">Snooze</string>
+    <string name="pref_snooze_title">Snooze duration</string>
+
+    <string-array name="pref_snooze_durations">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>2 hours</item>
+        <item>4 hours</item>
+        <item>8 hours</item>
+        <item>24 hours</item>
+    </string-array>
 </resources>
