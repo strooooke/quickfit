@@ -18,7 +18,6 @@ package com.lambdasoup.quickfit.util;
 
 import java.util.AbstractList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 /**

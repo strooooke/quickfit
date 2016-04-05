@@ -221,7 +221,7 @@ public class AlarmService extends IntentServiceCompat {
 
     @WorkerThread
     private void handleOnSnooze(long scheduleId) {
-        String durationMinsStr = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREF_SNOOZE_DURATION_MINS, "60");
+        String durationMinsStr = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_snooze_duration_mins), "60");
         int durationMins = Integer.parseInt(durationMinsStr);
         ContentValues values = new ContentValues(2);
         values.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(durationMins));
@@ -347,12 +347,12 @@ public class AlarmService extends IntentServiceCompat {
             notification.setColor(getColorCompat(R.color.colorPrimary));
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            String ringtoneUriStr = preferences.getString(Constants.PREF_NOTIFICATION_RINGTONE, Settings.System.NOTIFICATION_SOUND);
+            String ringtoneUriStr = preferences.getString(getString(R.string.pref_key_notification_ringtone), Settings.System.NOTIFICATION_SOUND);
             if (!ringtoneUriStr.isEmpty()) {
                 notification.setSound(Uri.parse(ringtoneUriStr));
             }
-            boolean ledOn = preferences.getBoolean(Constants.PREF_NOTIFICATION_LED_ON, true);
-            boolean vibrationOn = preferences.getBoolean(Constants.PREF_NOTIFICATION_VIBRATION_ON, true);
+            boolean ledOn = preferences.getBoolean(getString(R.string.pref_key_notification_led), true);
+            boolean vibrationOn = preferences.getBoolean(getString(R.string.pref_key_notification_vibrate), true);
             notification.setDefaults((ledOn ? Notification.DEFAULT_LIGHTS : 0) | (vibrationOn ? Notification.DEFAULT_VIBRATE : 0));
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

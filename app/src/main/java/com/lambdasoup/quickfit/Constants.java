@@ -24,11 +24,6 @@ public class Constants {
     public static final int PENDING_INTENT_DID_IT = 2;
     public static final int PENDING_INTENT_SNOOZE = 3;
 
-    public static final String PREF_NOTIFICATION_RINGTONE = "pref_key_notification_ringtone";
-    public static final String PREF_NOTIFICATION_LED_ON = "pref_key_notification_led";
-    public static final String PREF_NOTIFICATION_VIBRATION_ON = "pref_key_notification_vibrate";
-    public static final String PREF_SNOOZE_DURATION_MINS = "pref_key_snooze_duration_mins";
-
     private Constants() {
         // do not instantiate
     }

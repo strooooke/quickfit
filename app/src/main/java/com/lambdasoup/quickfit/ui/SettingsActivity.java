@@ -40,8 +40,6 @@ import com.lambdasoup.quickfit.R;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    private static final String PREF_KEY_DISCONNECT_G_FIT = "pref_key_disconnect_g_fit";
-    private static final String PREF_KEY_NOTIFICATION_RINGTONE = "pref_key_notification_ringtone";
     private static final String TAG = SettingsActivity.class.getSimpleName();
 
 
@@ -70,11 +68,12 @@ public class SettingsActivity extends AppCompatActivity {
 
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
 
-            notificationRingtonePref = (RingtonePreference) findPreference(PREF_KEY_NOTIFICATION_RINGTONE);
-            disconnectGoogleFitPref = findPreference(PREF_KEY_DISCONNECT_G_FIT);
+            String keyNotificationRingtone = getString(R.string.pref_key_notification_ringtone);
+            notificationRingtonePref = (RingtonePreference) findPreference(keyNotificationRingtone);
+            disconnectGoogleFitPref = findPreference(getString(R.string.pref_key_disconnect_g_fit));
 
 
-            updateRingtoneSummary(notificationRingtonePref, prefs.getString(Constants.PREF_NOTIFICATION_RINGTONE, Settings.System.NOTIFICATION_SOUND));
+            updateRingtoneSummary(notificationRingtonePref, prefs.getString(keyNotificationRingtone, Settings.System.NOTIFICATION_SOUND));
         }
 
         @Override
