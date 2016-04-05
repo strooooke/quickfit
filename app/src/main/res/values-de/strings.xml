@@ -80,8 +80,8 @@
     <string name="pref_notification_ringtone_title">Ton</string>
     <string name="pref_notification_ringtone_silent">Aus</string>
     <string name="pref_notification_led_title">Benachrichtigungslicht</string>
-    <string name="pref_notification_led_summary_off">Licht blinkt</string>
-    <string name="pref_notification_led_summary_on">Licht blinkt nicht</string>
+    <string name="pref_notification_led_summary_off">Licht blinkt nicht</string>
+    <string name="pref_notification_led_summary_on">Licht blinkt</string>
     <string name="pref_notification_vibrate_title">Vibrieren</string>
     <string name="pref_notification_vibrate_summary_off">Nicht vibrieren</string>
     <string name="pref_notification_vibrate_summary_on">Vibrieren</string>
