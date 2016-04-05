@@ -30,6 +30,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 import android.support.v4.app.NotificationCompat.InboxStyle;
@@ -346,7 +347,7 @@ public class AlarmService extends IntentServiceCompat {
             notification.setColor(getColorCompat(R.color.colorPrimary));
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            String ringtoneUriStr = preferences.getString(Constants.PREF_NOTIFICATION_RINGTONE, "");
+            String ringtoneUriStr = preferences.getString(Constants.PREF_NOTIFICATION_RINGTONE, Settings.System.NOTIFICATION_SOUND);
             if (!ringtoneUriStr.isEmpty()) {
                 notification.setSound(Uri.parse(ringtoneUriStr));
             }

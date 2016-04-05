@@ -26,6 +26,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
@@ -41,7 +42,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     private static final String PREF_KEY_DISCONNECT_G_FIT = "pref_key_disconnect_g_fit";
     private static final String PREF_KEY_NOTIFICATION_RINGTONE = "pref_key_notification_ringtone";
-    private static final String PREF_KEY_SNOOZE_DURATION_MINS = "pref_key_snooze_duration_mins";
     private static final String TAG = SettingsActivity.class.getSimpleName();
 
 
@@ -73,7 +73,8 @@ public class SettingsActivity extends AppCompatActivity {
             notificationRingtonePref = (RingtonePreference) findPreference(PREF_KEY_NOTIFICATION_RINGTONE);
             disconnectGoogleFitPref = findPreference(PREF_KEY_DISCONNECT_G_FIT);
 
-            updateRingtoneSummary(notificationRingtonePref, prefs.getString(Constants.PREF_NOTIFICATION_RINGTONE, RingtoneManager.getActualDefaultRingtoneUri(getActivity(), RingtoneManager.TYPE_NOTIFICATION).toString()));
+
+            updateRingtoneSummary(notificationRingtonePref, prefs.getString(Constants.PREF_NOTIFICATION_RINGTONE, Settings.System.NOTIFICATION_SOUND));
         }
 
         @Override
