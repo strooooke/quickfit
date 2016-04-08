@@ -16,3 +16,6 @@
 
 # osx junk
 .DS_Store
+
+#screengrab
+fastlane

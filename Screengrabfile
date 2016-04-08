@@ -1,0 +1,15 @@
+# remove the leading '#' to uncomment lines
+
+app_package_name 'com.lambdasoup.quickfit'
+use_tests_in_packages ['com.lambdasoup.quickfit.screenshots']
+
+app_apk_path 'app/build/outputs/apk/app-screengrab-debug.apk'
+tests_apk_path 'app/build/outputs/apk/app-screengrab-debug-androidTest-unaligned.apk'
+
+locales ['en-US', 'de-DE']
+
+# clear all previously generated screenshots in your local output directory before creating new ones
+clear_previous_screenshots true
+
+# For more information about all available options run
+#   screengrab --help
