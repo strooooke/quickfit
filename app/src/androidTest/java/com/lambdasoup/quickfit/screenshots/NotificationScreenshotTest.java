@@ -23,6 +23,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.uiautomator.UiDevice;
+import android.support.test.uiautomator.UiObject;
+import android.support.test.uiautomator.UiSelector;
 
 import com.lambdasoup.quickfit.Constants;
 import com.lambdasoup.quickfit.alarm.AlarmService;
@@ -30,8 +32,8 @@ import com.lambdasoup.quickfit.persist.QuickFitContract.ScheduleEntry;
 import com.lambdasoup.quickfit.persist.QuickFitDbHelper;
 import com.lambdasoup.quickfit.ui.WorkoutListActivity;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,6 +42,8 @@ import org.junit.rules.RuleChain;
 import java.util.Locale;
 
 import tools.fastlane.screengrab.locale.LocaleTestRule;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by jl on 07.04.16.
@@ -50,11 +54,14 @@ public class NotificationScreenshotTest {
             .around(new LocaleTestRule())
             .around(new DatabasePreparationTestRule());
 
+    private static UiDevice deviceInstance;
+
     @Rule
     public final ActivityTestRule<WorkoutListActivity> workoutListActivityActivityTestRule = new ActivityTestRule<>(WorkoutListActivity.class);
 
-    @Before
-    public void setUp() {
+    @BeforeClass
+    public static void setUp() throws Exception {
+        deviceInstance = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         Context targetContext = InstrumentationRegistry.getTargetContext();
         QuickFitDbHelper dbHelper = new QuickFitDbHelper(targetContext);
         try (SQLiteDatabase conn = dbHelper.getWritableDatabase()) {
@@ -63,19 +70,35 @@ public class NotificationScreenshotTest {
             conn.update(ScheduleEntry.TABLE_NAME, values, ScheduleEntry.COL_ID + "=" + DatabasePreparationTestRule.s11.get(ScheduleEntry.COL_ID), null);
         }
         targetContext.startService(AlarmService.getIntentOnAlarmReceived(targetContext));
-    }
-
-    @Test
-    public void takeNotificationScreenshot() throws Exception {
+        Thread.sleep(500); // wait for intent service to finish processing
         swipeDownNotificationBar();
         Thread.sleep(500); // wait for notification area to settle
+
         SystemScreengrab.takeScreenshot("notification");
     }
 
-    @After
-    public void tearDown() {
+    @Test
+    public void didItButtonPresent() throws Exception {
+        UiObject didItButton = deviceInstance.findObject(new UiSelector()
+                .className(android.widget.Button.class)
+                .description("Did it!")
+                .clickable(true));
+        assertNotNull("Missing DidIt button", didItButton);
+    }
+
+    @Test
+    public void snoozeButtonPresent() throws Exception {
+        UiObject didItButton = deviceInstance.findObject(new UiSelector()
+                .className(android.widget.Button.class)
+                .description("Snooze")
+                .clickable(true));
+        assertNotNull("Missing snooze button", didItButton);
+    }
+
+    @AfterClass
+    public static void tearDown() {
         Context targetContext = InstrumentationRegistry.getTargetContext();
-        ((NotificationManager)targetContext.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(Constants.NOTIFICATION_ALARM);
+        ((NotificationManager) targetContext.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(Constants.NOTIFICATION_ALARM);
     }
 
     public static void swipeDownNotificationBar() {
