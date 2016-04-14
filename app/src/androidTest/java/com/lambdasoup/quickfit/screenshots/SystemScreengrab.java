@@ -42,6 +42,10 @@ public class SystemScreengrab {
     private static final String EXTENSION = ".png";
     private static final int FULL_QUALITY = 100;
 
+    private SystemScreengrab() {
+        // do not instantiate
+    }
+
     public static void takeScreenshot(String filename) throws IOException {
         Bitmap bitmap = InstrumentationRegistry.getInstrumentation().getUiAutomation().takeScreenshot();
 

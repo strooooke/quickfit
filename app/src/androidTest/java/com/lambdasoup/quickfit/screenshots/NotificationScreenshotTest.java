@@ -22,6 +22,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.test.uiautomator.UiDevice;
 import android.support.test.uiautomator.UiObject;
 import android.support.test.uiautomator.UiSelector;
@@ -38,16 +39,20 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
+import org.junit.runner.RunWith;
 
 import java.util.Locale;
 
 import tools.fastlane.screengrab.locale.LocaleTestRule;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
- * Created by jl on 07.04.16.
+ * Tests correct appearance of a single notification, taking a screenshot in the process
  */
+@RunWith(AndroidJUnit4.class)
 public class NotificationScreenshotTest {
     @ClassRule
     public static final RuleChain classRules = RuleChain.outerRule(new FixedLocaleTestRule(Locale.US))
@@ -71,9 +76,11 @@ public class NotificationScreenshotTest {
         }
         targetContext.startService(AlarmService.getIntentOnAlarmReceived(targetContext));
         Thread.sleep(500); // wait for intent service to finish processing
-        swipeDownNotificationBar();
-        Thread.sleep(500); // wait for notification area to settle
+        deviceInstance.openNotification();
+    }
 
+    @Test
+    public void takeScreenshot() throws Exception {
         SystemScreengrab.takeScreenshot("notification");
     }
 
@@ -83,16 +90,16 @@ public class NotificationScreenshotTest {
                 .className(android.widget.Button.class)
                 .description("Did it!")
                 .clickable(true));
-        assertNotNull("Missing DidIt button", didItButton);
+        assertTrue("Missing DidIt button", didItButton.exists());
     }
 
     @Test
     public void snoozeButtonPresent() throws Exception {
-        UiObject didItButton = deviceInstance.findObject(new UiSelector()
+        UiObject snoozeButton = deviceInstance.findObject(new UiSelector()
                 .className(android.widget.Button.class)
                 .description("Snooze")
                 .clickable(true));
-        assertNotNull("Missing snooze button", didItButton);
+        assertTrue("Missing snooze button", snoozeButton.exists());
     }
 
     @AfterClass
@@ -101,18 +108,4 @@ public class NotificationScreenshotTest {
         ((NotificationManager) targetContext.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(Constants.NOTIFICATION_ALARM);
     }
 
-    public static void swipeDownNotificationBar() {
-        UiDevice deviceInstance = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-        int dHeight = deviceInstance.getDisplayHeight();
-        int dWidth = deviceInstance.getDisplayWidth();
-        int xScrollPosition = dWidth / 2;
-        int yScrollStop = dHeight / 2;
-        deviceInstance.swipe(
-                xScrollPosition,
-                0,
-                xScrollPosition,
-                yScrollStop,
-                5
-        );
-    }
 }
