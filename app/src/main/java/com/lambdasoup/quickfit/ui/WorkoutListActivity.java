@@ -47,19 +47,16 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         WorkoutItemRecyclerViewAdapter.OnWorkoutInteractionListener, DurationMinutesDialogFragment.OnFragmentInteractionListener,
         LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFragmentInteractionListener {
 
-    public static final String EXTRA_PLAY_API_CONNECT_RESULT = "com.lambdasoup.quickfit.play_api_connect_result";
+
     public static final String EXTRA_SHOW_WORKOUT_ID = "com.lambdasoup.quickfit.show_workout_id";
 
     private static final String TAG = WorkoutListActivity.class.getSimpleName();
 
-    private static final int REQUEST_OAUTH = 0;
 
-    private static final String KEY_AUTH_IN_PROGRESS = "com.lambdasoup.quickfit.auth_in_progress";
     private static final String KEY_SHOW_WORKOUT_ID = "com.lambdasoup.quickfit.show_workout_id";
     private static final long NO_ID = -1;
 
 
-    AuthProgress authProgress = AuthProgress.NONE;
     private WorkoutItemRecyclerViewAdapter workoutsAdapter;
     private EmptyRecyclerView workoutsRecyclerView;
     private long idToScrollTo = NO_ID;
@@ -91,7 +88,6 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         }
 
         if (savedInstanceState != null) {
-            authProgress = AuthProgress.valueOf(savedInstanceState.getString(KEY_AUTH_IN_PROGRESS, AuthProgress.NONE.name()));
             idToScrollTo = savedInstanceState.getLong(KEY_SHOW_WORKOUT_ID, NO_ID);
         }
 
@@ -99,28 +95,10 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
     }
 
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        ConnectionResult connectionResult = getIntent().getParcelableExtra(EXTRA_PLAY_API_CONNECT_RESULT);
-        if (connectionResult != null && authProgress == AuthProgress.NONE) {
-            Log.d(TAG, "starting auth");
-
-            authProgress = AuthProgress.IN_PROGRESS;
-            try {
-                connectionResult.startResolutionForResult(this, REQUEST_OAUTH);
-            } catch (IntentSender.SendIntentException e) {
-                Log.e(TAG,
-                        "Exception while starting resolution activity", e);
-            }
-        }
-    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(KEY_AUTH_IN_PROGRESS, authProgress.name());
         outState.putLong(KEY_SHOW_WORKOUT_ID, idToScrollTo);
     }
 
@@ -237,20 +215,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         getContentResolver().update(QuickFitContentProvider.getUriWorkoutsId(workoutId), contentValues, null, null);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_OAUTH) {
-            authProgress = AuthProgress.DONE;
-            if (resultCode == RESULT_OK) {
-                startService(FitActivityService.getIntentSyncSession(getApplicationContext()));
-            }
-        }
-    }
 
-
-    enum AuthProgress {
-        NONE, IN_PROGRESS, DONE
-    }
 
 
 }

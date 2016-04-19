@@ -55,6 +55,10 @@ public class FitActivityService extends IntentService {
             if (ACTION_INSERT_SESSION.equals(action)) {
                 long workoutId = intent.getLongExtra(EXTRA_WORKOUT_ID, -1);
                 handleInsertSession(workoutId);
+            } else if (ACTION_SESSION_SYNC.equals(action)) {
+                requestSync();
+            } else {
+                throw new IllegalArgumentException("Action " + action + " not supported.");
             }
         }
     }

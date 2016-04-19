@@ -173,6 +173,8 @@ public class AlarmService extends IntentServiceCompat {
             } else if (ACTION_ON_SNOOZE.equals(action)) {
                 long scheduleId = intent.getLongExtra(EXTRA_SCHEDULE_ID, -1);
                 handleOnSnooze(scheduleId);
+            } else {
+                throw new IllegalArgumentException("Unexpected action " + action);
             }
         }
     }

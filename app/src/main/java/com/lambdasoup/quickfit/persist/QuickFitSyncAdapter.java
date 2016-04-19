@@ -77,7 +77,6 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.d(TAG, "performing sync");
         googleApiClient = new GoogleApiClient.Builder(getContext())
                 .addApi(Fitness.SESSIONS_API)
                 .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
@@ -85,7 +84,6 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
                         new GoogleApiClient.ConnectionCallbacks() {
                             @Override
                             public void onConnected(Bundle bundle) {
-                                Log.d(TAG, "Connected!");
                                 try {
                                     Cursor sessionsCursor = provider.query(
                                             QuickFitContentProvider.getUriSessionsList(),
@@ -115,37 +113,7 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
                 .addOnConnectionFailedListener(
                         result -> {
                             Log.d(TAG, "connection failed");
-                            if (!result.hasResolution()) {
-                                // Show the localized error notification
-                                GoogleApiAvailability.getInstance().showErrorNotification(getContext(), result.getErrorCode());
-                                return;
-                            }
-                            // The failure has a resolution. Resolve it.
-                            // Called typically when the app is not yet authorized, and an
-                            // authorization dialog is displayed to the user.
-                            Intent resultIntent = new Intent(getContext(), WorkoutListActivity.class);
-                            resultIntent.putExtra(WorkoutListActivity.EXTRA_PLAY_API_CONNECT_RESULT, result);
-                            TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
-                            stackBuilder.addParentStack(WorkoutListActivity.class);
-                            stackBuilder.addNextIntent(resultIntent);
-                            PendingIntent resultPendingIntent =
-                                    stackBuilder.getPendingIntent(
-                                            0,
-                                            PendingIntent.FLAG_UPDATE_CURRENT
-                                    );
-
-                            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getContext())
-                                    .setContentTitle(getContext().getResources().getString(R.string.permission_needed_play_service_title))
-                                    .setContentText(getContext().getResources().getString(R.string.permission_needed_play_service))
-                                    .setSmallIcon(R.drawable.common_ic_googleplayservices)
-                                    .setContentIntent(resultPendingIntent)
-                                    .setAutoCancel(true);
-
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                notificationBuilder.setCategory(Notification.CATEGORY_ERROR);
-                            }
-
-                            ((NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE)).notify(Constants.NOTIFICATION_PLAY_INTERACTION, notificationBuilder.build());
+                            getContext().startService(FitApiFailureResolutionService.getFailureResolutionIntent(getContext(), result));
                         }
                 )
                 .build();

@@ -39,7 +39,7 @@ public class SyncService extends Service {
          */
         synchronized (syncAdapterLock) {
             if (syncAdapter == null) {
-                syncAdapter = new QuickFitSyncAdapter(getApplicationContext(), true);
+                syncAdapter = new QuickFitSyncAdapter(getApplicationContext(), true, false);
             }
         }
     }

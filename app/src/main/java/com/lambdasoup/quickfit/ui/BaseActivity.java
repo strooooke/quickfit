@@ -16,25 +16,149 @@
 
 package com.lambdasoup.quickfit.ui;
 
+import android.app.Dialog;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentSender;
+import android.content.ServiceConnection;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.lambdasoup.quickfit.FitActivityService;
+import com.lambdasoup.quickfit.persist.FitApiFailureResolutionService;
 
 /**
- * Created by jl on 18.03.16.
+ * Base class for activities that bind to {@link FitApiFailureResolutionService}; which allows to interrupt the
+ * user with Fit Api connection failure resolution while this activity is in the foreground. Can also be started with an
+ * intent with a failure connection result as extra to start the resolution process.
  */
-public abstract class BaseActivity extends AppCompatActivity {
-    public static final String TAG_DIALOG = "dialog";
+public abstract class BaseActivity extends DialogActivity implements FitApiFailureResolutionService.FitApiFailureResolver {
+    private static final String TAG = BaseActivity.class.getSimpleName();
 
-    protected void showDialog(DialogFragment dialogFragment) {
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        Fragment prev = getSupportFragmentManager().findFragmentByTag(TAG_DIALOG);
-        if (prev != null) {
-            ft.remove(prev);
+    public static final String EXTRA_PLAY_API_CONNECT_RESULT = "com.lambdasoup.quickfit.play_api_connect_result";
+    private static final int REQUEST_FAILURE_RESOLUTION = 0;
+    private static final String KEY_FAILURE_RESOLUTION_IN_PROGRESS = "com.lambdasoup.quickfit.failure_resolution_in_progress";
+    private static final String TAG_ERROR_DIALOG = "error_dialog";
+    private static final String ARG_ERROR_CODE = "com.lambdasoup.quickfit.play_api_error_code";
+
+    boolean failureResolutionInProgress = false;
+
+    private ServiceConnection fitApiFailureResolutionServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            FitApiFailureResolutionService.Binder binder = (FitApiFailureResolutionService.Binder) service;
+            binder.registerAsCurrentForeground(BaseActivity.this);
         }
-        ft.addToBackStack(null);
 
-        dialogFragment.show(ft, TAG_DIALOG);
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+        }
+    };
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            failureResolutionInProgress = savedInstanceState.getBoolean(KEY_FAILURE_RESOLUTION_IN_PROGRESS);
+        }
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_FAILURE_RESOLUTION_IN_PROGRESS, failureResolutionInProgress);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        bindService(new Intent(this, FitApiFailureResolutionService.class), fitApiFailureResolutionServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unbindService(fitApiFailureResolutionServiceConnection);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // if started from notification (failure occured while no activity was bound to the FitApiFailureResolutionService)
+        ConnectionResult connectionResult = getIntent().getParcelableExtra(EXTRA_PLAY_API_CONNECT_RESULT);
+        if (connectionResult != null) {
+            onFitApiFailure(connectionResult);
+        }
+    }
+
+    @Override
+    public void onFitApiFailure(ConnectionResult connectionResult) {
+        if (failureResolutionInProgress) {
+            // nothing to do
+            return;
+        }
+        if (!connectionResult.hasResolution()) {
+            failureResolutionInProgress = true;
+            showErrorDialog(connectionResult);
+        } else {
+            failureResolutionInProgress = true;
+            try {
+                connectionResult.startResolutionForResult(this, REQUEST_FAILURE_RESOLUTION);
+            } catch (IntentSender.SendIntentException e) {
+                Log.e(TAG, "Exception while starting resolution activity", e);
+            }
+        }
+    }
+
+    private void showErrorDialog(ConnectionResult connectionResult) {
+        ErrorDialogFragment dialogFragment = new ErrorDialogFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_ERROR_CODE, connectionResult.getErrorCode());
+        dialogFragment.setArguments(args);
+        dialogFragment.show(getSupportFragmentManager(), TAG_ERROR_DIALOG);
+    }
+
+    public void onDialogDismissed() {
+        failureResolutionInProgress = false;
+    }
+
+    public static class ErrorDialogFragment extends DialogFragment {
+        public ErrorDialogFragment() { }
+
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            int errorCode = this.getArguments().getInt(ARG_ERROR_CODE);
+            return GoogleApiAvailability.getInstance().getErrorDialog(
+                    this.getActivity(), errorCode, REQUEST_FAILURE_RESOLUTION);
+        }
+
+        @Override
+        public void onDismiss(DialogInterface dialog) {
+            ((BaseActivity) getActivity()).onDialogDismissed();
+        }
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_FAILURE_RESOLUTION) {
+            failureResolutionInProgress = false;
+            getIntent().removeExtra(EXTRA_PLAY_API_CONNECT_RESULT);
+            if (resultCode == RESULT_OK) {
+                startService(FitActivityService.getIntentSyncSession(getApplicationContext()));
+            }
+        }
+    }
+
+
 }
