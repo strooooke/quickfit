@@ -45,8 +45,6 @@ import java.util.Locale;
 
 import tools.fastlane.screengrab.locale.LocaleTestRule;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -79,6 +77,12 @@ public class NotificationScreenshotTest {
         deviceInstance.openNotification();
     }
 
+    @AfterClass
+    public static void tearDown() {
+        Context targetContext = InstrumentationRegistry.getTargetContext();
+        ((NotificationManager) targetContext.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(Constants.NOTIFICATION_ALARM);
+    }
+
     @Test
     public void takeScreenshot() throws Exception {
         SystemScreengrab.takeScreenshot("notification");
@@ -100,12 +104,6 @@ public class NotificationScreenshotTest {
                 .description("Snooze")
                 .clickable(true));
         assertTrue("Missing snooze button", snoozeButton.exists());
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        Context targetContext = InstrumentationRegistry.getTargetContext();
-        ((NotificationManager) targetContext.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(Constants.NOTIFICATION_ALARM);
     }
 
 }

@@ -29,7 +29,7 @@ public class DateTimes {
     }
 
 
-    public static long getNextOccurence(long now, DayOfWeek dayOfWeek, int hour, int minute) {
+    public static long getNextOccurrence(long now, DayOfWeek dayOfWeek, int hour, int minute) {
         Calendar nowCal = Calendar.getInstance();
         nowCal.setTimeInMillis(now);
 

@@ -25,7 +25,7 @@ import android.support.v7.app.AppCompatActivity;
  * Created by jl on 18.04.16.
  */
 public abstract class DialogActivity extends AppCompatActivity {
-    public static final String TAG_DIALOG = "dialog";
+    private static final String TAG_DIALOG = "dialog";
 
     protected void showDialog(DialogFragment dialogFragment) {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();

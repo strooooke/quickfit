@@ -42,7 +42,7 @@ import com.lambdasoup.quickfit.ui.WorkoutListActivity;
 public class FitApiFailureResolutionService extends Service {
     private static final String EXTRA_FAILURE_RESULT = "com.lambdasoup.quickfit.persist.EXTRA_FAILURE_RESULT";
 
-    private Binder binder = new Binder();
+    private final Binder binder = new Binder();
     private FitApiFailureResolver currentForegroundResolver = null;
     private boolean isBound = false;
 

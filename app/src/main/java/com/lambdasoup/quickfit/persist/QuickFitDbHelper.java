@@ -28,7 +28,7 @@ import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
 
 public class QuickFitDbHelper extends SQLiteOpenHelper {
 
-    public static final String TAG = QuickFitDbHelper.class.getSimpleName();
+    private static final String TAG = QuickFitDbHelper.class.getSimpleName();
     static final String DATABASE_NAME = "quickfit.db";
     static final int DATABASE_VERSION = 9;
 

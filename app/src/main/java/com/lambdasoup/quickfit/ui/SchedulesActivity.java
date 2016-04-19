@@ -145,7 +145,7 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
     @Override
     public void onDayOfWeekChanged(long scheduleId, DayOfWeek newDayOfWeek) {
         ScheduleItem oldScheduleItem = schedulesAdapter.getById(scheduleId);
-        long nextAlarmMillis = DateTimes.getNextOccurence(System.currentTimeMillis(), newDayOfWeek, oldScheduleItem.hour, oldScheduleItem.minute);
+        long nextAlarmMillis = DateTimes.getNextOccurrence(System.currentTimeMillis(), newDayOfWeek, oldScheduleItem.hour, oldScheduleItem.minute);
 
         ContentValues contentValues = new ContentValues(3);
         contentValues.put(ScheduleEntry.COL_DAY_OF_WEEK, newDayOfWeek.name());
@@ -164,7 +164,7 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
     @Override
     public void onTimeChanged(long scheduleId, int newHour, int newMinute) {
         ScheduleItem oldScheduleItem = schedulesAdapter.getById(scheduleId);
-        long nextAlarmMillis = DateTimes.getNextOccurence(System.currentTimeMillis(), oldScheduleItem.dayOfWeek, newHour, newMinute);
+        long nextAlarmMillis = DateTimes.getNextOccurrence(System.currentTimeMillis(), oldScheduleItem.dayOfWeek, newHour, newMinute);
 
         ContentValues contentValues = new ContentValues(4);
         contentValues.put(ScheduleEntry.COL_HOUR, newHour);
@@ -182,7 +182,7 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
         DayOfWeek dayOfWeek = DayOfWeek.getByCalendarConst(calendar.get(Calendar.DAY_OF_WEEK));
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
-        long nextAlarmMillis = DateTimes.getNextOccurence(System.currentTimeMillis(), dayOfWeek, hour, minute);
+        long nextAlarmMillis = DateTimes.getNextOccurrence(System.currentTimeMillis(), dayOfWeek, hour, minute);
 
         ContentValues contentValues = new ContentValues(4);
         contentValues.put(ScheduleEntry.COL_DAY_OF_WEEK, dayOfWeek.name());

@@ -31,7 +31,6 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 import android.support.v4.app.NotificationCompat.InboxStyle;
@@ -79,7 +78,7 @@ public class AlarmService extends IntentServiceCompat {
     private static final String QUERY_SELECT_MIN_NEXT_ALERT = "SELECT " + ScheduleEntry.COL_NEXT_ALARM_MILLIS + " FROM " + ScheduleEntry.TABLE_NAME +
             " ORDER BY " + ScheduleEntry.COL_NEXT_ALARM_MILLIS + " ASC LIMIT 1";
 
-    private QuickFitDbHelper dbHelper; // TODO: move into content provider
+    private final QuickFitDbHelper dbHelper; // TODO: move into content provider
 
     public AlarmService() {
         super("AlarmService");
@@ -109,9 +108,9 @@ public class AlarmService extends IntentServiceCompat {
     }
 
     /**
-     * For use by the activity, which takes care of updating next occurence data
+     * For use by the activity, which takes care of updating next occurrence data
      * for schedules itself. This action sets the alarm, to allow the AlarmReceiver
-     * to react on the occurence of the very next scheduled event.
+     * to react on the occurrence of the very next scheduled event.
      */
     public static Intent getIntentOnNextOccChanged(Context context) {
         Intent intent = new Intent(context, AlarmService.class);
@@ -238,7 +237,7 @@ public class AlarmService extends IntentServiceCompat {
 
 
     /**
-     * sets the alarm with the alarm manager for the next occurence of any scheduled event according
+     * sets the alarm with the alarm manager for the next occurrence of any scheduled event according
      * to the current db state
      */
     @WorkerThread
@@ -262,8 +261,8 @@ public class AlarmService extends IntentServiceCompat {
     }
 
     /**
-     * Updates time for next occurence and flag that notification is needed in single pass;
-     * for all events with next occurence in the past.
+     * Updates time for next occurrence and flag that notification is needed in single pass;
+     * for all events with next occurrence in the past.
      */
     @WorkerThread
     private void processOldEvents() {
@@ -292,7 +291,7 @@ public class AlarmService extends IntentServiceCompat {
             db.beginTransactionNonExclusive();
             try {
                 for (Schedule schedule : schedules) {
-                    long nextAlarmMillis = DateTimes.getNextOccurence(now, schedule.dayOfWeek, schedule.hour, schedule.minute);
+                    long nextAlarmMillis = DateTimes.getNextOccurrence(now, schedule.dayOfWeek, schedule.hour, schedule.minute);
                     ContentValues contentValues = new ContentValues(2);
                     contentValues.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, nextAlarmMillis);
                     contentValues.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_YES);
@@ -515,7 +514,7 @@ public class AlarmService extends IntentServiceCompat {
             db.beginTransactionNonExclusive();
             try {
                 for (Schedule schedule : schedules) {
-                    long nextAlarmMillis = DateTimes.getNextOccurence(now, schedule.dayOfWeek, schedule.hour, schedule.minute);
+                    long nextAlarmMillis = DateTimes.getNextOccurrence(now, schedule.dayOfWeek, schedule.hour, schedule.minute);
                     ContentValues contentValues = new ContentValues(1);
                     contentValues.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, nextAlarmMillis);
                     db.update(ScheduleEntry.TABLE_NAME, contentValues, ScheduleEntry.COL_ID + "=?", new String[]{Long.toString(schedule.id)});

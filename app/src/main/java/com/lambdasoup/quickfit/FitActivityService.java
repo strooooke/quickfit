@@ -105,7 +105,7 @@ public class FitActivityService extends IntentService {
     }
 
     @WorkerThread
-    private void showToast(@StringRes int resId) {
+    private void showToast(@SuppressWarnings("SameParameterValue") @StringRes int resId) {
         new Handler(getMainLooper()).post(() -> Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_SHORT).show());
     }
 

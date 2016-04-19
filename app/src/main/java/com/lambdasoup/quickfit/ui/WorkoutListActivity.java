@@ -20,7 +20,6 @@ import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -28,12 +27,10 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.fitness.FitnessActivities;
 import com.lambdasoup.quickfit.FitActivityService;
 import com.lambdasoup.quickfit.R;
@@ -93,7 +90,6 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
         getLoaderManager().initLoader(0, null, this);
     }
-
 
 
     @Override
@@ -214,8 +210,6 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         contentValues.put(WorkoutEntry.COL_CALORIES, newValue);
         getContentResolver().update(QuickFitContentProvider.getUriWorkoutsId(workoutId), contentValues, null, null);
     }
-
-
 
 
 }

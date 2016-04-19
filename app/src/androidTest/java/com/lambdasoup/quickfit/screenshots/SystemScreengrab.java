@@ -91,14 +91,10 @@ public class SystemScreengrab {
         }
     }
 
-    private static File initializeDirectory(File dir) {
-        try {
-            createPathTo(dir);
-            if (dir.isDirectory() && dir.canWrite()) {
-                return dir;
-            }
-        } catch (IOException var2) {
-            ;
+    private static File initializeDirectory(File dir) throws IOException {
+        createPathTo(dir);
+        if (dir.isDirectory() && dir.canWrite()) {
+            return dir;
         }
 
         return null;

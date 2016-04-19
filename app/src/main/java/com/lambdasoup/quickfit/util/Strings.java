@@ -26,7 +26,7 @@ public class Strings {
         // do not instantiate
     }
 
-    public static String join(String separator, Iterable<String> parts) {
+    public static String join(@SuppressWarnings("SameParameterValue") String separator, Iterable<String> parts) {
         Iterator<String> iterator = parts.iterator();
         if (!iterator.hasNext()) {
             return "";

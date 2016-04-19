@@ -75,7 +75,7 @@ public enum DayOfWeek {
             case Calendar.SUNDAY:
                 return SUNDAY;
             default:
-                throw new IllegalArgumentException("Not a java.util.Calendar weekeday constant: " + calendarConst);
+                throw new IllegalArgumentException("Not a java.util.Calendar weekday constant: " + calendarConst);
         }
     }
 

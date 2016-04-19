@@ -35,7 +35,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
-import com.lambdasoup.quickfit.Constants;
 import com.lambdasoup.quickfit.R;
 
 public class SettingsActivity extends AppCompatActivity {

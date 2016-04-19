@@ -40,13 +40,11 @@ import java.util.List;
  */
 public class SchedulesRecyclerViewAdapter extends RecyclerView.Adapter<SchedulesRecyclerViewAdapter.ViewHolder> {
     private static final String TAG = SchedulesRecyclerViewAdapter.class.getSimpleName();
-    private final Context context;
     private final ConstantListAdapter<DayOfWeek> dayOfWeekAdapter;
     private ScheduleList dataset;
     private OnScheduleInteractionListener onScheduleInteractionListener;
 
     public SchedulesRecyclerViewAdapter(Context context) {
-        this.context = context;
         dataset = new ScheduleList(new ScheduleList.ItemChangeCallback() {
             @Override
             public void onInserted(int position) {

@@ -49,9 +49,9 @@ public abstract class BaseActivity extends DialogActivity implements FitApiFailu
     private static final String TAG_ERROR_DIALOG = "error_dialog";
     private static final String ARG_ERROR_CODE = "com.lambdasoup.quickfit.play_api_error_code";
 
-    boolean failureResolutionInProgress = false;
+    private boolean failureResolutionInProgress = false;
 
-    private ServiceConnection fitApiFailureResolutionServiceConnection = new ServiceConnection() {
+    private final ServiceConnection fitApiFailureResolutionServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             FitApiFailureResolutionService.Binder binder = (FitApiFailureResolutionService.Binder) service;
@@ -93,7 +93,7 @@ public abstract class BaseActivity extends DialogActivity implements FitApiFailu
     protected void onResume() {
         super.onResume();
 
-        // if started from notification (failure occured while no activity was bound to the FitApiFailureResolutionService)
+        // if started from notification (failure occurred while no activity was bound to the FitApiFailureResolutionService)
         ConnectionResult connectionResult = getIntent().getParcelableExtra(EXTRA_PLAY_API_CONNECT_RESULT);
         if (connectionResult != null) {
             onFitApiFailure(connectionResult);
@@ -127,7 +127,7 @@ public abstract class BaseActivity extends DialogActivity implements FitApiFailu
         dialogFragment.show(getSupportFragmentManager(), TAG_ERROR_DIALOG);
     }
 
-    public void onDialogDismissed() {
+    private void onDialogDismissed() {
         failureResolutionInProgress = false;
     }
 

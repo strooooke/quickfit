@@ -31,6 +31,7 @@ import java.util.Locale;
  * runs tests with instrumentation arguments testLocale and endingLocale; this rule checks whether
  * those are present and if not, injects them with the set locale as value.
  */
+@SuppressWarnings("SameParameterValue")
 public class FixedLocaleTestRule implements TestRule {
     private static final String TAG = FixedLocaleTestRule.class.getSimpleName();
     private final Locale fixedLocale;

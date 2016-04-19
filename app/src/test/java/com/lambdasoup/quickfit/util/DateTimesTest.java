@@ -41,47 +41,47 @@ public class DateTimesTest {
 
 
     @Test
-    public void testGetNextOccurence_laterToday() throws Exception {
+    public void testGetNextOccurrence_laterToday() throws Exception {
         Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"));
         expected.set(2016, Calendar.JULY, 1, 14, 0, 0);
         expected.set(Calendar.MILLISECOND, 0);
-        assertEquals(expected.getTimeInMillis(), DateTimes.getNextOccurence(JULY_FIRST_2016, DayOfWeek.FRIDAY, 14, 0));
+        assertEquals(expected.getTimeInMillis(), DateTimes.getNextOccurrence(JULY_FIRST_2016, DayOfWeek.FRIDAY, 14, 0));
     }
 
     @Test
-    public void testGetNextOccurence_tomorrow() throws Exception {
+    public void testGetNextOccurrence_tomorrow() throws Exception {
         Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"));
         expected.set(2016, Calendar.JULY, 2, 9, 0, 0);
         expected.set(Calendar.MILLISECOND, 0);
-        assertEquals(expected.getTimeInMillis(), DateTimes.getNextOccurence(JULY_FIRST_2016, DayOfWeek.SATURDAY, 9, 0));
+        assertEquals(expected.getTimeInMillis(), DateTimes.getNextOccurrence(JULY_FIRST_2016, DayOfWeek.SATURDAY, 9, 0));
     }
 
     @Test
-    public void testGetNextOccurence_overmorrow() throws Exception {
+    public void testGetNextOccurrence_overmorrow() throws Exception {
         Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"));
         expected.set(2016, Calendar.JULY, 3, 9, 0, 0);
         expected.set(Calendar.MILLISECOND, 0);
-        assertEquals(expected.getTimeInMillis(), DateTimes.getNextOccurence(JULY_FIRST_2016, DayOfWeek.SUNDAY, 9, 0));
+        assertEquals(expected.getTimeInMillis(), DateTimes.getNextOccurrence(JULY_FIRST_2016, DayOfWeek.SUNDAY, 9, 0));
     }
 
     @Test
-    public void testGetNextOccurence_earlierToday() throws Exception {
+    public void testGetNextOccurrence_earlierToday() throws Exception {
         Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"));
         expected.set(2016, Calendar.JULY, 8, 9, 0, 0);
         expected.set(Calendar.MILLISECOND, 0);
-        assertEquals(expected.getTimeInMillis(), DateTimes.getNextOccurence(JULY_FIRST_2016, DayOfWeek.FRIDAY, 9, 0));
+        assertEquals(expected.getTimeInMillis(), DateTimes.getNextOccurrence(JULY_FIRST_2016, DayOfWeek.FRIDAY, 9, 0));
     }
 
     @Test
-    public void testGetNextOccurence_now() throws Exception {
+    public void testGetNextOccurrence_now() throws Exception {
         Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"));
         expected.set(2016, Calendar.JULY, 8, 13, 0, 0);
         expected.set(Calendar.MILLISECOND, 0);
-        assertEquals(expected.getTimeInMillis(), DateTimes.getNextOccurence(JULY_FIRST_2016, DayOfWeek.FRIDAY, 13, 0));
+        assertEquals(expected.getTimeInMillis(), DateTimes.getNextOccurrence(JULY_FIRST_2016, DayOfWeek.FRIDAY, 13, 0));
     }
 
     @Test
-    public void testGetNextOccurence_springForward() throws Exception {
+    public void testGetNextOccurrence_springForward() throws Exception {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"));
         cal.set(2016, Calendar.MARCH, 26, 13, 0, 0); // Saturday
         cal.set(Calendar.MILLISECOND, 0);
@@ -89,11 +89,11 @@ public class DateTimesTest {
         Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"));
         expected.set(2016, Calendar.MARCH, 28, 13, 0, 0);
         expected.set(Calendar.MILLISECOND, 0);
-        assertEquals(expected.getTimeInMillis(), DateTimes.getNextOccurence(cal.getTimeInMillis(), DayOfWeek.MONDAY, 13, 0));
+        assertEquals(expected.getTimeInMillis(), DateTimes.getNextOccurrence(cal.getTimeInMillis(), DayOfWeek.MONDAY, 13, 0));
     }
 
     @Test
-    public void testGetNextOccurence_nextMonth() throws Exception {
+    public void testGetNextOccurrence_nextMonth() throws Exception {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"));
         cal.set(2016, Calendar.JULY, 29, 13, 0, 0); // Friday
         cal.set(Calendar.MILLISECOND, 0);
@@ -101,11 +101,11 @@ public class DateTimesTest {
         Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"));
         expected.set(2016, Calendar.AUGUST, 1, 13, 0, 0);
         expected.set(Calendar.MILLISECOND, 0);
-        assertEquals(expected.getTimeInMillis(), DateTimes.getNextOccurence(cal.getTimeInMillis(), DayOfWeek.MONDAY, 13, 0));
+        assertEquals(expected.getTimeInMillis(), DateTimes.getNextOccurrence(cal.getTimeInMillis(), DayOfWeek.MONDAY, 13, 0));
     }
 
     @Test
-    public void testGetNextOccurence_fallBack() throws Exception {
+    public void testGetNextOccurrence_fallBack() throws Exception {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"));
         cal.set(2016, Calendar.OCTOBER, 29, 13, 0, 0); // Saturday
         cal.set(Calendar.MILLISECOND, 0);
@@ -113,6 +113,6 @@ public class DateTimesTest {
         Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"));
         expected.set(2016, Calendar.NOVEMBER, 1, 13, 0, 0);
         expected.set(Calendar.MILLISECOND, 0);
-        assertEquals(expected.getTimeInMillis(), DateTimes.getNextOccurence(cal.getTimeInMillis(), DayOfWeek.TUESDAY, 13, 0));
+        assertEquals(expected.getTimeInMillis(), DateTimes.getNextOccurrence(cal.getTimeInMillis(), DayOfWeek.TUESDAY, 13, 0));
     }
 }

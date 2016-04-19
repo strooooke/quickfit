@@ -17,25 +17,17 @@
 package com.lambdasoup.quickfit.persist;
 
 import android.accounts.Account;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -48,13 +40,10 @@ import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Device;
 import com.google.android.gms.fitness.data.Session;
 import com.google.android.gms.fitness.request.SessionInsertRequest;
-import com.lambdasoup.quickfit.Constants;
-import com.lambdasoup.quickfit.R;
-import com.lambdasoup.quickfit.ui.WorkoutListActivity;
 
 import java.util.concurrent.TimeUnit;
 
-public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
+class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final String TAG = QuickFitSyncAdapter.class.getSimpleName();
     private static final ContentValues STATUS_TRANSMITTED = new ContentValues();
 
@@ -65,13 +54,8 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
     private final ContentResolver contentResolver;
     private GoogleApiClient googleApiClient;
 
-    public QuickFitSyncAdapter(Context context, boolean autoInitialize) {
-        super(context, autoInitialize);
-        contentResolver = context.getContentResolver();
-    }
-
-    public QuickFitSyncAdapter(Context context, boolean autoInitialize, boolean allowParallelSyncs) {
-        super(context, autoInitialize, allowParallelSyncs);
+    public QuickFitSyncAdapter(Context context) {
+        super(context, true, false);
         contentResolver = context.getContentResolver();
     }
 
@@ -169,7 +153,7 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
                         null
                 );
                 syncResult.stats.numInserts++;
-                Log.d(TAG, "insertion successfull");
+                Log.d(TAG, "insertion successful");
             } else {
                 Log.d(TAG, "insertion failed: " + status.getStatusMessage());
                 syncResult.stats.numIoExceptions++;
