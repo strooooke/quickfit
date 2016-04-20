@@ -28,19 +28,17 @@ import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
-import com.lambdasoup.quickfit.Constants;
 import com.lambdasoup.quickfit.R;
 
-public class SettingsActivity extends AppCompatActivity {
+import timber.log.Timber;
 
-    private static final String TAG = SettingsActivity.class.getSimpleName();
+public class SettingsActivity extends AppCompatActivity {
 
 
     @Override
@@ -118,6 +116,7 @@ public class SettingsActivity extends AppCompatActivity {
                 return;
             }
             Context context = getActivity().getApplicationContext();
+            //noinspection CodeBlock2Expr,CodeBlock2Expr
             googleApiClient = new GoogleApiClient.Builder(context)
                     .addApi(Fitness.CONFIG_API)
                     .addConnectionCallbacks(
@@ -138,7 +137,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onConnectionSuspended(int i) {
-                                    Log.d(TAG, "connection suspended");
+                                    Timber.d("connection suspended");
                                 }
                             }
                     )

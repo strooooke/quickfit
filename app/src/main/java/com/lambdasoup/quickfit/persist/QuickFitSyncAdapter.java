@@ -17,25 +17,16 @@
 package com.lambdasoup.quickfit.persist;
 
 import android.accounts.Account;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -48,14 +39,12 @@ import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Device;
 import com.google.android.gms.fitness.data.Session;
 import com.google.android.gms.fitness.request.SessionInsertRequest;
-import com.lambdasoup.quickfit.Constants;
-import com.lambdasoup.quickfit.R;
-import com.lambdasoup.quickfit.ui.WorkoutListActivity;
 
 import java.util.concurrent.TimeUnit;
 
-public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
-    private static final String TAG = QuickFitSyncAdapter.class.getSimpleName();
+import timber.log.Timber;
+
+class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final ContentValues STATUS_TRANSMITTED = new ContentValues();
 
     static {
@@ -65,19 +54,13 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
     private final ContentResolver contentResolver;
     private GoogleApiClient googleApiClient;
 
-    public QuickFitSyncAdapter(Context context, boolean autoInitialize) {
-        super(context, autoInitialize);
-        contentResolver = context.getContentResolver();
-    }
-
-    public QuickFitSyncAdapter(Context context, boolean autoInitialize, boolean allowParallelSyncs) {
-        super(context, autoInitialize, allowParallelSyncs);
+    public QuickFitSyncAdapter(Context context) {
+        super(context, true, false);
         contentResolver = context.getContentResolver();
     }
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.d(TAG, "performing sync");
         googleApiClient = new GoogleApiClient.Builder(getContext())
                 .addApi(Fitness.SESSIONS_API)
                 .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
@@ -85,7 +68,6 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
                         new GoogleApiClient.ConnectionCallbacks() {
                             @Override
                             public void onConnected(Bundle bundle) {
-                                Log.d(TAG, "Connected!");
                                 try {
                                     Cursor sessionsCursor = provider.query(
                                             QuickFitContentProvider.getUriSessionsList(),
@@ -93,7 +75,7 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
                                             QuickFitContract.SessionEntry.STATUS + "=?",
                                             new String[]{QuickFitContract.SessionEntry.SessionStatus.NEW.name()},
                                             null);
-                                    Log.d(TAG, "Found " + (sessionsCursor == null ? "no" : sessionsCursor.getCount()) + " sessions to sync");
+                                    Timber.d("Found %s sessions to sync", (sessionsCursor == null ? "no" : sessionsCursor.getCount()));
                                     insertNextSession(sessionsCursor, syncResult);
                                 } catch (RemoteException e) {
                                     syncResult.stats.numParseExceptions++;
@@ -102,50 +84,20 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
 
                             @Override
                             public void onConnectionSuspended(int i) {
-                                Log.d(TAG, "connection suspended");
+                                Timber.d("connection suspended");
                                 syncResult.stats.numIoExceptions++;
                                 if (i == GoogleApiClient.ConnectionCallbacks.CAUSE_NETWORK_LOST) {
-                                    Log.d(TAG, "Connection lost.  Cause: Network Lost.");
+                                    Timber.d("Connection lost.  Cause: Network Lost.");
                                 } else if (i == GoogleApiClient.ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
-                                    Log.d(TAG, "Connection lost.  Reason: Service Disconnected");
+                                    Timber.d("Connection lost.  Reason: Service Disconnected");
                                 }
                             }
                         }
                 )
                 .addOnConnectionFailedListener(
                         result -> {
-                            Log.d(TAG, "connection failed");
-                            if (!result.hasResolution()) {
-                                // Show the localized error notification
-                                GoogleApiAvailability.getInstance().showErrorNotification(getContext(), result.getErrorCode());
-                                return;
-                            }
-                            // The failure has a resolution. Resolve it.
-                            // Called typically when the app is not yet authorized, and an
-                            // authorization dialog is displayed to the user.
-                            Intent resultIntent = new Intent(getContext(), WorkoutListActivity.class);
-                            resultIntent.putExtra(WorkoutListActivity.EXTRA_PLAY_API_CONNECT_RESULT, result);
-                            TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
-                            stackBuilder.addParentStack(WorkoutListActivity.class);
-                            stackBuilder.addNextIntent(resultIntent);
-                            PendingIntent resultPendingIntent =
-                                    stackBuilder.getPendingIntent(
-                                            0,
-                                            PendingIntent.FLAG_UPDATE_CURRENT
-                                    );
-
-                            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getContext())
-                                    .setContentTitle(getContext().getResources().getString(R.string.permission_needed_play_service_title))
-                                    .setContentText(getContext().getResources().getString(R.string.permission_needed_play_service))
-                                    .setSmallIcon(R.drawable.common_ic_googleplayservices)
-                                    .setContentIntent(resultPendingIntent)
-                                    .setAutoCancel(true);
-
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                notificationBuilder.setCategory(Notification.CATEGORY_ERROR);
-                            }
-
-                            ((NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE)).notify(Constants.NOTIFICATION_PLAY_INTERACTION, notificationBuilder.build());
+                            Timber.d("connection failed");
+                            getContext().startService(FitApiFailureResolutionService.getFailureResolutionIntent(getContext(), result));
                         }
                 )
                 .build();
@@ -155,7 +107,7 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
     private void insertNextSession(Cursor cursor, SyncResult syncResult) {
         if (!cursor.moveToNext()) {
             // done with sessions
-            Log.d(TAG, "Done; disconnecting.");
+            Timber.d("Done; disconnecting.");
             googleApiClient.disconnect();
             // sync finished
             return;
@@ -201,12 +153,12 @@ public class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
                         null
                 );
                 syncResult.stats.numInserts++;
-                Log.d(TAG, "insertion successfull");
+                Timber.d("insertion successful");
             } else {
-                Log.d(TAG, "insertion failed: " + status.getStatusMessage());
+                Timber.d("insertion failed: %s", status.getStatusMessage());
                 syncResult.stats.numIoExceptions++;
             }
-            Log.d(TAG, "Looking at the next session");
+            Timber.d("Looking at the next session");
             insertNextSession(cursor, syncResult);
         });
     }

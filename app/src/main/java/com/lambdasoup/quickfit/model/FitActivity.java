@@ -164,11 +164,9 @@ public class FitActivity {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("FitActivity{");
-        sb.append("key='").append(key).append('\'');
-        sb.append(", displayName='").append(displayName).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "FitActivity{" + "key='" + key + '\'' +
+                ", displayName='" + displayName + '\'' +
+                '}';
     }
 
     @Override

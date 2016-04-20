@@ -168,6 +168,7 @@ public class QuickFitContract {
 
         public static final int SHOW_NOTIFICATION_NO = 0;
         public static final int SHOW_NOTIFICATION_YES = 1;
+
         private ScheduleEntry() {
             // do not instantiate
         }

@@ -16,8 +16,6 @@
 
 package com.lambdasoup.quickfit.model;
 
-import com.lambdasoup.quickfit.model.DayOfWeek;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -54,7 +52,7 @@ public class DayOfWeekTest {
     public void week_startsWednesday() {
         Calendar calendar = Calendar.getInstance();
         calendar.setFirstDayOfWeek(Calendar.WEDNESDAY);
-        Assert.assertArrayEquals(new DayOfWeek[]{ WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY, MONDAY, TUESDAY}, DayOfWeek.getWeek(calendar));
+        Assert.assertArrayEquals(new DayOfWeek[]{WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY, MONDAY, TUESDAY}, DayOfWeek.getWeek(calendar));
     }
 
     @Test

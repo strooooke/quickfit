@@ -31,14 +31,12 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 import android.support.v4.app.NotificationCompat.InboxStyle;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.support.v7.app.NotificationCompat;
 import android.text.format.DateUtils;
-import android.util.Log;
 
 import com.lambdasoup.quickfit.Constants;
 import com.lambdasoup.quickfit.FitActivityService;
@@ -56,6 +54,8 @@ import com.lambdasoup.quickfit.util.IntentServiceCompat;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import timber.log.Timber;
+
 import static com.lambdasoup.quickfit.Constants.PENDING_INTENT_ALARM_RECEIVER;
 
 /**
@@ -63,7 +63,6 @@ import static com.lambdasoup.quickfit.Constants.PENDING_INTENT_ALARM_RECEIVER;
  * and interaction with the AlarmManager.
  */
 public class AlarmService extends IntentServiceCompat {
-    private static final String TAG = AlarmService.class.getSimpleName();
 
     private static final String ACTION_ON_ALARM_RECEIVED = "com.lambdasoup.quickfit.alarm.action.ON_ALARM_RECEIVED";
     private static final String ACTION_ON_TIME_CHANGED = "com.lambdasoup.quickfit.alarm.action.ON_TIME_CHANGED";
@@ -79,7 +78,7 @@ public class AlarmService extends IntentServiceCompat {
     private static final String QUERY_SELECT_MIN_NEXT_ALERT = "SELECT " + ScheduleEntry.COL_NEXT_ALARM_MILLIS + " FROM " + ScheduleEntry.TABLE_NAME +
             " ORDER BY " + ScheduleEntry.COL_NEXT_ALARM_MILLIS + " ASC LIMIT 1";
 
-    private QuickFitDbHelper dbHelper; // TODO: move into content provider
+    private final QuickFitDbHelper dbHelper; // TODO: move into content provider
 
     public AlarmService() {
         super("AlarmService");
@@ -109,9 +108,9 @@ public class AlarmService extends IntentServiceCompat {
     }
 
     /**
-     * For use by the activity, which takes care of updating next occurence data
+     * For use by the activity, which takes care of updating next occurrence data
      * for schedules itself. This action sets the alarm, to allow the AlarmReceiver
-     * to react on the occurence of the very next scheduled event.
+     * to react on the occurrence of the very next scheduled event.
      */
     public static Intent getIntentOnNextOccChanged(Context context) {
         Intent intent = new Intent(context, AlarmService.class);
@@ -173,6 +172,8 @@ public class AlarmService extends IntentServiceCompat {
             } else if (ACTION_ON_SNOOZE.equals(action)) {
                 long scheduleId = intent.getLongExtra(EXTRA_SCHEDULE_ID, -1);
                 handleOnSnooze(scheduleId);
+            } else {
+                throw new IllegalArgumentException("Unexpected action " + action);
             }
         }
     }
@@ -180,6 +181,7 @@ public class AlarmService extends IntentServiceCompat {
 
     @WorkerThread
     private void handleOnAlarmReceived(Intent intent) {
+        Timber.d("Handling onAlarmReceived");
         try {
             processOldEvents();
             refreshNotificationDisplay();
@@ -191,6 +193,7 @@ public class AlarmService extends IntentServiceCompat {
 
     @WorkerThread
     private void handleOnTimeChanged(Intent intent) {
+        Timber.d("Handling onTimeChanged");
         try {
             // ignores snooze; time change events should happen only when
             // - user is currently traveling (probably does not care deeply about doing sports)
@@ -205,16 +208,19 @@ public class AlarmService extends IntentServiceCompat {
 
     @WorkerThread
     private void handleOnNextOccChanged() {
+        Timber.d("Handling next occurrence changed");
         setNextAlarm();
     }
 
     @WorkerThread
     private void handleOnNotificationsCanceled(long[] scheduleIds) {
+        Timber.d("Handling onNotificationsCanceled");
         setDontShowNotificationForIds(scheduleIds);
     }
 
     @WorkerThread
     private void handleOnDidIt(long scheduleId, long workoutId) {
+        Timber.d("Handling onDidIt");
         startService(FitActivityService.getIntentInsertSession(getApplicationContext(), workoutId));
         setDontShowNotificationForIds(new long[]{scheduleId});
         refreshNotificationDisplay();
@@ -222,6 +228,7 @@ public class AlarmService extends IntentServiceCompat {
 
     @WorkerThread
     private void handleOnSnooze(long scheduleId) {
+        Timber.d("Handling onSnooze");
         String durationMinsStr = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_snooze_duration_mins), "60");
         int durationMins = Integer.parseInt(durationMinsStr);
         ContentValues values = new ContentValues(2);
@@ -236,7 +243,7 @@ public class AlarmService extends IntentServiceCompat {
 
 
     /**
-     * sets the alarm with the alarm manager for the next occurence of any scheduled event according
+     * sets the alarm with the alarm manager for the next occurrence of any scheduled event according
      * to the current db state
      */
     @WorkerThread
@@ -248,7 +255,7 @@ public class AlarmService extends IntentServiceCompat {
                 long nextAlarmMillis = cursor.getLong(cursor.getColumnIndexOrThrow(ScheduleEntry.COL_NEXT_ALARM_MILLIS));
 
                 AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-                PendingIntent alarmReceiverIntent = PendingIntent.getBroadcast(this, PENDING_INTENT_ALARM_RECEIVER, new Intent(getApplicationContext(), AlarmReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent alarmReceiverIntent = PendingIntent.getBroadcast(this, PENDING_INTENT_ALARM_RECEIVER, AlarmReceiver.getIntentOnAlarm(this), PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager.cancel(alarmReceiverIntent);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextAlarmMillis, alarmReceiverIntent);
@@ -260,8 +267,8 @@ public class AlarmService extends IntentServiceCompat {
     }
 
     /**
-     * Updates time for next occurence and flag that notification is needed in single pass;
-     * for all events with next occurence in the past.
+     * Updates time for next occurrence and flag that notification is needed in single pass;
+     * for all events with next occurrence in the past.
      */
     @WorkerThread
     private void processOldEvents() {
@@ -290,7 +297,7 @@ public class AlarmService extends IntentServiceCompat {
             db.beginTransactionNonExclusive();
             try {
                 for (Schedule schedule : schedules) {
-                    long nextAlarmMillis = DateTimes.getNextOccurence(now, schedule.dayOfWeek, schedule.hour, schedule.minute);
+                    long nextAlarmMillis = DateTimes.getNextOccurrence(now, schedule.dayOfWeek, schedule.hour, schedule.minute);
                     ContentValues contentValues = new ContentValues(2);
                     contentValues.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, nextAlarmMillis);
                     contentValues.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_YES);
@@ -315,7 +322,7 @@ public class AlarmService extends IntentServiceCompat {
         )) {
             int count = toNotify == null ? 0 : toNotify.getCount();
             if (count == 0) {
-                Log.d(TAG, "refreshNotificationDisplay: no events");
+                Timber.d("refreshNotificationDisplay: no events");
                 NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 notificationManager.cancel(Constants.NOTIFICATION_ALARM);
                 return;
@@ -323,11 +330,11 @@ public class AlarmService extends IntentServiceCompat {
 
             NotificationCompat.Builder notification;
             if (count == 1) {
-                Log.d(TAG, "refreshNotificationDisplay: single event");
+                Timber.d("refreshNotificationDisplay: single event");
                 toNotify.moveToFirst();
                 notification = notifySingleEvent(toNotify);
             } else {
-                Log.d(TAG, "refreshNotificationDisplay: multiple events");
+                Timber.d("refreshNotificationDisplay: multiple events");
                 toNotify.moveToPosition(-1);
                 notification = notifyMultipleEvents(toNotify);
             }
@@ -472,7 +479,7 @@ public class AlarmService extends IntentServiceCompat {
 
     @WorkerThread
     private void setDontShowNotificationForIds(long[] scheduleIds) {
-        Log.d(TAG, "setDontShowNotificationForIds() called with: " + "scheduleIds = [" + Arrays.toString(scheduleIds) + "]");
+        Timber.d("setDontShowNotificationForIds() called with: scheduleIds = [%s]", Arrays.toString(scheduleIds));
         for (long scheduleId : scheduleIds) {
             ContentValues contentValues = new ContentValues(1);
             contentValues.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
@@ -513,7 +520,7 @@ public class AlarmService extends IntentServiceCompat {
             db.beginTransactionNonExclusive();
             try {
                 for (Schedule schedule : schedules) {
-                    long nextAlarmMillis = DateTimes.getNextOccurence(now, schedule.dayOfWeek, schedule.hour, schedule.minute);
+                    long nextAlarmMillis = DateTimes.getNextOccurrence(now, schedule.dayOfWeek, schedule.hour, schedule.minute);
                     ContentValues contentValues = new ContentValues(1);
                     contentValues.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, nextAlarmMillis);
                     db.update(ScheduleEntry.TABLE_NAME, contentValues, ScheduleEntry.COL_ID + "=?", new String[]{Long.toString(schedule.id)});

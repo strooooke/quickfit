@@ -57,28 +57,25 @@ public class WorkoutItem {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("WorkoutItem{");
-        sb.append("id=").append(id);
-        sb.append(", activityTypeIndex=").append(activityTypeIndex);
-        sb.append(", activityTypeDisplayName='").append(activityTypeDisplayName).append('\'');
-        sb.append(", durationInMinutes=").append(durationInMinutes);
-        sb.append(", calories=").append(calories);
-        sb.append(", label='").append(label).append('\'');
-        sb.append(", scheduleDisplay='").append(scheduleDisplay).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "WorkoutItem{" + "id=" + id +
+                ", activityTypeIndex=" + activityTypeIndex +
+                ", activityTypeDisplayName='" + activityTypeDisplayName + '\'' +
+                ", durationInMinutes=" + durationInMinutes +
+                ", calories=" + calories +
+                ", label='" + label + '\'' +
+                ", scheduleDisplay='" + scheduleDisplay + '\'' +
+                '}';
     }
 
     public static class Builder {
         private final Context context;
         private final Function<FitActivity, Integer> fitActPositionSupplier;
-
+        private final List<ScheduleItem> scheduleItems = new ArrayList<>();
         private long workoutId;
         private String activityTypeKey;
         private int durationInMinutes;
         private int calories;
         private String label;
-        private final List<ScheduleItem> scheduleItems = new ArrayList<>();
 
         public Builder(Context context, Function<FitActivity, Integer> fitActPositionSupplier) {
             this.context = context;

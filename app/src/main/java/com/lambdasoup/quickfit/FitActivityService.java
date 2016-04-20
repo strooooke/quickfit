@@ -5,14 +5,13 @@ import android.accounts.AccountManager;
 import android.app.IntentService;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.StringRes;
 import android.support.annotation.WorkerThread;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
@@ -20,13 +19,15 @@ import com.lambdasoup.quickfit.persist.QuickFitContract;
 
 import java.util.concurrent.TimeUnit;
 
+import timber.log.Timber;
+
 
 public class FitActivityService extends IntentService {
     private static final String ACTION_INSERT_SESSION = "com.lambdasoup.quickfit.action.INSERT_SESSION";
     private static final String ACTION_SESSION_SYNC = "com.lambdasoup.quickfit.action.SESSION_SYNC";
+    private static final String ACTION_SET_PERIODIC_SYNC = "com.lambdasoup.quickfit.action.SET_PERIODIC_SYNC";
 
     private static final String EXTRA_WORKOUT_ID = "com.lambdasoup.quickfit.alarm.WORKOUT_ID";
-    private static final String TAG = FitActivityService.class.getSimpleName();
 
     private static final String ACCOUNT_TYPE = "com.lambdasoup.quickfit";
     private final Account account = new Account("QuickFit", ACCOUNT_TYPE);
@@ -48,6 +49,12 @@ public class FitActivityService extends IntentService {
         return intent;
     }
 
+    public static Intent getIntentSetPeriodicSync(Context context) {
+        Intent intent = new Intent(context, FitActivityService.class);
+        intent.setAction(ACTION_SET_PERIODIC_SYNC);
+        return intent;
+    }
+
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
@@ -55,6 +62,12 @@ public class FitActivityService extends IntentService {
             if (ACTION_INSERT_SESSION.equals(action)) {
                 long workoutId = intent.getLongExtra(EXTRA_WORKOUT_ID, -1);
                 handleInsertSession(workoutId);
+            } else if (ACTION_SESSION_SYNC.equals(action)) {
+                requestSync();
+            } else if (ACTION_SET_PERIODIC_SYNC.equals(action)) {
+                setPeriodicSync();
+            } else {
+                throw new IllegalArgumentException("Action " + action + " not supported.");
             }
         }
     }
@@ -68,7 +81,7 @@ public class FitActivityService extends IntentService {
                 null,
                 null);
         if (cursor == null || !cursor.moveToFirst()) {
-            Log.w(TAG, "Workout missing with id: " + workoutId);
+            Timber.w("Workout missing with id: %d", workoutId);
             return;
         }
 
@@ -92,19 +105,29 @@ public class FitActivityService extends IntentService {
     }
 
     @WorkerThread
-    private void showToast(@StringRes int resId) {
+    private void showToast(@SuppressWarnings("SameParameterValue") @StringRes int resId) {
         new Handler(getMainLooper()).post(() -> Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_SHORT).show());
     }
 
 
     @WorkerThread
     private void requestSync() {
-        if (AccountManager.get(getApplicationContext()).addAccountExplicitly(account, null, null)) {
-            ContentResolver.setIsSyncable(account, QuickFitContentProvider.AUTHORITY, 1);
-        }
+        ensureAccountExistsAndIsSyncable();
         Bundle syncOptions = new Bundle();
         syncOptions.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         ContentResolver.requestSync(account, QuickFitContentProvider.AUTHORITY, syncOptions);
+    }
+
+    @WorkerThread
+    private void setPeriodicSync() {
+        ensureAccountExistsAndIsSyncable();
+        ContentResolver.addPeriodicSync(account, QuickFitContentProvider.AUTHORITY, Bundle.EMPTY, TimeUnit.HOURS.toSeconds(3));
+    }
+
+    private void ensureAccountExistsAndIsSyncable() {
+        if (AccountManager.get(getApplicationContext()).addAccountExplicitly(account, null, null)) {
+            ContentResolver.setIsSyncable(account, QuickFitContentProvider.AUTHORITY, 1);
+        }
     }
 
 }

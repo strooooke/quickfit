@@ -37,14 +37,14 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * Created by jl on 17.03.16.
  */
 public class ScheduleListTest {
-    private static final ScheduleItem ID_2_OLD = new ScheduleItem(2000l, DayOfWeek.MONDAY, "10:00", 10, 0);
-    private static final ScheduleItem ID_3_OLD = new ScheduleItem(3000l, DayOfWeek.MONDAY, "12:15", 12, 15);
-    private static final ScheduleItem ID_4 = new ScheduleItem(4000l, DayOfWeek.TUESDAY, "10:00", 10, 0);
-    private static final ScheduleItem ID_1_OLD = new ScheduleItem(1000l, DayOfWeek.TUESDAY, "11:30", 11, 30);
+    private static final ScheduleItem ID_2_OLD = new ScheduleItem(2000L, DayOfWeek.MONDAY, "10:00", 10, 0);
+    private static final ScheduleItem ID_3_OLD = new ScheduleItem(3000L, DayOfWeek.MONDAY, "12:15", 12, 15);
+    private static final ScheduleItem ID_4 = new ScheduleItem(4000L, DayOfWeek.TUESDAY, "10:00", 10, 0);
+    private static final ScheduleItem ID_1_OLD = new ScheduleItem(1000L, DayOfWeek.TUESDAY, "11:30", 11, 30);
 
-    private static final ScheduleItem ID_3_UP = new ScheduleItem(3000l, DayOfWeek.MONDAY, "09:00", 9, 0);
-    private static final ScheduleItem ID_3_DOWN = new ScheduleItem(3000l, DayOfWeek.WEDNESDAY, "09:00", 9, 0);
-    private static final ScheduleItem ID_3_STAY = new ScheduleItem(3000l, DayOfWeek.MONDAY, "18:00", 18, 0);
+    private static final ScheduleItem ID_3_UP = new ScheduleItem(3000L, DayOfWeek.MONDAY, "09:00", 9, 0);
+    private static final ScheduleItem ID_3_DOWN = new ScheduleItem(3000L, DayOfWeek.WEDNESDAY, "09:00", 9, 0);
+    private static final ScheduleItem ID_3_STAY = new ScheduleItem(3000L, DayOfWeek.MONDAY, "18:00", 18, 0);
 
     private static final ScheduleItem[] INITIAL_ITEMS = {
             ID_1_OLD,

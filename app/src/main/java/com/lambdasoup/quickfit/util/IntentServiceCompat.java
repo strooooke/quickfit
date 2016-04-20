@@ -46,7 +46,7 @@ public abstract class IntentServiceCompat extends IntentService {
      *                                                         does not exist.
      */
     @ColorInt
-    public int getColorCompat(@ColorRes int id) {
+    protected int getColorCompat(@SuppressWarnings("SameParameterValue") @ColorRes int id) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return getColor(id);
         } else {

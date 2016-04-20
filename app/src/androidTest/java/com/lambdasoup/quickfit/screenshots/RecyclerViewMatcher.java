@@ -17,11 +17,6 @@
 package com.lambdasoup.quickfit.screenshots;
 
 import android.content.res.Resources;
-import android.support.test.espresso.assertion.ViewAssertions;
-import android.support.test.espresso.core.deps.guava.base.Predicates;
-import android.support.test.espresso.core.deps.guava.collect.Iterables;
-import android.support.test.espresso.matcher.ViewMatchers;
-import android.support.test.espresso.util.TreeIterables;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 

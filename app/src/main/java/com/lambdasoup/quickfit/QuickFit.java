@@ -14,28 +14,26 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit.util;
+package com.lambdasoup.quickfit;
 
-import java.util.Iterator;
+import android.app.Application;
 
-/**
- * Created by jl on 14.03.16.
- */
-public class Strings {
-    private Strings() {
-        // do not instantiate
-    }
+import timber.log.Timber;
 
-    public static String join(@SuppressWarnings("SameParameterValue") String separator, Iterable<String> parts) {
-        Iterator<String> iterator = parts.iterator();
-        if (!iterator.hasNext()) {
-            return "";
+
+public class QuickFit extends Application {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        // ensure that our sync adapter is set to sync periodically, to catch any problems with
+        // missing manual sync requests eventually
+        startService(FitActivityService.getIntentSetPeriodicSync(getApplicationContext()));
+
+        // init logging
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
         }
-        StringBuilder sb = new StringBuilder();
-        sb.append(iterator.next());
-        while (iterator.hasNext()) {
-            sb.append(separator).append(iterator.next());
-        }
-        return sb.toString();
     }
 }

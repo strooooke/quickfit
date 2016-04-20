@@ -22,7 +22,10 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.test.uiautomator.UiDevice;
+import android.support.test.uiautomator.UiObject;
+import android.support.test.uiautomator.UiSelector;
 
 import com.lambdasoup.quickfit.Constants;
 import com.lambdasoup.quickfit.alarm.AlarmService;
@@ -30,31 +33,38 @@ import com.lambdasoup.quickfit.persist.QuickFitContract.ScheduleEntry;
 import com.lambdasoup.quickfit.persist.QuickFitDbHelper;
 import com.lambdasoup.quickfit.ui.WorkoutListActivity;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
+import org.junit.runner.RunWith;
 
 import java.util.Locale;
 
 import tools.fastlane.screengrab.locale.LocaleTestRule;
 
+import static org.junit.Assert.assertTrue;
+
 /**
- * Created by jl on 07.04.16.
+ * Tests correct appearance of a single notification, taking a screenshot in the process
  */
+@RunWith(AndroidJUnit4.class)
 public class NotificationScreenshotTest {
     @ClassRule
     public static final RuleChain classRules = RuleChain.outerRule(new FixedLocaleTestRule(Locale.US))
             .around(new LocaleTestRule())
             .around(new DatabasePreparationTestRule());
 
+    private static UiDevice deviceInstance;
+
     @Rule
     public final ActivityTestRule<WorkoutListActivity> workoutListActivityActivityTestRule = new ActivityTestRule<>(WorkoutListActivity.class);
 
-    @Before
-    public void setUp() {
+    @BeforeClass
+    public static void setUp() throws Exception {
+        deviceInstance = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         Context targetContext = InstrumentationRegistry.getTargetContext();
         QuickFitDbHelper dbHelper = new QuickFitDbHelper(targetContext);
         try (SQLiteDatabase conn = dbHelper.getWritableDatabase()) {
@@ -63,33 +73,37 @@ public class NotificationScreenshotTest {
             conn.update(ScheduleEntry.TABLE_NAME, values, ScheduleEntry.COL_ID + "=" + DatabasePreparationTestRule.s11.get(ScheduleEntry.COL_ID), null);
         }
         targetContext.startService(AlarmService.getIntentOnAlarmReceived(targetContext));
+        Thread.sleep(500); // wait for intent service to finish processing
+        deviceInstance.openNotification();
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        Context targetContext = InstrumentationRegistry.getTargetContext();
+        ((NotificationManager) targetContext.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(Constants.NOTIFICATION_ALARM);
     }
 
     @Test
-    public void takeNotificationScreenshot() throws Exception {
-        swipeDownNotificationBar();
-        Thread.sleep(500); // wait for notification area to settle
+    public void takeScreenshot() throws Exception {
         SystemScreengrab.takeScreenshot("notification");
     }
 
-    @After
-    public void tearDown() {
-        Context targetContext = InstrumentationRegistry.getTargetContext();
-        ((NotificationManager)targetContext.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(Constants.NOTIFICATION_ALARM);
+    @Test
+    public void didItButtonPresent() throws Exception {
+        UiObject didItButton = deviceInstance.findObject(new UiSelector()
+                .className(android.widget.Button.class)
+                .description("Did it!")
+                .clickable(true));
+        assertTrue("Missing DidIt button", didItButton.exists());
     }
 
-    public static void swipeDownNotificationBar() {
-        UiDevice deviceInstance = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-        int dHeight = deviceInstance.getDisplayHeight();
-        int dWidth = deviceInstance.getDisplayWidth();
-        int xScrollPosition = dWidth / 2;
-        int yScrollStop = dHeight / 2;
-        deviceInstance.swipe(
-                xScrollPosition,
-                0,
-                xScrollPosition,
-                yScrollStop,
-                5
-        );
+    @Test
+    public void snoozeButtonPresent() throws Exception {
+        UiObject snoozeButton = deviceInstance.findObject(new UiSelector()
+                .className(android.widget.Button.class)
+                .description("Snooze")
+                .clickable(true));
+        assertTrue("Missing snooze button", snoozeButton.exists());
     }
+
 }

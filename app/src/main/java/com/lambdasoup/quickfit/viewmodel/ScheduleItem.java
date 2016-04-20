@@ -63,6 +63,7 @@ public class ScheduleItem {
         if (id != that.id) return false;
         if (minute != that.minute) return false;
         if (hour != that.hour) return false;
+        //noinspection SimplifiableIfStatement
         if (dayOfWeek != that.dayOfWeek) return false;
         return !(time != null ? !time.equals(that.time) : that.time != null);
 
@@ -80,14 +81,12 @@ public class ScheduleItem {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ScheduleItem{");
-        sb.append("id=").append(id);
-        sb.append(", dayOfWeek=").append(dayOfWeek);
-        sb.append(", time='").append(time).append('\'');
-        sb.append(", minute=").append(minute);
-        sb.append(", hour=").append(hour);
-        sb.append('}');
-        return sb.toString();
+        return "ScheduleItem{" + "id=" + id +
+                ", dayOfWeek=" + dayOfWeek +
+                ", time='" + time + '\'' +
+                ", minute=" + minute +
+                ", hour=" + hour +
+                '}';
     }
 
     public static class ByCalendar implements Comparator<ScheduleItem> {
@@ -129,7 +128,7 @@ public class ScheduleItem {
         private int minute;
         private int hour;
 
-        public Builder(Function<DayOfWeek, Integer> dayOfWeekPositionSupplier){
+        public Builder(Function<DayOfWeek, Integer> dayOfWeekPositionSupplier) {
             this.dayOfWeekPositionSupplier = dayOfWeekPositionSupplier;
         }
 

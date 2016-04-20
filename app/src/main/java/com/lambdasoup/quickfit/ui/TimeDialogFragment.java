@@ -78,7 +78,7 @@ public class TimeDialogFragment extends DialogFragment implements TimePickerDial
     }
 
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-       listener.onTimeChanged(getArguments().getLong(KEY_SCHEDULE_ID), hourOfDay, minute);
+        listener.onTimeChanged(getArguments().getLong(KEY_SCHEDULE_ID), hourOfDay, minute);
     }
 
     interface OnFragmentInteractionListener {
