@@ -64,7 +64,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
     testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:1.+'
+    testCompile 'org.mockito:mockito-core:1.10.19'
 
     androidTestCompile 'junit:junit:4.12'
     androidTestCompile 'com.android.support.test:runner:0.5'
@@ -86,4 +86,5 @@ dependencies {
     compile 'com.android.support:preference-v14:23.2.1'
     compile 'com.android.support:recyclerview-v7:23.2.1'
     compile 'com.google.android.gms:play-services-fitness:8.4.0'
+    compile 'com.jakewharton.timber:timber:4.1.2'
 }

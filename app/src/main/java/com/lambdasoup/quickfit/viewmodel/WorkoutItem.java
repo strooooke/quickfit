@@ -70,13 +70,12 @@ public class WorkoutItem {
     public static class Builder {
         private final Context context;
         private final Function<FitActivity, Integer> fitActPositionSupplier;
-
+        private final List<ScheduleItem> scheduleItems = new ArrayList<>();
         private long workoutId;
         private String activityTypeKey;
         private int durationInMinutes;
         private int calories;
         private String label;
-        private final List<ScheduleItem> scheduleItems = new ArrayList<>();
 
         public Builder(Context context, Function<FitActivity, Integer> fitActPositionSupplier) {
             this.context = context;

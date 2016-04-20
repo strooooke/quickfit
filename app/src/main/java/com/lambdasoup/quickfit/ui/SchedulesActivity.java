@@ -46,7 +46,6 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
     public static final String EXTRA_WORKOUT_ID = "com.lambdasoup.quickfit_workoutId";
     private static final int LOADER_WORKOUT = 0;
     private static final int LOADER_SCHEDULES = 1;
-    private static final String TAG = SchedulesActivity.class.getSimpleName();
 
     private ActivitySchedulesBinding workoutBinding;
     private SchedulesRecyclerViewAdapter schedulesAdapter;

@@ -36,6 +36,7 @@ public enum DayOfWeek {
 
     public final int calendarConst;
     public final int fullNameResId;
+
     DayOfWeek(int calendarConst, @StringRes int fullNameResId) {
         this.calendarConst = calendarConst;
         this.fullNameResId = fullNameResId;

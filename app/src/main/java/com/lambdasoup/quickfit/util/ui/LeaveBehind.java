@@ -11,8 +11,6 @@ import android.view.View;
  */
 public abstract class LeaveBehind extends ItemTouchHelper.SimpleCallback {
 
-    private static final String TAG = LeaveBehind.class.getSimpleName();
-
     public LeaveBehind() {
         super(0, ItemTouchHelper.START | ItemTouchHelper.END);
     }

@@ -5,20 +5,21 @@ import android.accounts.AccountManager;
 import android.app.IntentService;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.StringRes;
 import android.support.annotation.WorkerThread;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
 import com.lambdasoup.quickfit.persist.QuickFitContract;
 
 import java.util.concurrent.TimeUnit;
+
+import timber.log.Timber;
 
 
 public class FitActivityService extends IntentService {
@@ -27,7 +28,6 @@ public class FitActivityService extends IntentService {
     private static final String ACTION_SET_PERIODIC_SYNC = "com.lambdasoup.quickfit.action.SET_PERIODIC_SYNC";
 
     private static final String EXTRA_WORKOUT_ID = "com.lambdasoup.quickfit.alarm.WORKOUT_ID";
-    private static final String TAG = FitActivityService.class.getSimpleName();
 
     private static final String ACCOUNT_TYPE = "com.lambdasoup.quickfit";
     private final Account account = new Account("QuickFit", ACCOUNT_TYPE);
@@ -81,7 +81,7 @@ public class FitActivityService extends IntentService {
                 null,
                 null);
         if (cursor == null || !cursor.moveToFirst()) {
-            Log.w(TAG, "Workout missing with id: " + workoutId);
+            Timber.w("Workout missing with id: %d", workoutId);
             return;
         }
 

@@ -32,7 +32,6 @@ import android.view.View;
  */
 public class DividerItemDecoration extends RecyclerView.ItemDecoration {
 
-    private static final String TAG = DividerItemDecoration.class.getSimpleName();
     private final Drawable divider;
     private final boolean drawAtEnd;
 

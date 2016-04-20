@@ -43,7 +43,6 @@ import tools.fastlane.screengrab.locale.LocaleUtil;
  * just in the screengrab environment.
  */
 public class DatabasePreparationTestRule implements TestRule {
-    private static final String TAG = DatabasePreparationTestRule.class.getSimpleName();
     static final long NEXT_ALARM_MILLIS_PAST = 946681200000L; // year 2000
     static final long NEXT_ALARM_MILLIS_FUTURE = 2524604400000L; // year 2050
     static final ContentValues w1 = new ContentValues();

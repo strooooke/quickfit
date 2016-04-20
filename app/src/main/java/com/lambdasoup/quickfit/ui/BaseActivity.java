@@ -41,16 +41,12 @@ import com.lambdasoup.quickfit.persist.FitApiFailureResolutionService;
  * intent with a failure connection result as extra to start the resolution process.
  */
 public abstract class BaseActivity extends DialogActivity implements FitApiFailureResolutionService.FitApiFailureResolver {
-    private static final String TAG = BaseActivity.class.getSimpleName();
-
     public static final String EXTRA_PLAY_API_CONNECT_RESULT = "com.lambdasoup.quickfit.play_api_connect_result";
+    private static final String TAG = BaseActivity.class.getSimpleName();
     private static final int REQUEST_FAILURE_RESOLUTION = 0;
     private static final String KEY_FAILURE_RESOLUTION_IN_PROGRESS = "com.lambdasoup.quickfit.failure_resolution_in_progress";
     private static final String TAG_ERROR_DIALOG = "error_dialog";
     private static final String ARG_ERROR_CODE = "com.lambdasoup.quickfit.play_api_error_code";
-
-    private boolean failureResolutionInProgress = false;
-
     private final ServiceConnection fitApiFailureResolutionServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -62,6 +58,7 @@ public abstract class BaseActivity extends DialogActivity implements FitApiFailu
         public void onServiceDisconnected(ComponentName name) {
         }
     };
+    private boolean failureResolutionInProgress = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -131,8 +128,20 @@ public abstract class BaseActivity extends DialogActivity implements FitApiFailu
         failureResolutionInProgress = false;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_FAILURE_RESOLUTION) {
+            failureResolutionInProgress = false;
+            getIntent().removeExtra(EXTRA_PLAY_API_CONNECT_RESULT);
+            if (resultCode == RESULT_OK) {
+                startService(FitActivityService.getIntentSyncSession(getApplicationContext()));
+            }
+        }
+    }
+
     public static class ErrorDialogFragment extends DialogFragment {
-        public ErrorDialogFragment() { }
+        public ErrorDialogFragment() {
+        }
 
         @NonNull
         @Override
@@ -145,18 +154,6 @@ public abstract class BaseActivity extends DialogActivity implements FitApiFailu
         @Override
         public void onDismiss(DialogInterface dialog) {
             ((BaseActivity) getActivity()).onDialogDismissed();
-        }
-    }
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_FAILURE_RESOLUTION) {
-            failureResolutionInProgress = false;
-            getIntent().removeExtra(EXTRA_PLAY_API_CONNECT_RESULT);
-            if (resultCode == RESULT_OK) {
-                startService(FitActivityService.getIntentSyncSession(getApplicationContext()));
-            }
         }
     }
 

@@ -36,7 +36,7 @@ import com.lambdasoup.quickfit.ui.WorkoutListActivity;
 /**
  * Service that handles fit api connection failures: by notification if no suitable activity is
  * in the foreground, or by delegating to the activity bound to it.
- *
+ * <p>
  * All operations of this service are executed on the UI thread.
  */
 public class FitApiFailureResolutionService extends Service {
@@ -46,16 +46,16 @@ public class FitApiFailureResolutionService extends Service {
     private FitApiFailureResolver currentForegroundResolver = null;
     private boolean isBound = false;
 
+    public FitApiFailureResolutionService() {
+    }
+
     public static Intent getFailureResolutionIntent(Context context, ConnectionResult connectionResult) {
         if (connectionResult.isSuccess()) {
             throw new IllegalArgumentException("connectionResult was a success; would not be handled by " + FitApiFailureResolutionService.class.getSimpleName());
         }
         Intent failureResultIntent = new Intent(context, FitApiFailureResolutionService.class);
         failureResultIntent.putExtra(EXTRA_FAILURE_RESULT, connectionResult);
-        return  failureResultIntent;
-    }
-
-    public FitApiFailureResolutionService() {
+        return failureResultIntent;
     }
 
     @Override
@@ -129,13 +129,13 @@ public class FitApiFailureResolutionService extends Service {
         stopSelfResult(startId);
     }
 
+    public interface FitApiFailureResolver {
+        void onFitApiFailure(ConnectionResult connectionResult);
+    }
+
     public class Binder extends android.os.Binder {
         public void registerAsCurrentForeground(FitApiFailureResolver fitApiFailureResolver) {
             FitApiFailureResolutionService.this.currentForegroundResolver = fitApiFailureResolver;
         }
-    }
-
-    public interface FitApiFailureResolver {
-        void onFitApiFailure(ConnectionResult connectionResult);
     }
 }

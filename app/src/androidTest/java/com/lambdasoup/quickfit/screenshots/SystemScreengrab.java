@@ -21,7 +21,6 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Environment;
 import android.support.test.InstrumentationRegistry;
-import android.util.Log;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -30,6 +29,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Locale;
 
+import timber.log.Timber;
 import tools.fastlane.screengrab.file.Chmod;
 
 /**
@@ -86,15 +86,20 @@ public class SystemScreengrab {
         if (directory == null) {
             throw new IOException("Unable to get a screenshot storage directory");
         } else {
-            Log.d("Screengrab", "Using screenshot storage directory: " + directory.getAbsolutePath());
+            Timber.d("Using screenshot storage directory: %s", directory.getAbsolutePath());
             return directory;
         }
     }
 
-    private static File initializeDirectory(File dir) throws IOException {
-        createPathTo(dir);
-        if (dir.isDirectory() && dir.canWrite()) {
-            return dir;
+    private static File initializeDirectory(File dir) {
+        try {
+            createPathTo(dir);
+            if (dir.isDirectory() && dir.canWrite()) {
+                return dir;
+            }
+        } catch (IOException e) {
+            // masks missing write_external_storage permission when running this as part
+            // of a regular test, and not the screengrab flavor with added permissions.
         }
 
         return null;

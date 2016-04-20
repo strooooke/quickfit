@@ -18,13 +18,14 @@ package com.lambdasoup.quickfit.screenshots;
 
 import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
-import android.util.Log;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 import java.util.Locale;
+
+import timber.log.Timber;
 
 /**
  * TestRule that allows easy execution of locale-dependent tests. The screengrab environment
@@ -33,7 +34,6 @@ import java.util.Locale;
  */
 @SuppressWarnings("SameParameterValue")
 public class FixedLocaleTestRule implements TestRule {
-    private static final String TAG = FixedLocaleTestRule.class.getSimpleName();
     private final Locale fixedLocale;
 
     public FixedLocaleTestRule(Locale fixedLocale) {
@@ -50,7 +50,7 @@ public class FixedLocaleTestRule implements TestRule {
                     args.putString("testLocale", fixedLocale.toString());
                     args.putString("endingLocale", fixedLocale.toString());
                     InstrumentationRegistry.registerInstance(InstrumentationRegistry.getInstrumentation(), args);
-                    Log.i(TAG, "No testLocale in instrumentation args found. Re-registering with testLocale and endingLocale " + fixedLocale);
+                    Timber.i("No testLocale in instrumentation args found. Re-registering with testLocale and endingLocale %s", fixedLocale);
                 }
 
                 base.evaluate();

@@ -28,7 +28,6 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.lambdasoup.quickfit.persist.QuickFitContract.ScheduleEntry;
 import com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry;
@@ -39,11 +38,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import timber.log.Timber;
+
 
 public class QuickFitContentProvider extends ContentProvider {
 
     public static final String AUTHORITY = "com.lambdasoup.quickfit.provider";
-    private static final String TAG = QuickFitContentProvider.class.getSimpleName();
     private static final String PATH_WORKOUTS = "workouts";
     private static final String PATH_SESSIONS = "sessions";
     private static final String PATH_SCHEDULES = "schedules";
@@ -290,7 +290,7 @@ public class QuickFitContentProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        Log.d(TAG, "ContentProvider update for uri " + uri + ", with content values " + values);
+        Timber.d("ContentProvider update for uri %s, with content values %s", uri, values);
         SQLiteDatabase sqlDB = database.getWritableDatabase();
         int rowsUpdated;
         switch (uriMatcher.match(uri)) {
@@ -355,7 +355,7 @@ public class QuickFitContentProvider extends ContentProvider {
         }
         //noinspection ConstantConditions
         getContext().getContentResolver().notifyChange(uri, null);
-        Log.d(TAG, rowsUpdated + " rows updated.");
+        Timber.d("%d rows updated.", rowsUpdated);
         return rowsUpdated;
     }
 

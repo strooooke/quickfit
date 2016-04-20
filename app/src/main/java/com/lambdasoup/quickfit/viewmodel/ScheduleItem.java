@@ -128,7 +128,7 @@ public class ScheduleItem {
         private int minute;
         private int hour;
 
-        public Builder(Function<DayOfWeek, Integer> dayOfWeekPositionSupplier){
+        public Builder(Function<DayOfWeek, Integer> dayOfWeekPositionSupplier) {
             this.dayOfWeekPositionSupplier = dayOfWeekPositionSupplier;
         }
 

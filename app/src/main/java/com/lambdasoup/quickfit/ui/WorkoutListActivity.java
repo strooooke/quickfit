@@ -47,8 +47,6 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
     public static final String EXTRA_SHOW_WORKOUT_ID = "com.lambdasoup.quickfit.show_workout_id";
 
-    private static final String TAG = WorkoutListActivity.class.getSimpleName();
-
 
     private static final String KEY_SHOW_WORKOUT_ID = "com.lambdasoup.quickfit.show_workout_id";
     private static final long NO_ID = -1;

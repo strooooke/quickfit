@@ -37,7 +37,6 @@ import android.support.v4.app.NotificationCompat.InboxStyle;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.support.v7.app.NotificationCompat;
 import android.text.format.DateUtils;
-import android.util.Log;
 
 import com.lambdasoup.quickfit.Constants;
 import com.lambdasoup.quickfit.FitActivityService;
@@ -55,6 +54,8 @@ import com.lambdasoup.quickfit.util.IntentServiceCompat;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import timber.log.Timber;
+
 import static com.lambdasoup.quickfit.Constants.PENDING_INTENT_ALARM_RECEIVER;
 
 /**
@@ -62,7 +63,6 @@ import static com.lambdasoup.quickfit.Constants.PENDING_INTENT_ALARM_RECEIVER;
  * and interaction with the AlarmManager.
  */
 public class AlarmService extends IntentServiceCompat {
-    private static final String TAG = AlarmService.class.getSimpleName();
 
     private static final String ACTION_ON_ALARM_RECEIVED = "com.lambdasoup.quickfit.alarm.action.ON_ALARM_RECEIVED";
     private static final String ACTION_ON_TIME_CHANGED = "com.lambdasoup.quickfit.alarm.action.ON_TIME_CHANGED";
@@ -316,7 +316,7 @@ public class AlarmService extends IntentServiceCompat {
         )) {
             int count = toNotify == null ? 0 : toNotify.getCount();
             if (count == 0) {
-                Log.d(TAG, "refreshNotificationDisplay: no events");
+                Timber.d("refreshNotificationDisplay: no events");
                 NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 notificationManager.cancel(Constants.NOTIFICATION_ALARM);
                 return;
@@ -324,11 +324,11 @@ public class AlarmService extends IntentServiceCompat {
 
             NotificationCompat.Builder notification;
             if (count == 1) {
-                Log.d(TAG, "refreshNotificationDisplay: single event");
+                Timber.d("refreshNotificationDisplay: single event");
                 toNotify.moveToFirst();
                 notification = notifySingleEvent(toNotify);
             } else {
-                Log.d(TAG, "refreshNotificationDisplay: multiple events");
+                Timber.d("refreshNotificationDisplay: multiple events");
                 toNotify.moveToPosition(-1);
                 notification = notifyMultipleEvents(toNotify);
             }
@@ -473,7 +473,7 @@ public class AlarmService extends IntentServiceCompat {
 
     @WorkerThread
     private void setDontShowNotificationForIds(long[] scheduleIds) {
-        Log.d(TAG, "setDontShowNotificationForIds() called with: " + "scheduleIds = [" + Arrays.toString(scheduleIds) + "]");
+        Timber.d("setDontShowNotificationForIds() called with: scheduleIds = [%s]", Arrays.toString(scheduleIds));
         for (long scheduleId : scheduleIds) {
             ContentValues contentValues = new ContentValues(1);
             contentValues.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);

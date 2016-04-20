@@ -20,7 +20,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,12 +40,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import timber.log.Timber;
+
 import static com.lambdasoup.quickfit.util.Lists.map;
 
 public class WorkoutItemRecyclerViewAdapter
         extends RecyclerView.Adapter<WorkoutItemRecyclerViewAdapter.ViewHolder> {
 
-    private static final String TAG = WorkoutItemRecyclerViewAdapter.class.getSimpleName();
     private final Context context;
 
     private final SortedList<WorkoutItem> dataset;
@@ -239,11 +239,11 @@ public class WorkoutItemRecyclerViewAdapter
         public final AdapterView.OnItemSelectedListener activityTypeSpinnerItemSelected = new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.d(TAG, "ActivityType item selected at position " + position);
+                Timber.d("ActivityType item selected at position %d", position);
                 if (viewHolder.item.activityTypeIndex == position) {
                     // do not update database if view state is already identical to model
                     // e.g. if selection event originates from data bind
-                    Log.d(TAG, "ignoring itemSelection event where new position identical to model");
+                    Timber.d("ignoring itemSelection event where new position identical to model");
                     return;
                 }
                 if (onWorkoutInteractionListener != null) {

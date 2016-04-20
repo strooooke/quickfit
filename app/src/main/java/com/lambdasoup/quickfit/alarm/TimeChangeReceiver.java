@@ -34,7 +34,7 @@ public class TimeChangeReceiver extends WakefulBroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (! ALLOWED_ACTIONS.contains(intent.getAction())) {
+        if (!ALLOWED_ACTIONS.contains(intent.getAction())) {
             return;
         }
         startWakefulService(context, AlarmService.getIntentOnTimeChanged(context));

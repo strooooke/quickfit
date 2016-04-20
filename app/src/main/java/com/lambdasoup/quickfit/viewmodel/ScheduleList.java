@@ -91,6 +91,7 @@ public class ScheduleList {
         }
 
         List<Long> leavingIds = new ArrayList<>();
+        //noinspection Convert2streamapi
         for (Long oldId : positionForId.keySet()) {
             if (!newIds.contains(oldId)) {
                 leavingIds.add(oldId);

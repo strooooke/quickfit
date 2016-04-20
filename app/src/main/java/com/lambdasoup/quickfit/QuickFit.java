@@ -18,14 +18,22 @@ package com.lambdasoup.quickfit;
 
 import android.app.Application;
 
+import timber.log.Timber;
+
 
 public class QuickFit extends Application {
 
     @Override
     public void onCreate() {
         super.onCreate();
+
         // ensure that our sync adapter is set to sync periodically, to catch any problems with
         // missing manual sync requests eventually
         startService(FitActivityService.getIntentSetPeriodicSync(getApplicationContext()));
+
+        // init logging
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+        }
     }
 }

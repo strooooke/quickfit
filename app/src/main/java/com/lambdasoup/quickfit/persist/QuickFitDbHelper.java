@@ -19,16 +19,16 @@ package com.lambdasoup.quickfit.persist;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import com.lambdasoup.quickfit.persist.QuickFitContract.ScheduleEntry;
 import com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry;
 import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
 
+import timber.log.Timber;
+
 
 public class QuickFitDbHelper extends SQLiteOpenHelper {
 
-    private static final String TAG = QuickFitDbHelper.class.getSimpleName();
     static final String DATABASE_NAME = "quickfit.db";
     static final int DATABASE_VERSION = 9;
 
@@ -47,8 +47,7 @@ public class QuickFitDbHelper extends SQLiteOpenHelper {
 
     public void onUpgrade(SQLiteDatabase database, int oldVersion,
                           int newVersion) {
-        Log.w(TAG, "Upgrading database from version "
-                + oldVersion + " to " + newVersion);
+        Timber.w("Upgrading database from version %d to %d", oldVersion, newVersion);
 
         for (int versionStep = oldVersion + 1; versionStep <= newVersion; versionStep++) {
             upgradeStep(database, versionStep);

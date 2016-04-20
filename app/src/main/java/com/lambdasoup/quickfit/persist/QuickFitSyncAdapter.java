@@ -26,7 +26,6 @@ import android.content.SyncResult;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -43,8 +42,9 @@ import com.google.android.gms.fitness.request.SessionInsertRequest;
 
 import java.util.concurrent.TimeUnit;
 
+import timber.log.Timber;
+
 class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
-    private static final String TAG = QuickFitSyncAdapter.class.getSimpleName();
     private static final ContentValues STATUS_TRANSMITTED = new ContentValues();
 
     static {
@@ -75,7 +75,7 @@ class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
                                             QuickFitContract.SessionEntry.STATUS + "=?",
                                             new String[]{QuickFitContract.SessionEntry.SessionStatus.NEW.name()},
                                             null);
-                                    Log.d(TAG, "Found " + (sessionsCursor == null ? "no" : sessionsCursor.getCount()) + " sessions to sync");
+                                    Timber.d("Found %s sessions to sync", (sessionsCursor == null ? "no" : sessionsCursor.getCount()));
                                     insertNextSession(sessionsCursor, syncResult);
                                 } catch (RemoteException e) {
                                     syncResult.stats.numParseExceptions++;
@@ -84,19 +84,19 @@ class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
 
                             @Override
                             public void onConnectionSuspended(int i) {
-                                Log.d(TAG, "connection suspended");
+                                Timber.d("connection suspended");
                                 syncResult.stats.numIoExceptions++;
                                 if (i == GoogleApiClient.ConnectionCallbacks.CAUSE_NETWORK_LOST) {
-                                    Log.d(TAG, "Connection lost.  Cause: Network Lost.");
+                                    Timber.d("Connection lost.  Cause: Network Lost.");
                                 } else if (i == GoogleApiClient.ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
-                                    Log.d(TAG, "Connection lost.  Reason: Service Disconnected");
+                                    Timber.d("Connection lost.  Reason: Service Disconnected");
                                 }
                             }
                         }
                 )
                 .addOnConnectionFailedListener(
                         result -> {
-                            Log.d(TAG, "connection failed");
+                            Timber.d("connection failed");
                             getContext().startService(FitApiFailureResolutionService.getFailureResolutionIntent(getContext(), result));
                         }
                 )
@@ -107,7 +107,7 @@ class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
     private void insertNextSession(Cursor cursor, SyncResult syncResult) {
         if (!cursor.moveToNext()) {
             // done with sessions
-            Log.d(TAG, "Done; disconnecting.");
+            Timber.d("Done; disconnecting.");
             googleApiClient.disconnect();
             // sync finished
             return;
@@ -153,12 +153,12 @@ class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
                         null
                 );
                 syncResult.stats.numInserts++;
-                Log.d(TAG, "insertion successful");
+                Timber.d("insertion successful");
             } else {
-                Log.d(TAG, "insertion failed: " + status.getStatusMessage());
+                Timber.d("insertion failed: %s", status.getStatusMessage());
                 syncResult.stats.numIoExceptions++;
             }
-            Log.d(TAG, "Looking at the next session");
+            Timber.d("Looking at the next session");
             insertNextSession(cursor, syncResult);
         });
     }
