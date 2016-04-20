@@ -181,6 +181,7 @@ public class AlarmService extends IntentServiceCompat {
 
     @WorkerThread
     private void handleOnAlarmReceived(Intent intent) {
+        Timber.d("Handling onAlarmReceived");
         try {
             processOldEvents();
             refreshNotificationDisplay();
@@ -192,6 +193,7 @@ public class AlarmService extends IntentServiceCompat {
 
     @WorkerThread
     private void handleOnTimeChanged(Intent intent) {
+        Timber.d("Handling onTimeChanged");
         try {
             // ignores snooze; time change events should happen only when
             // - user is currently traveling (probably does not care deeply about doing sports)
@@ -206,16 +208,19 @@ public class AlarmService extends IntentServiceCompat {
 
     @WorkerThread
     private void handleOnNextOccChanged() {
+        Timber.d("Handling next occurrence changed");
         setNextAlarm();
     }
 
     @WorkerThread
     private void handleOnNotificationsCanceled(long[] scheduleIds) {
+        Timber.d("Handling onNotificationsCanceled");
         setDontShowNotificationForIds(scheduleIds);
     }
 
     @WorkerThread
     private void handleOnDidIt(long scheduleId, long workoutId) {
+        Timber.d("Handling onDidIt");
         startService(FitActivityService.getIntentInsertSession(getApplicationContext(), workoutId));
         setDontShowNotificationForIds(new long[]{scheduleId});
         refreshNotificationDisplay();
@@ -223,6 +228,7 @@ public class AlarmService extends IntentServiceCompat {
 
     @WorkerThread
     private void handleOnSnooze(long scheduleId) {
+        Timber.d("Handling onSnooze");
         String durationMinsStr = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_snooze_duration_mins), "60");
         int durationMins = Integer.parseInt(durationMinsStr);
         ContentValues values = new ContentValues(2);
@@ -249,7 +255,7 @@ public class AlarmService extends IntentServiceCompat {
                 long nextAlarmMillis = cursor.getLong(cursor.getColumnIndexOrThrow(ScheduleEntry.COL_NEXT_ALARM_MILLIS));
 
                 AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-                PendingIntent alarmReceiverIntent = PendingIntent.getBroadcast(this, PENDING_INTENT_ALARM_RECEIVER, new Intent(getApplicationContext(), AlarmReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent alarmReceiverIntent = PendingIntent.getBroadcast(this, PENDING_INTENT_ALARM_RECEIVER, AlarmReceiver.getIntentOnAlarm(this), PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager.cancel(alarmReceiverIntent);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextAlarmMillis, alarmReceiverIntent);
