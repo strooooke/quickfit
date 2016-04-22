@@ -39,6 +39,8 @@ import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
 import com.lambdasoup.quickfit.util.ui.DividerItemDecoration;
 import com.lambdasoup.quickfit.util.ui.EmptyRecyclerView;
 
+import timber.log.Timber;
+
 
 public class WorkoutListActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         WorkoutItemRecyclerViewAdapter.OnWorkoutInteractionListener, DurationMinutesDialogFragment.OnFragmentInteractionListener,
@@ -78,9 +80,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         workoutsRecyclerView.addItemDecoration(new DividerItemDecoration(this, false));
         workoutsRecyclerView.setEmptyView(findViewById(R.id.workout_list_empty));
 
-        if (getIntent().hasExtra(EXTRA_SHOW_WORKOUT_ID)) {
-            idToScrollTo = getIntent().getLongExtra(EXTRA_SHOW_WORKOUT_ID, NO_ID);
-        }
+        readIntentExtras();
 
         if (savedInstanceState != null) {
             idToScrollTo = savedInstanceState.getLong(KEY_SHOW_WORKOUT_ID, NO_ID);
@@ -89,6 +89,18 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         getLoaderManager().initLoader(0, null, this);
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        readIntentExtras();
+    }
+
+    private void readIntentExtras() {
+        if (getIntent().hasExtra(EXTRA_SHOW_WORKOUT_ID)) {
+            idToScrollTo = getIntent().getLongExtra(EXTRA_SHOW_WORKOUT_ID, NO_ID);
+        }
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -121,11 +133,13 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Timber.d("creating loader");
         return new WorkoutListLoader(this);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Timber.d("onLoadFinished, data size=%d", data != null ? data.getCount() : 0);
         workoutsAdapter.swapCursor(data);
         if (idToScrollTo != NO_ID) {
             int pos = workoutsAdapter.getPosition(idToScrollTo);
@@ -138,6 +152,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        Timber.d("onLoaderReset");
         workoutsAdapter.swapCursor(null);
     }
 

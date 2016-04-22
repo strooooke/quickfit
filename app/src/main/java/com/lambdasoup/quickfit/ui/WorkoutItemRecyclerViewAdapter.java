@@ -66,7 +66,8 @@ public class WorkoutItemRecyclerViewAdapter
                 return oldItem.activityTypeDisplayName.equals(newItem.activityTypeDisplayName)
                         && oldItem.durationInMinutes == newItem.durationInMinutes
                         && Objects.equals(oldItem.label, newItem.label)
-                        && oldItem.calories == newItem.calories;
+                        && oldItem.calories == newItem.calories
+                        && oldItem.scheduleDisplay.equals(newItem.scheduleDisplay);
             }
 
             @Override

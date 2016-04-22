@@ -19,6 +19,8 @@ package com.lambdasoup.quickfit.viewmodel;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.lambdasoup.quickfit.R;
 import com.lambdasoup.quickfit.model.DayOfWeek;
@@ -41,7 +43,7 @@ public class WorkoutItem {
     final public String label;
     final public String scheduleDisplay;
 
-    private WorkoutItem(long id, int activityTypeIndex, String activityTypeDisplayName, int durationInMinutes, int calories, String label, String scheduleDisplay) {
+    private WorkoutItem(long id, int activityTypeIndex, @NonNull String activityTypeDisplayName, int durationInMinutes, int calories, @Nullable String label, @NonNull String scheduleDisplay) {
         this.id = id;
         this.activityTypeIndex = activityTypeIndex;
         this.activityTypeDisplayName = activityTypeDisplayName;
