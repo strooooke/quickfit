@@ -17,39 +17,26 @@
 package com.lambdasoup.quickfit.ui;
 
 import android.app.LoaderManager;
-import android.content.ContentValues;
 import android.content.Loader;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 
 import com.lambdasoup.quickfit.R;
-import com.lambdasoup.quickfit.alarm.AlarmService;
 import com.lambdasoup.quickfit.databinding.ActivitySchedulesBinding;
-import com.lambdasoup.quickfit.model.DayOfWeek;
-import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
 import com.lambdasoup.quickfit.persist.QuickFitContract;
-import com.lambdasoup.quickfit.persist.QuickFitContract.ScheduleEntry;
-import com.lambdasoup.quickfit.util.DateTimes;
-import com.lambdasoup.quickfit.util.ui.DividerItemDecoration;
-import com.lambdasoup.quickfit.util.ui.LeaveBehind;
-import com.lambdasoup.quickfit.viewmodel.ScheduleItem;
 import com.lambdasoup.quickfit.viewmodel.WorkoutItem;
 
-import java.util.Calendar;
-
-public class SchedulesActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>,
-        SchedulesRecyclerViewAdapter.OnScheduleInteractionListener, TimeDialogFragment.OnFragmentInteractionListener {
+public class SchedulesActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>, TimeDialogFragment.OnFragmentInteractionListenerProvider {
 
     public static final String EXTRA_WORKOUT_ID = "com.lambdasoup.quickfit_workoutId";
     private static final int LOADER_WORKOUT = 0;
-    private static final int LOADER_SCHEDULES = 1;
+
 
     private ActivitySchedulesBinding workoutBinding;
-    private SchedulesRecyclerViewAdapter schedulesAdapter;
+
     private long workoutId;
+    private SchedulesFragment schedulesFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,28 +51,25 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
 
         setSupportActionBar(workoutBinding.toolbar);
 
-        workoutBinding.fab.setOnClickListener(v -> onAddNewSchedule());
+        SchedulesFragment schedulesFragment = (SchedulesFragment) getSupportFragmentManager().findFragmentById(R.id.schedules_container);
+        if (schedulesFragment == null) {
+            schedulesFragment = SchedulesFragment.create(workoutId);
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.schedules_container, schedulesFragment)
+                    .commit();
+        }
+        this.schedulesFragment = schedulesFragment;
+
+        workoutBinding.fab.setOnClickListener(v -> this.schedulesFragment.onAddNewSchedule());
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        schedulesAdapter = new SchedulesRecyclerViewAdapter(this);
-        schedulesAdapter.setOnScheduleInteractionListener(this);
-        workoutBinding.scheduleList.setAdapter(schedulesAdapter);
-        workoutBinding.scheduleList.setEmptyView(workoutBinding.scheduleListEmpty);
-
-
-        ItemTouchHelper swipeDismiss = new ItemTouchHelper(new LeaveBehind() {
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                onRemoveSchedule(viewHolder.getItemId());
-            }
-        });
-        swipeDismiss.attachToRecyclerView(workoutBinding.scheduleList);
-
-        workoutBinding.scheduleList.addItemDecoration(new DividerItemDecoration(this, true));
-
         getLoaderManager().initLoader(LOADER_WORKOUT, null, this);
-        getLoaderManager().initLoader(LOADER_SCHEDULES, null, this);
+    }
+
+    @Override
+    public TimeDialogFragment.OnFragmentInteractionListener getOnFragmentInteractionListener() {
+        return schedulesFragment;
     }
 
     @Override
@@ -93,8 +77,6 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
         switch (id) {
             case LOADER_WORKOUT:
                 return new WorkoutLoader(this, workoutId);
-            case LOADER_SCHEDULES:
-                return new SchedulesLoader(this, workoutId);
         }
         throw new IllegalArgumentException("Not a loader id: " + id);
     }
@@ -105,9 +87,6 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
             case LOADER_WORKOUT:
                 bindHeader(data);
                 return;
-            case LOADER_SCHEDULES:
-                schedulesAdapter.swapCursor(data);
-                return;
         }
         throw new IllegalArgumentException("Not a loader id: " + loader.getId());
     }
@@ -117,9 +96,6 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
         switch (loader.getId()) {
             case LOADER_WORKOUT:
                 // nothing to do
-                return;
-            case LOADER_SCHEDULES:
-                schedulesAdapter.swapCursor(null);
                 return;
         }
         throw new IllegalArgumentException("Not a loader id: " + loader.getId());
@@ -141,64 +117,5 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
         workoutBinding.toolbarLayout.setTitle(workoutItem.activityTypeDisplayName);
     }
 
-    @Override
-    public void onDayOfWeekChanged(long scheduleId, DayOfWeek newDayOfWeek) {
-        ScheduleItem oldScheduleItem = schedulesAdapter.getById(scheduleId);
-        long nextAlarmMillis = DateTimes.getNextOccurrence(System.currentTimeMillis(), newDayOfWeek, oldScheduleItem.hour, oldScheduleItem.minute);
 
-        ContentValues contentValues = new ContentValues(3);
-        contentValues.put(ScheduleEntry.COL_DAY_OF_WEEK, newDayOfWeek.name());
-        contentValues.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, nextAlarmMillis);
-        contentValues.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
-        getContentResolver().update(QuickFitContentProvider.getUriWorkoutsIdSchedulesId(workoutId, scheduleId), contentValues, null, null);
-
-        refreshAlarm();
-    }
-
-    @Override
-    public void onTimeEditRequested(long scheduleId, int oldHour, int oldMinute) {
-        showDialog(TimeDialogFragment.newInstance(scheduleId, oldHour, oldMinute));
-    }
-
-    @Override
-    public void onTimeChanged(long scheduleId, int newHour, int newMinute) {
-        ScheduleItem oldScheduleItem = schedulesAdapter.getById(scheduleId);
-        long nextAlarmMillis = DateTimes.getNextOccurrence(System.currentTimeMillis(), oldScheduleItem.dayOfWeek, newHour, newMinute);
-
-        ContentValues contentValues = new ContentValues(4);
-        contentValues.put(ScheduleEntry.COL_HOUR, newHour);
-        contentValues.put(ScheduleEntry.COL_MINUTE, newMinute);
-        contentValues.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, nextAlarmMillis);
-        contentValues.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
-        getContentResolver().update(QuickFitContentProvider.getUriWorkoutsIdSchedulesId(workoutId, scheduleId), contentValues, null, null);
-
-        refreshAlarm();
-    }
-
-    private void onAddNewSchedule() {
-        // initialize with current day and time
-        Calendar calendar = Calendar.getInstance();
-        DayOfWeek dayOfWeek = DayOfWeek.getByCalendarConst(calendar.get(Calendar.DAY_OF_WEEK));
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-        long nextAlarmMillis = DateTimes.getNextOccurrence(System.currentTimeMillis(), dayOfWeek, hour, minute);
-
-        ContentValues contentValues = new ContentValues(4);
-        contentValues.put(ScheduleEntry.COL_DAY_OF_WEEK, dayOfWeek.name());
-        contentValues.put(ScheduleEntry.COL_HOUR, hour);
-        contentValues.put(ScheduleEntry.COL_MINUTE, minute);
-        contentValues.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, nextAlarmMillis);
-        contentValues.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
-        getContentResolver().insert(QuickFitContentProvider.getUriWorkoutsIdSchedules(workoutId), contentValues);
-
-        refreshAlarm();
-    }
-
-    private void refreshAlarm() {
-        startService(AlarmService.getIntentOnNextOccChanged(getApplicationContext()));
-    }
-
-    private void onRemoveSchedule(long scheduleId) {
-        getContentResolver().delete(QuickFitContentProvider.getUriWorkoutsIdSchedulesId(workoutId, scheduleId), null, null);
-    }
 }

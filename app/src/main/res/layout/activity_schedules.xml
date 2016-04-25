@@ -87,21 +87,22 @@
             </android.support.design.widget.CollapsingToolbarLayout>
         </android.support.design.widget.AppBarLayout>
 
-        <com.lambdasoup.quickfit.util.ui.EmptyRecyclerView
-            android:id="@+id/schedule_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layoutManager="LinearLayoutManager"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            tools:listitem="@layout/schedule_list_content" />
-
         <TextView
             android:id="@+id/schedule_list_empty"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_height="match_parent"
+            android:gravity="center"
             android:text="@string/schedule_list_empty"
             android:textAlignment="center" />
+
+        <android.support.v4.widget.NestedScrollView
+            android:id="@+id/schedules_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            />
+
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"

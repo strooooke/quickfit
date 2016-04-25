@@ -30,12 +30,12 @@
         android:maxSdkVersion="22" />
 
     <application
+        android:name=".QuickFit"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:name=".QuickFit">
+        android:theme="@style/AppTheme">
         <provider
             android:name=".persist.QuickFitContentProvider"
             android:authorities="com.lambdasoup.quickfit.provider"
@@ -136,7 +136,7 @@
         <service
             android:name=".persist.FitApiFailureResolutionService"
             android:enabled="true"
-            android:exported="false"/>
+            android:exported="false" />
     </application>
 
 </manifest>

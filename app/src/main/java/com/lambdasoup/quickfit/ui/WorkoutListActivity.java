@@ -49,11 +49,11 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
     public static final String EXTRA_SHOW_WORKOUT_ID = "com.lambdasoup.quickfit.show_workout_id";
 
-
     private static final String KEY_SHOW_WORKOUT_ID = "com.lambdasoup.quickfit.show_workout_id";
     private static final long NO_ID = -1;
 
 
+    private boolean isTwoPane;
     private WorkoutItemRecyclerViewAdapter workoutsAdapter;
     private EmptyRecyclerView workoutsRecyclerView;
     private long idToScrollTo = NO_ID;
@@ -78,7 +78,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
         workoutsRecyclerView.setAdapter(workoutsAdapter);
         workoutsRecyclerView.addItemDecoration(new DividerItemDecoration(this, false));
-        workoutsRecyclerView.setEmptyView(findViewById(R.id.workout_list_empty));
+        //workoutsRecyclerView.setEmptyView(findViewById(R.id.workout_list_empty));
 
         readIntentExtras();
 
@@ -176,9 +176,15 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
     @Override
     public void onSchedulesEditRequested(long workoutId) {
-        Intent intent = new Intent(getApplicationContext(), SchedulesActivity.class);
-        intent.putExtra(SchedulesActivity.EXTRA_WORKOUT_ID, workoutId);
-        startActivity(intent);
+        if (isTwoPane) {
+            Bundle arguments = new Bundle();
+            arguments.putLong(SchedulesActivity.EXTRA_WORKOUT_ID, workoutId);
+            // TODO: schedulesFragment
+        } else {
+            Intent intent = new Intent(getApplicationContext(), SchedulesActivity.class);
+            intent.putExtra(SchedulesActivity.EXTRA_WORKOUT_ID, workoutId);
+            startActivity(intent);
+        }
     }
 
     @Override

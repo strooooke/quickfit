@@ -38,15 +38,6 @@
     </android.support.design.widget.AppBarLayout>
 
 
-    <com.lambdasoup.quickfit.util.ui.EmptyRecyclerView
-        android:id="@+id/workout_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layoutManager="LinearLayoutManager"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:listitem="@layout/workout_list_content" />
-
-
     <TextView
         android:id="@+id/workout_list_empty"
         android:layout_width="match_parent"
@@ -54,6 +45,17 @@
         android:layout_gravity="center"
         android:text="@string/workout_list_empty"
         android:textAlignment="center" />
+
+    <com.lambdasoup.quickfit.util.ui.EmptyRecyclerView
+        android:id="@+id/workout_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/background_light"
+        app:layoutManager="LinearLayoutManager"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/workout_list_content" />
+
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
