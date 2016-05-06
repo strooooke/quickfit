@@ -18,7 +18,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="workout"
             type="com.lambdasoup.quickfit.viewmodel.WorkoutItem" />
@@ -27,10 +26,14 @@
             name="handler"
             type="com.lambdasoup.quickfit.ui.WorkoutItemRecyclerViewAdapter.EventHandler" />
     </data>
+<!-- TODO: margins are borked in wide layout -->
 
-    <RelativeLayout
+    <!-- TODO: why not rippling?-->
+    <com.lambdasoup.quickfit.util.ui.TouchInterceptingRelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:foreground="?attr/selectableItemBackground"
+        app:onTouchInterceptor="@{handler.listItemTouchListener}">
 
         <Spinner
             android:id="@+id/activity_type_spinner"
@@ -58,7 +61,7 @@
         <TextView
             android:id="@+id/label"
             style="?attr/subtitleTextAppearance"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/duration_mins"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
@@ -71,7 +74,7 @@
         <TextView
             android:id="@+id/schedules"
             style="?attr/subtitleTextAppearance"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/label"
             android:layout_toStartOf="@+id/delete_button"
@@ -88,7 +91,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_alignTop="@id/schedules"
+            android:layout_alignTop="@id/label"
             android:layout_marginEnd="12dp"
             android:contentDescription="@string/delete_button"
             android:padding="4dp"
@@ -119,5 +122,5 @@
             android:text="@string/insert_session_button"
             android:textColor="@color/colorAccent"
             app:onClickListener="@{handler.doneItButtonClicked}" />
-    </RelativeLayout>
+    </com.lambdasoup.quickfit.util.ui.TouchInterceptingRelativeLayout>
 </layout>

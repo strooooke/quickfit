@@ -41,6 +41,13 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // if orientation has changed and now width is large enough for two-pane mode, finish and let
+        // WorkoutListActivity show the schedules
+        if (getResources().getBoolean(R.bool.isTwoPane)) {
+            finish();
+        }
+
         workoutBinding = DataBindingUtil.setContentView(this, R.layout.activity_schedules);
 
         if (getIntent().hasExtra(EXTRA_WORKOUT_ID)) {

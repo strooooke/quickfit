@@ -56,7 +56,7 @@ public class TimeDialogFragment extends DialogFragment implements TimePickerDial
         if (activity instanceof OnFragmentInteractionListenerProvider) {
             listener = ((OnFragmentInteractionListenerProvider) activity).getOnFragmentInteractionListener();
         } else {
-            throw new RuntimeException(activity.toString() + " must implement OnFragmentInteractionListener");
+            throw new RuntimeException(activity.toString() + " must implement OnFragmentInteractionListenerProvider");
         }
     }
 

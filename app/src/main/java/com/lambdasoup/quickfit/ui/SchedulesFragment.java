@@ -56,6 +56,7 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
 
 
     public static SchedulesFragment create(long workoutId) {
+        Timber.d("Creating schedules fragment with id %d", workoutId);
         Bundle arguments = new Bundle();
         arguments.putLong(ARG_WORKOUT_ID, workoutId);
         SchedulesFragment fragment = new SchedulesFragment();
@@ -92,7 +93,6 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
         schedulesAdapter = new SchedulesRecyclerViewAdapter(getContext());
         schedulesAdapter.setOnScheduleInteractionListener(this);
         schedulesBinding.scheduleList.setAdapter(schedulesAdapter);
-        //schedulesBinding.scheduleList.setEmptyView(schedulesBinding.scheduleListEmpty);
 
         ItemTouchHelper swipeDismiss = new ItemTouchHelper(new LeaveBehind() {
             @Override
@@ -198,4 +198,7 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
         getContext().getContentResolver().delete(QuickFitContentProvider.getUriWorkoutsIdSchedulesId(workoutId, scheduleId), null, null);
     }
 
+    long getWorkoutId() {
+        return workoutId;
+    }
 }
