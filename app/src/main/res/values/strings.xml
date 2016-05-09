@@ -99,6 +99,4 @@
         <item>8 hours</item>
         <item>24 hours</item>
     </string-array>
-    <string name="title_item_list">Items</string>
-    <string name="title_item_detail">Item Detail</string>
 </resources>
