@@ -36,7 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:src="@drawable/ic_delete_white_24dp"
+        app:srcCompat="@drawable/ic_fitness_center_white_24px"
         android:alpha="0.0"
         android:visibility="invisible"
         app:layout_anchor="@id/fab"
