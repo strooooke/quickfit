@@ -76,6 +76,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Timber.d("onCreate before inflate");
         setContentView(R.layout.activity_workout_list);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -122,7 +123,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         }
 
         getLoaderManager().initLoader(0, null, this);
-
+        Timber.d("onCreate finished");
     }
 
     @Override
@@ -370,6 +371,10 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
             Timber.wtf("onSchedulesEditRequested despite in two-pane layout mode");
             return;
         }
+        // track item selection so that if we return from SchedulesActivity, this item is
+        // selected, and in case we are in a two-pane layout then, this item's schedule is shown
+        workoutsAdapter.setSelectedItemId(workoutId);
+
         Intent intent = new Intent(getApplicationContext(), SchedulesActivity.class);
         intent.putExtra(SchedulesActivity.EXTRA_WORKOUT_ID, workoutId);
         startActivity(intent);

@@ -28,7 +28,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.lambdasoup.quickfit.R;
 import com.lambdasoup.quickfit.alarm.AlarmService;
 import com.lambdasoup.quickfit.databinding.FragmentSchedulesBinding;
 import com.lambdasoup.quickfit.model.DayOfWeek;
@@ -153,7 +152,7 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public void onTimeEditRequested(long scheduleId, int oldHour, int oldMinute) {
-        ((DialogActivity)getActivity()).showDialog(TimeDialogFragment.newInstance(scheduleId, oldHour, oldMinute));
+        ((DialogActivity) getActivity()).showDialog(TimeDialogFragment.newInstance(scheduleId, oldHour, oldMinute));
     }
 
     @Override

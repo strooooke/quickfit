@@ -21,7 +21,6 @@ import android.database.Cursor;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -31,7 +30,6 @@ import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.model.FitActivity;
 import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
 import com.lambdasoup.quickfit.util.ConstantListAdapter;
-import com.lambdasoup.quickfit.util.ui.TouchInterceptingRelativeLayout;
 import com.lambdasoup.quickfit.viewmodel.ScheduleItem;
 import com.lambdasoup.quickfit.viewmodel.WorkoutItem;
 
@@ -256,8 +254,6 @@ public class WorkoutItemRecyclerViewAdapter
         void onSchedulesEditRequested(long workoutId);
 
         void onItemSelected(long workoutId);
-
-
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -282,8 +278,15 @@ public class WorkoutItemRecyclerViewAdapter
             Timber.d("binding item with id %d to viewholder", item.id);
             this.item = item;
             binding.setWorkout(item);
-            binding.getRoot().setSelected(item.id == selectedItemId);
+            binding.getRoot().setActivated(item.id == selectedItemId);
             // TODO: elevate if selected and twoPane
+        }
+
+        void onItemClicked() {
+            Timber.d("viewholder onItemCLicked selectedItemId: %d, clicked item id: %d", selectedItemId, item.id);
+            if (selectedItemId != item.id) {
+                setSelectedItemId(item.id);
+            }
         }
 
     }
@@ -292,14 +295,14 @@ public class WorkoutItemRecyclerViewAdapter
     public class EventHandler {
         private final ViewHolder viewHolder;
 
-        public final TouchInterceptingRelativeLayout.OnTouchInterceptor listItemTouchListener = new TouchInterceptingRelativeLayout.OnTouchInterceptor() {
+        public final View.OnClickListener listItemClickListener = new View.OnClickListener() {
             @Override
-            public void onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN && selectedItemId != viewHolder.item.id) {
-                    setSelectedItemId(viewHolder.item.id);
-                }
+            public void onClick(View v) {
+                Timber.d("listitemClickListener onclick");
+                viewHolder.onItemClicked();
             }
         };
+
 
         public final AdapterView.OnItemSelectedListener activityTypeSpinnerItemSelected = new AdapterView.OnItemSelectedListener() {
             @Override

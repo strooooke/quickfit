@@ -14,15 +14,16 @@
   ~    limitations under the License.
   -->
 
-<resources>
-    <color name="colorPrimary">#607d8b</color>
-    <color name="colorPrimaryDark">#263238</color>
-    <color name="colorAccent">#e65100</color>
-
-    <color name="colorPrimaryLight">#cfd8dc</color>
-    <color name="selectableItemBackgroundFocused">#b0bec5</color>
-    <color name="selectableItemBackgroundPressed">#90a4ae</color>
-    <!-- this is needed as preference_category_material layout is using this color as the text color -->
-    <!-- see http://stackoverflow.com/questions/32070670/preferencefragmentcompat-requires-preferencetheme-to-be-set -->
-    <color name="preference_fallback_accent_color">@color/colorAccent</color>
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_activated="true">
+        <layer-list>
+            <item android:drawable="@color/colorPrimaryLight" />
+            <item android:drawable="@drawable/selectable_item_background_base" />
+        </layer-list>
+    </item>
+    <item>
+        <layer-list>
+            <item android:drawable="@drawable/selectable_item_background_base" />
+        </layer-list>
+    </item>
+</selector>
