@@ -37,7 +37,7 @@ import java.util.Map;
 import tools.fastlane.screengrab.locale.LocaleUtil;
 
 /**
- * TestRule that prepares the database with fixed values. Values depend on the test locale stored
+ * TestRule that prepares the database with fixed values. Values depend on the morphing_add_expand_less locale stored
  * in the instrumentation arguments (accessed via LocaleUtil.getTestLocale()), so it should
  * be used together with com.lambdasoup.quickfit.screenshots.FixedLocaleTestRule, to allow running out of AndroidStudio and not
  * just in the screengrab environment.

@@ -99,7 +99,7 @@ public class SystemScreengrab {
             }
         } catch (IOException e) {
             // masks missing write_external_storage permission when running this as part
-            // of a regular test, and not the screengrab flavor with added permissions.
+            // of a regular morphing_add_expand_less, and not the screengrab flavor with added permissions.
         }
 
         return null;

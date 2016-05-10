@@ -16,16 +16,24 @@
 
 package com.lambdasoup.quickfit.ui;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
 import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.graphics.drawable.VectorDrawableCompat;
+import android.support.v4.animation.AnimatorListenerCompat;
+import android.support.v4.animation.AnimatorUpdateListenerCompat;
+import android.support.v4.animation.ValueAnimatorCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.Toolbar;
@@ -87,6 +95,20 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         fab = (FloatingActionButton) findViewById(R.id.fab);
         //noinspection ConstantConditions
         fab.setOnClickListener(view -> addNewWorkout());
+
+        // need to set statelistdrawable referencing vector drawables programmatically, because
+        // support library vector drawable support in 23.3.0 does not allow vector drawable
+        // references in xml statelistdrawables
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            VectorDrawableCompat drawableAdd = VectorDrawableCompat.create(getResources(), R.drawable.ic_add_white_fat_24dp, getTheme());
+            VectorDrawableCompat drawableExpandLess = VectorDrawableCompat.create(getResources(), R.drawable.ic_expand_less_white_fat_24dp, getTheme());
+
+            StateListDrawable stateListDrawable = new StateListDrawable();
+            stateListDrawable.addState(new int[]{android.R.attr.state_activated}, drawableExpandLess);
+            stateListDrawable.addState(new int[]{}, drawableAdd);
+
+            fab.setImageDrawable(stateListDrawable);
+        }
 
         if (findViewById(R.id.schedules_container) != null) {
             // The detail container view will be present only in the
@@ -211,36 +233,34 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
     }
 
     private void showMiniFabs() {
-        // TODO: correct mini fab icons
-        Timber.d("showing mini fabs");
-
-        Timber.d("before show: fabAddWorkout.top %d fab.top %d", fabAddWorkout.getTop(), fab.getTop());
-        Timber.d("before show: fabAddWorkout.bottom %d fab.bottom %d", fabAddWorkout.getBottom(), fab.getBottom());
-        Timber.d("before show: fabAddWorkout.height %d fab.height %d", fabAddWorkout.getHeight(), fab.getHeight());
-
         if (! isTwoPane) {
             return;
         }
 
-        fabAddSchedule.setVisibility(View.VISIBLE);
-        fabAddSchedule.animate().translationY(-offsetFabAddSchedule).alpha(1.0f);
-        fabAddWorkout.setVisibility(View.VISIBLE);
-        fabAddWorkout.animate().translationY(-offsetFabAddWorkout).alpha(1.0f);
+        fab.setActivated(true);
+
+        fabAddSchedule.animate().translationY(-offsetFabAddSchedule);
+        fabAddWorkout.animate().translationY(-offsetFabAddWorkout);
 
         fab.setOnClickListener(view -> hideMiniFabs());
-        // TODO: animate fab color?
+
+        // TODO: color fab
+        //Animator animator = AnimatorInflater.loadAnimator(this, R.animator.color_accent_to_main);
+        //animator.setTarget(fab);
+        //animator.start();
+
     }
 
 
     private void hideMiniFabs() {
-        Timber.d("hiding mini fabs");
-
         if (!isTwoPane) {
             return;
         }
 
-        fabAddSchedule.animate().translationYBy(0).alpha(0.0f).withEndAction(() -> fabAddSchedule.setVisibility(View.INVISIBLE));
-        fabAddWorkout.animate().translationYBy(0).alpha(0.0f).withEndAction(() -> fabAddWorkout.setVisibility(View.INVISIBLE));
+        fab.setActivated(false);
+
+        fabAddSchedule.animate().translationY(0);
+        fabAddWorkout.animate().translationY(0);
 
         fab.setOnClickListener(view -> showMiniFabs());
     }
