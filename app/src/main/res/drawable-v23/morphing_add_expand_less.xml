@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright 2016 Juliane Lehmann <jl@lambdasoup.com>
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,36 +15,28 @@
   ~    limitations under the License.
   -->
 
-<!-- with extra states and strange transitions to work around the api level 21,22 reversing animation problem -->
+<!-- clean version working on 23; also the v21 version does not work correctly on 23 in all cases -->
 <animated-selector xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/activated"
+        android:id="@+id/selected"
         android:drawable="@drawable/ic_expand_less_white_fat_24dp"
-        android:state_activated="true"
-        android:state_pressed="false" />
-    <item
-        android:id="@+id/activated_pressed"
-        android:drawable="@drawable/ic_expand_less_white_fat_24dp"
-        android:state_activated="true"
-        android:state_pressed="true" />
+        android:state_activated="true" />
     <item
         android:id="@+id/none"
-        android:drawable="@drawable/ic_add_white_fat_24dp" />
-
-
-    <transition
-        android:fromId="@id/activated_pressed"
-        android:toId="@id/none"
-    android:drawable="@drawable/anim_expand_less_to_add"
-    android:reversible="false"
-        />
+        android:drawable="@drawable/ic_add_white_fat_24dp"
+        android:state_activated="false" />
 
     <transition
-        android:fromId="@id/activated_pressed"
-        android:toId="@id/activated"
-        android:drawable="@drawable/anim_add_to_expand_less"
         android:reversible="false"
-        />
+        android:drawable="@drawable/anim_add_to_expand_less"
+        android:fromId="@id/none"
+        android:toId="@id/selected"/>
+
+    <transition
+        android:reversible="false"
+        android:drawable="@drawable/anim_expand_less_to_add"
+        android:fromId="@id/selected"
+        android:toId="@id/none"/>
 
 </animated-selector>
