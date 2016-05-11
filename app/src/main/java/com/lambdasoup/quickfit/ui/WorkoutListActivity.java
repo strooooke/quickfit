@@ -16,13 +16,15 @@
 
 package com.lambdasoup.quickfit.ui;
 
-import android.animation.Animator;
-import android.animation.AnimatorInflater;
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.TypeEvaluator;
 import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
@@ -31,10 +33,8 @@ import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.graphics.drawable.VectorDrawableCompat;
-import android.support.v4.animation.AnimatorListenerCompat;
-import android.support.v4.animation.AnimatorUpdateListenerCompat;
-import android.support.v4.animation.ValueAnimatorCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
@@ -51,6 +51,7 @@ import com.lambdasoup.quickfit.FitActivityService;
 import com.lambdasoup.quickfit.R;
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
 import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
+import com.lambdasoup.quickfit.util.ui.BackgroundTintListAnimator;
 import com.lambdasoup.quickfit.util.ui.DividerItemDecoration;
 import com.lambdasoup.quickfit.util.ui.EmptyRecyclerView;
 
@@ -70,6 +71,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
     private static final String KEY_SELECTED_ITEM_ID = "com.lambdasoup.quickfit.WorkoutListActivity_selected_item_id";
     private static final long FIRST_ITEM_IF_EXISTS = -2;
 
+    private int fabAnimationDuration;
 
     private boolean isTwoPane;
     private WorkoutItemRecyclerViewAdapter workoutsAdapter;
@@ -80,6 +82,8 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
     private View fabAddWorkout;
     private float offsetFabAddWorkout;
     private float offsetFabAddSchedule;
+    private ObjectAnimator fabBackgroundToActivated;
+    private ObjectAnimator fabBackgroundToNotActivated;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +95,8 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         setSupportActionBar(toolbar);
         //noinspection ConstantConditions
         toolbar.setTitle(getTitle());
+
+        fabAnimationDuration = getResources().getInteger(R.integer.fab_animation_duration);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
         //noinspection ConstantConditions
@@ -109,6 +115,9 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
             fab.setImageDrawable(stateListDrawable);
         }
+
+        fabBackgroundToActivated = BackgroundTintListAnimator.create(this, fab, R.color.colorAccent, R.color.colorPrimaryMediumLight, fabAnimationDuration);
+        fabBackgroundToNotActivated  = BackgroundTintListAnimator.create(this, fab, R.color.colorPrimaryMediumLight, R.color.colorAccent, fabAnimationDuration);
 
         if (findViewById(R.id.schedules_container) != null) {
             // The detail container view will be present only in the
@@ -233,22 +242,16 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
     }
 
     private void showMiniFabs() {
-        if (! isTwoPane) {
+        if (!isTwoPane) {
             return;
         }
 
         fab.setActivated(true);
 
-        fabAddSchedule.animate().translationY(-offsetFabAddSchedule);
-        fabAddWorkout.animate().translationY(-offsetFabAddWorkout);
-
+        fabAddSchedule.animate().setDuration(fabAnimationDuration).translationY(-offsetFabAddSchedule);
+        fabAddWorkout.animate().setDuration(fabAnimationDuration).translationY(-offsetFabAddWorkout);
+        fabBackgroundToActivated.start();
         fab.setOnClickListener(view -> hideMiniFabs());
-
-        // TODO: color fab
-        //Animator animator = AnimatorInflater.loadAnimator(this, R.animator.color_accent_to_main);
-        //animator.setTarget(fab);
-        //animator.start();
-
     }
 
 
@@ -261,7 +264,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
         fabAddSchedule.animate().translationY(0);
         fabAddWorkout.animate().translationY(0);
-
+        fabBackgroundToNotActivated.start();
         fab.setOnClickListener(view -> showMiniFabs());
     }
 
