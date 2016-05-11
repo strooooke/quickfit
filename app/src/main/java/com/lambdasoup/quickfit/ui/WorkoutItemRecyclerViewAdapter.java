@@ -200,6 +200,11 @@ public class WorkoutItemRecyclerViewAdapter
     }
 
     public void setSelectedItemId(long selectedItemId) {
+        if (selectedItemId == this.selectedItemId) {
+            Timber.d("reselecting already selected item, ignoring");
+            return;
+        }
+
         long previousSelectedItemId = this.selectedItemId;
         this.selectedItemId = selectedItemId;
 
@@ -218,6 +223,9 @@ public class WorkoutItemRecyclerViewAdapter
     }
 
     private long getSelectedItemIdAfterDeletion(long itemIdToDelete) {
+        if (itemIdToDelete != selectedItemId) {
+            return selectedItemId;
+        }
         int deletePos = getPosition(itemIdToDelete);
         if (deletePos == SortedList.INVALID_POSITION) {
             return NO_ID;
