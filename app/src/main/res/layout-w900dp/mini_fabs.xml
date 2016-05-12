@@ -24,9 +24,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:src="@drawable/ic_alarm_white_24dp"
+        android:visibility="gone"
         app:layout_anchor="@id/fab"
         app:layout_anchorGravity="center"
         app:fabSize="mini"
+        app:layout_behavior="com.lambdasoup.quickfit.util.ui.AppBarBoundFabBehavior"
         />
 
     <android.support.design.widget.FloatingActionButton
@@ -35,8 +37,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         app:srcCompat="@drawable/ic_fitness_center_white_24px"
+        android:visibility="gone"
         app:layout_anchor="@id/fab"
         app:layout_anchorGravity="center"
         app:fabSize="mini"
+        app:layout_behavior="com.lambdasoup.quickfit.util.ui.AppBarBoundFabBehavior"
         />
 </merge>

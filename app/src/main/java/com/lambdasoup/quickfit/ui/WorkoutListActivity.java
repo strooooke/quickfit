@@ -248,6 +248,8 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
         fab.setActivated(true);
 
+        fabAddSchedule.setVisibility(View.VISIBLE);
+        fabAddWorkout.setVisibility(View.VISIBLE);
         fabAddSchedule.animate().setDuration(fabAnimationDuration).translationY(-offsetFabAddSchedule);
         fabAddWorkout.animate().setDuration(fabAnimationDuration).translationY(-offsetFabAddWorkout);
         fabBackgroundToActivated.start();
@@ -262,8 +264,8 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
         fab.setActivated(false);
 
-        fabAddSchedule.animate().translationY(0);
-        fabAddWorkout.animate().translationY(0);
+        fabAddSchedule.animate().setDuration(fabAnimationDuration).translationY(0).withEndAction(() -> fabAddSchedule.setVisibility(View.GONE));
+        fabAddWorkout.animate().setDuration(fabAnimationDuration).translationY(0).withEndAction(() -> fabAddWorkout.setVisibility(View.GONE));
         fabBackgroundToNotActivated.start();
         fab.setOnClickListener(view -> showMiniFabs());
     }
