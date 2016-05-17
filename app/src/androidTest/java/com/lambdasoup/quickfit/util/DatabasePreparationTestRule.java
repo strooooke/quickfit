@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit.screenshots;
+package com.lambdasoup.quickfit.util;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
@@ -34,26 +34,25 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import tools.fastlane.screengrab.locale.LocaleUtil;
 
 /**
- * TestRule that prepares the database with fixed values. Values depend on the morphing_add_expand_less locale stored
- * in the instrumentation arguments (accessed via LocaleUtil.getTestLocale()), so it should
- * be used together with com.lambdasoup.quickfit.screenshots.FixedLocaleTestRule, to allow running out of AndroidStudio and not
- * just in the screengrab environment.
+ *
+ * TestRule that prepares the database with fixed values. Values depend on the test locale stored
+ * in the instrumentation arguments (accessed via LocaleUtil.getTestLocale()) by the screengrabScript
+ * or, if running inside Android Studio, the one set statically in @{link LocaleUtil}.
  */
 public class DatabasePreparationTestRule implements TestRule {
-    static final long NEXT_ALARM_MILLIS_PAST = 946681200000L; // year 2000
+    public static final long NEXT_ALARM_MILLIS_PAST = 946681200000L; // year 2000
     static final long NEXT_ALARM_MILLIS_FUTURE = 2524604400000L; // year 2050
-    static final ContentValues w1 = new ContentValues();
-    static final ContentValues w2 = new ContentValues();
-    static final ContentValues w3 = new ContentValues();
-    static final Map<Locale, Map<ContentValues, String>> labels = new HashMap<>();
-    static final ContentValues s11 = new ContentValues();
-    static final ContentValues s12 = new ContentValues();
-    static final ContentValues s21 = new ContentValues();
-    static final ContentValues s22 = new ContentValues();
-    static final ContentValues s23 = new ContentValues();
+    public static final ContentValues w1 = new ContentValues();
+    public static final ContentValues w2 = new ContentValues();
+    public static final ContentValues w3 = new ContentValues();
+    public static final Map<Locale, Map<ContentValues, String>> labels = new HashMap<>();
+    public static final ContentValues s11 = new ContentValues();
+    public static final ContentValues s12 = new ContentValues();
+    public static final ContentValues s21 = new ContentValues();
+    public static final ContentValues s22 = new ContentValues();
+    public static final ContentValues s23 = new ContentValues();
 
     static {
         w1.put(WorkoutEntry.COL_ID, 1L);

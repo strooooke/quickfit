@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package com.lambdasoup.quickfit.screenshots;
+package com.lambdasoup.quickfit.util;
 
 import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
