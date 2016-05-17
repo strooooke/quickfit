@@ -246,6 +246,10 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
             return;
         }
 
+        if (fab.isActivated()) {
+            Timber.d("fab is already in activated state: ignoring.");
+            return;
+        }
         fab.setActivated(true);
 
         fabAddSchedule.setVisibility(View.VISIBLE);
@@ -259,6 +263,11 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
     private void hideMiniFabs() {
         if (!isTwoPane) {
+            return;
+        }
+
+        if (!fab.isActivated()) {
+            Timber.d("fab is already in deactivated state: ignoring.");
             return;
         }
 
