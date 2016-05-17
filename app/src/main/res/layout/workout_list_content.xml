@@ -58,9 +58,8 @@
             app:onClickListener="@{handler.durationMinsClicked}"
             tools:text="123 minutes" />
 
-        <TextView
-            android:id="@+id/label"
-            style="?attr/subtitleTextAppearance"
+        <FrameLayout
+            android:id="@+id/label_frame"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/duration_mins"
@@ -68,10 +67,17 @@
             android:layout_alignParentStart="true"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:hint="@string/label_hint"
-            android:padding="4dp"
-            android:text="@{workout.label}"
-            app:onClickListener="@{handler.labelClicked}" />
+            >
+            <TextView
+                android:id="@+id/label"
+                style="?attr/subtitleTextAppearance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/label_hint"
+                android:padding="4dp"
+                android:text="@{workout.label}"
+                app:onClickListener="@{handler.labelClicked}" />
+        </FrameLayout>
 
         <ImageButton
             android:id="@+id/delete_button"
@@ -79,7 +85,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_alignTop="@id/label"
+            android:layout_alignTop="@id/label_frame"
             android:layout_marginEnd="12dp"
             android:contentDescription="@string/delete_button"
             android:padding="4dp"
@@ -92,7 +98,7 @@
             style="?attr/subtitleTextAppearance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/label"
+            android:layout_below="@id/label_frame"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:hint="@string/schedules_hint"
