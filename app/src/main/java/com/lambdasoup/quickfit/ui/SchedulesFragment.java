@@ -49,6 +49,8 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
     private static final String ARG_WORKOUT_ID = "com.lambdasoup.quickfit_workoutId";
     private static final int LOADER_SCHEDULES = 1;
 
+    public static final long WORKOUT_ID_MISSING = -1;
+
     private long workoutId;
     private SchedulesRecyclerViewAdapter schedulesAdapter;
     private FragmentSchedulesBinding schedulesBinding;
@@ -77,6 +79,7 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
             throw new IllegalArgumentException("Argument 'workoutId' is missing");
         }
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

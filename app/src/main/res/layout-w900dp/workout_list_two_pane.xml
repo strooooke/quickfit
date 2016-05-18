@@ -51,7 +51,6 @@
 
     </FrameLayout>
 
-    <!-- TODO: relative layout with start/end instead, or some other rtl aware solution -->
     <FrameLayout
         android:id="@+id/detail_pane"
         android:layout_width="match_parent"

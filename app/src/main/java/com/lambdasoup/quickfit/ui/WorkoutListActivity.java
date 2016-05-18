@@ -33,6 +33,9 @@ import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.graphics.drawable.VectorDrawableCompat;
+import android.support.v4.animation.AnimatorListenerCompat;
+import android.support.v4.animation.AnimatorUpdateListenerCompat;
+import android.support.v4.animation.ValueAnimatorCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.util.SortedList;
@@ -44,6 +47,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.FrameLayout;
 
 import com.google.android.gms.fitness.FitnessActivities;
@@ -58,6 +62,7 @@ import com.lambdasoup.quickfit.util.ui.EmptyRecyclerView;
 import timber.log.Timber;
 
 import static android.support.v7.widget.RecyclerView.NO_ID;
+import static android.view.View.X;
 
 
 public class WorkoutListActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>,
@@ -298,7 +303,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         hideMiniFabs();
     }
 
-    private void ensureSchedulesPaneShown() {
+    private void ensureSchedulesPaneShown(long workoutId) {
         if (!isTwoPane) {
             return;
         }
@@ -307,12 +312,16 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         ViewGroup.LayoutParams layoutParams = listPane.getLayoutParams();
         Timber.d("ensureSchedulesPaneShown: list_pane layout params %s", layoutParams);
         if (layoutParams.width == ViewGroup.LayoutParams.MATCH_PARENT) {
-            showSchedulesPane();
+            showSchedulesPane(workoutId);
         }
+
+//        if (findViewById(R.id.detail_pane).getVisibility() == View.GONE) {
+//            showSchedulesPane();
+//        }
 
     }
 
-    private void showSchedulesPane() {
+    private void showSchedulesPane(long workoutId) {
         if (!isTwoPane) {
             Timber.wtf("showSchedulesPane called despite not in two-pane layout mode");
             return;
@@ -327,11 +336,21 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
         fab.setOnClickListener(view -> showMiniFabs());
 
+        findViewById(R.id.detail_pane).setVisibility(View.VISIBLE);
+
         // TODO: animate
+
         FrameLayout listPane = (FrameLayout) findViewById(R.id.list_pane);
         ViewGroup.LayoutParams layoutParams = listPane.getLayoutParams();
         layoutParams.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 400, getResources().getDisplayMetrics());
         listPane.setLayoutParams(layoutParams);
+
+
+        SchedulesFragment newFragment = SchedulesFragment.create(workoutId);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.schedules_container, newFragment)
+                .commit();
     }
 
     private void hideSchedulesPane() {
@@ -353,6 +372,8 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
         listPane.setLayoutParams(layoutParams);
 
+//        findViewById(R.id.detail_pane).setVisibility(View.GONE);
+
         Fragment schedulesFragment = getSupportFragmentManager().findFragmentById(R.id.schedules_container);
         Timber.d("schedulesFragment before remove: %s", schedulesFragment);
         getSupportFragmentManager().beginTransaction()
@@ -367,7 +388,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         if (workoutId == NO_ID) {
             hideSchedulesPane();
         } else {
-            ensureSchedulesPaneShown();
+            ensureSchedulesPaneShown(workoutId);
             updateSchedulesPane(workoutId);
         }
     }
@@ -461,6 +482,6 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
     @Override
     public TimeDialogFragment.OnFragmentInteractionListener getOnFragmentInteractionListener() {
-        return (SchedulesFragment) getSupportFragmentManager().findFragmentById(R.id.schedules_container);
+        return (TimeDialogFragment.OnFragmentInteractionListener) getSupportFragmentManager().findFragmentById(R.id.schedules_container);
     }
 }
