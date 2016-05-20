@@ -14,7 +14,7 @@
   ~    limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.lambdasoup.quickfit.util.ui.MasterDetailLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/two_panes"
@@ -25,12 +25,14 @@
     android:orientation="horizontal"
     android:showDividers="middle"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    app:masterPaneWidth="400dp"
+    app:animationDuration="@integer/master_detail_animation_duration"
     tools:context="com.lambdasoup.quickfit.ui.WorkoutListActivity">
 
 
     <FrameLayout
         android:id="@+id/list_pane"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         >
 
@@ -56,7 +58,6 @@
         android:id="@+id/detail_pane"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:visibility="gone"
         >
 
         <TextView
@@ -73,4 +74,4 @@
             android:layout_height="match_parent" />
     </FrameLayout>
 
-</LinearLayout>
+</com.lambdasoup.quickfit.util.ui.MasterDetailLayout>

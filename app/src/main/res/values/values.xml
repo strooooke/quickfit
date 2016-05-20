@@ -36,6 +36,7 @@
     <string name="pref_key_account_settings">com.lambdasoup.quickfit.preference.CATEGORY_GOOGLE_ACCOUNT</string>
 
     <integer name="fab_animation_duration">@android:integer/config_mediumAnimTime</integer>
+    <integer name="master_detail_animation_duration">@android:integer/config_mediumAnimTime</integer>
 
     <item type="id" name="fab_translationY_from_AppBarBoundFabBehavior"/>
 </resources>
