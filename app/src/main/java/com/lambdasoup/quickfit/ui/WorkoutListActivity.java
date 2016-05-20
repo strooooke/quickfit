@@ -16,15 +16,12 @@
 
 package com.lambdasoup.quickfit.ui;
 
-import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
-import android.animation.TypeEvaluator;
 import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.Loader;
-import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
@@ -33,11 +30,7 @@ import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.graphics.drawable.VectorDrawableCompat;
-import android.support.v4.animation.AnimatorListenerCompat;
-import android.support.v4.animation.AnimatorUpdateListenerCompat;
-import android.support.v4.animation.ValueAnimatorCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
@@ -47,9 +40,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
+import com.bartoszlipinski.viewpropertyobjectanimator.ViewPropertyObjectAnimator;
 import com.google.android.gms.fitness.FitnessActivities;
 import com.lambdasoup.quickfit.FitActivityService;
 import com.lambdasoup.quickfit.R;
@@ -62,7 +57,6 @@ import com.lambdasoup.quickfit.util.ui.EmptyRecyclerView;
 import timber.log.Timber;
 
 import static android.support.v7.widget.RecyclerView.NO_ID;
-import static android.view.View.X;
 
 
 public class WorkoutListActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>,
@@ -75,6 +69,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
     private static final String KEY_SHOW_WORKOUT_ID = "com.lambdasoup.quickfit.show_workout_id";
     private static final String KEY_SELECTED_ITEM_ID = "com.lambdasoup.quickfit.WorkoutListActivity_selected_item_id";
     private static final long FIRST_ITEM_IF_EXISTS = -2;
+    public static final int SCHEDULE_PANE_COLLAPSE_DURATION = 500;
 
     private int fabAnimationDuration;
 
@@ -89,6 +84,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
     private float offsetFabAddSchedule;
     private ObjectAnimator fabBackgroundToActivated;
     private ObjectAnimator fabBackgroundToNotActivated;
+    private int collapsedListPaneWidth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,7 +118,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         }
 
         fabBackgroundToActivated = BackgroundTintListAnimator.create(this, fab, R.color.colorAccent, R.color.colorPrimaryMediumLight, fabAnimationDuration);
-        fabBackgroundToNotActivated  = BackgroundTintListAnimator.create(this, fab, R.color.colorPrimaryMediumLight, R.color.colorAccent, fabAnimationDuration);
+        fabBackgroundToNotActivated = BackgroundTintListAnimator.create(this, fab, R.color.colorPrimaryMediumLight, R.color.colorAccent, fabAnimationDuration);
 
         if (findViewById(R.id.schedules_container) != null) {
             // The detail container view will be present only in the
@@ -138,6 +134,27 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
             fabAddWorkout.setOnClickListener(view -> addNewWorkout());
 
             setMiniFabOffsets();
+            collapsedListPaneWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 400, getResources().getDisplayMetrics());
+
+
+            LinearLayout twoPanes = (LinearLayout) findViewById(R.id.two_panes);
+            //noinspection ConstantConditions
+            twoPanes.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    twoPanes.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                    View schedulesPane = findViewById(R.id.detail_pane);
+
+                    int dividerWidth = twoPanes.getDividerDrawable() != null ? twoPanes.getDividerDrawable().getIntrinsicWidth() + 2 * twoPanes.getDividerPadding() : 0;
+                    int twoPanesInnerWidth = twoPanes.getWidth() - twoPanes.getPaddingLeft() - twoPanes.getPaddingRight();
+
+                    ViewGroup.LayoutParams schedulesPaneLayoutParams = schedulesPane.getLayoutParams();
+                    schedulesPaneLayoutParams.width = twoPanesInnerWidth - dividerWidth - collapsedListPaneWidth;
+                    schedulesPane.setLayoutParams(schedulesPaneLayoutParams);
+                }
+            });
+
         }
 
         workoutsRecyclerView = (EmptyRecyclerView) findViewById(R.id.workout_list);
@@ -308,16 +325,9 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
             return;
         }
 
-        FrameLayout listPane = (FrameLayout) findViewById(R.id.list_pane);
-        ViewGroup.LayoutParams layoutParams = listPane.getLayoutParams();
-        Timber.d("ensureSchedulesPaneShown: list_pane layout params %s", layoutParams);
-        if (layoutParams.width == ViewGroup.LayoutParams.MATCH_PARENT) {
+        if (findViewById(R.id.detail_pane).getVisibility() == View.GONE) {
             showSchedulesPane(workoutId);
         }
-
-//        if (findViewById(R.id.detail_pane).getVisibility() == View.GONE) {
-//            showSchedulesPane();
-//        }
 
     }
 
@@ -326,7 +336,6 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
             Timber.wtf("showSchedulesPane called despite not in two-pane layout mode");
             return;
         }
-        Timber.d("showing schedules pane");
 
         CoordinatorLayout.LayoutParams fabLayoutParams = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
         fabLayoutParams.setAnchorId(R.id.list_pane);
@@ -338,13 +347,15 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
         findViewById(R.id.detail_pane).setVisibility(View.VISIBLE);
 
-        // TODO: animate
-
         FrameLayout listPane = (FrameLayout) findViewById(R.id.list_pane);
-        ViewGroup.LayoutParams layoutParams = listPane.getLayoutParams();
-        layoutParams.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 400, getResources().getDisplayMetrics());
-        listPane.setLayoutParams(layoutParams);
 
+        Timber.d("listPaneTargetWidth: %d", collapsedListPaneWidth);
+        ObjectAnimator animator = ViewPropertyObjectAnimator
+                .animate(listPane)
+                .width(collapsedListPaneWidth)
+                .setDuration(SCHEDULE_PANE_COLLAPSE_DURATION)
+                .get();
+        animator.start();
 
         SchedulesFragment newFragment = SchedulesFragment.create(workoutId);
         getSupportFragmentManager()
@@ -358,28 +369,35 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
             Timber.wtf("hideSchedulesPane called despite not in two-pane layout mode");
             return;
         }
-        CoordinatorLayout.LayoutParams fabLayoutParams = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
-        fabLayoutParams.setAnchorId(View.NO_ID);
-        fabLayoutParams.gravity = Gravity.BOTTOM | Gravity.END;
-        fab.setLayoutParams(fabLayoutParams);
 
         hideMiniFabs();
         fab.setOnClickListener(view -> addNewWorkout());
 
         // TODO: animate
         FrameLayout listPane = (FrameLayout) findViewById(R.id.list_pane);
-        ViewGroup.LayoutParams layoutParams = listPane.getLayoutParams();
-        layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
-        listPane.setLayoutParams(layoutParams);
 
-//        findViewById(R.id.detail_pane).setVisibility(View.GONE);
+        int parentWidth = findViewById(R.id.two_panes).getMeasuredWidth();
+        Timber.d("parent width: %d", parentWidth);
+        ObjectAnimator animator = ViewPropertyObjectAnimator
+                .animate(listPane)
+                .width(parentWidth)
+                .withEndAction(() -> {
+                    CoordinatorLayout.LayoutParams fabLayoutParams = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
+                    fabLayoutParams.setAnchorId(View.NO_ID);
+                    fabLayoutParams.gravity = Gravity.BOTTOM | Gravity.END;
+                    fab.setLayoutParams(fabLayoutParams);
 
-        Fragment schedulesFragment = getSupportFragmentManager().findFragmentById(R.id.schedules_container);
-        Timber.d("schedulesFragment before remove: %s", schedulesFragment);
-        getSupportFragmentManager().beginTransaction()
-                .remove(schedulesFragment)
-                .commit();
+                    findViewById(R.id.detail_pane).setVisibility(View.GONE);
 
+                    Fragment schedulesFragment = getSupportFragmentManager().findFragmentById(R.id.schedules_container);
+                    Timber.d("schedulesFragment before remove: %s", schedulesFragment);
+                    getSupportFragmentManager().beginTransaction()
+                            .remove(schedulesFragment)
+                            .commit();
+                })
+                .setDuration(SCHEDULE_PANE_COLLAPSE_DURATION)
+                .get();
+        animator.start();
     }
 
     @Override

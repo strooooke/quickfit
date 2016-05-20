@@ -31,7 +31,8 @@
     <FrameLayout
         android:id="@+id/list_pane"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        >
 
         <TextView
             android:id="@+id/workout_list_empty"
@@ -53,8 +54,9 @@
 
     <FrameLayout
         android:id="@+id/detail_pane"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:visibility="gone"
         >
 
         <TextView
