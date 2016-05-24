@@ -26,7 +26,6 @@
             name="handler"
             type="com.lambdasoup.quickfit.ui.WorkoutItemRecyclerViewAdapter.EventHandler" />
     </data>
-<!-- TODO: margins are borked in wide layout -->
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -34,7 +33,8 @@
         android:background='@{@bool/isTwoPane ? @drawable/selectable_item_background : @drawable/transparent}'
         android:clickable="true"
         android:stateListAnimator="@animator/elevate_activated"
-        app:onClickListener="@{handler.listItemClickListener}">
+        app:onClickListener="@{handler.listItemClickListener}"
+        tools:ignore="UnusedAttribute">
 
         <Spinner
             android:id="@+id/activity_type_spinner"
