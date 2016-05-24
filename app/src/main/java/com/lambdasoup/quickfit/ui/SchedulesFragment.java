@@ -17,10 +17,12 @@
 package com.lambdasoup.quickfit.ui;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -28,7 +30,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.lambdasoup.quickfit.R;
 import com.lambdasoup.quickfit.alarm.AlarmService;
 import com.lambdasoup.quickfit.databinding.FragmentSchedulesBinding;
 import com.lambdasoup.quickfit.model.DayOfWeek;
@@ -56,6 +57,7 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
 
 
     public static SchedulesFragment create(long workoutId) {
+        Timber.d("Creating schedules fragment with id %d", workoutId);
         Bundle arguments = new Bundle();
         arguments.putLong(ARG_WORKOUT_ID, workoutId);
         SchedulesFragment fragment = new SchedulesFragment();
@@ -78,6 +80,7 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
         }
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -92,7 +95,6 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
         schedulesAdapter = new SchedulesRecyclerViewAdapter(getContext());
         schedulesAdapter.setOnScheduleInteractionListener(this);
         schedulesBinding.scheduleList.setAdapter(schedulesAdapter);
-        //schedulesBinding.scheduleList.setEmptyView(schedulesBinding.scheduleListEmpty);
 
         ItemTouchHelper swipeDismiss = new ItemTouchHelper(new LeaveBehind() {
             @Override
@@ -103,14 +105,24 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
         swipeDismiss.attachToRecyclerView(schedulesBinding.scheduleList);
 
         schedulesBinding.scheduleList.addItemDecoration(new DividerItemDecoration(getContext(), true));
-        getLoaderManager().initLoader(LOADER_SCHEDULES, null, this);
+
+        Bundle bundle = new Bundle(1);
+        bundle.putLong(ARG_WORKOUT_ID, workoutId);
+        getLoaderManager().initLoader(LOADER_SCHEDULES, bundle, this);
+    }
+
+    public void setWorkoutId(long workoutId) {
+        this.workoutId = workoutId;
+        Bundle bundle = new Bundle(1);
+        bundle.putLong(ARG_WORKOUT_ID, workoutId);
+        getLoaderManager().restartLoader(LOADER_SCHEDULES, bundle , this);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
             case LOADER_SCHEDULES:
-                return new SchedulesLoader(getContext(), workoutId);
+                return new SchedulesLoader(getContext(), args.getLong(ARG_WORKOUT_ID));
         }
         throw new IllegalArgumentException("Not a loader id: " + id);
     }
@@ -119,7 +131,6 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         switch (loader.getId()) {
             case LOADER_SCHEDULES:
-                // TODO: detached?
                 schedulesAdapter.swapCursor(data);
                 return;
         }
@@ -153,7 +164,7 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public void onTimeEditRequested(long scheduleId, int oldHour, int oldMinute) {
-        ((DialogActivity)getActivity()).showDialog(TimeDialogFragment.newInstance(scheduleId, oldHour, oldMinute));
+        ((DialogActivity) getActivity()).showDialog(TimeDialogFragment.newInstance(scheduleId, oldHour, oldMinute));
     }
 
     @Override
@@ -196,6 +207,10 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
 
     private void onRemoveSchedule(long scheduleId) {
         getContext().getContentResolver().delete(QuickFitContentProvider.getUriWorkoutsIdSchedulesId(workoutId, scheduleId), null, null);
+    }
+
+    long getWorkoutId() {
+        return workoutId;
     }
 
 }

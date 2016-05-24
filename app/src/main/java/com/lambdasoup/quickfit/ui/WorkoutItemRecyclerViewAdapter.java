@@ -42,19 +42,22 @@ import java.util.Set;
 
 import timber.log.Timber;
 
+import static android.support.v7.widget.RecyclerView.NO_ID;
 import static com.lambdasoup.quickfit.util.Lists.map;
 
 public class WorkoutItemRecyclerViewAdapter
         extends RecyclerView.Adapter<WorkoutItemRecyclerViewAdapter.ViewHolder> {
-
     private final Context context;
 
     private final SortedList<WorkoutItem> dataset;
     private final ConstantListAdapter<FitActivity> activityTypesAdapter;
+    private final boolean isTwoPane;
     private OnWorkoutInteractionListener onWorkoutInteractionListener;
+    private long selectedItemId = NO_ID;
 
-    public WorkoutItemRecyclerViewAdapter(Context context) {
+    public WorkoutItemRecyclerViewAdapter(Context context, boolean isTwoPane) {
         this.context = context;
+        this.isTwoPane = isTwoPane;
         dataset = new SortedList<>(WorkoutItem.class, new SortedList.Callback<WorkoutItem>() {
             @Override
             public int compare(WorkoutItem left, WorkoutItem right) {
@@ -112,12 +115,13 @@ public class WorkoutItemRecyclerViewAdapter
         if (position >= 0 && position < dataset.size()) {
             return dataset.get(position).id;
         }
-        return RecyclerView.NO_ID;
+        return NO_ID;
     }
 
     public void setOnWorkoutInteractionListener(OnWorkoutInteractionListener onWorkoutInteractionListener) {
         this.onWorkoutInteractionListener = onWorkoutInteractionListener;
     }
+
 
 
     @Override
@@ -195,6 +199,52 @@ public class WorkoutItemRecyclerViewAdapter
         return dataset.indexOf(WorkoutItem.getForIdHack(id));
     }
 
+    public void setSelectedItemId(long selectedItemId) {
+        if (selectedItemId == this.selectedItemId) {
+            Timber.d("reselecting already selected item, ignoring");
+            return;
+        }
+
+        long previousSelectedItemId = this.selectedItemId;
+        this.selectedItemId = selectedItemId;
+
+        Timber.d("setSelectedItemId previous: %d new: %d", previousSelectedItemId, selectedItemId);
+        notifyItemChanged(getPosition(previousSelectedItemId));
+        notifyItemChanged(getPosition(selectedItemId));
+
+        if (onWorkoutInteractionListener != null) {
+            onWorkoutInteractionListener.onItemSelected(selectedItemId);
+        }
+    }
+
+
+    public void setSelectedItemIdAfterDeletionOf(long itemIdToDelete) {
+        setSelectedItemId(getSelectedItemIdAfterDeletion(itemIdToDelete));
+    }
+
+    private long getSelectedItemIdAfterDeletion(long itemIdToDelete) {
+        if (itemIdToDelete != selectedItemId) {
+            return selectedItemId;
+        }
+        int deletePos = getPosition(itemIdToDelete);
+        if (deletePos == SortedList.INVALID_POSITION) {
+            return NO_ID;
+        }
+        if (deletePos == 0) {
+            if (getItemCount() == 1) {
+                // list will be empty after this deletion
+                return NO_ID;
+            } else {
+                return getItemId(1);
+            }
+        }
+        return getItemId(deletePos - 1);
+    }
+
+    public long getSelectedItemId() {
+        return selectedItemId;
+    }
+
 
     public interface OnWorkoutInteractionListener {
         void onDoneItClick(long workoutId);
@@ -210,6 +260,8 @@ public class WorkoutItemRecyclerViewAdapter
         void onDeleteClick(long workoutId);
 
         void onSchedulesEditRequested(long workoutId);
+
+        void onItemSelected(long workoutId);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -224,11 +276,24 @@ public class WorkoutItemRecyclerViewAdapter
             this.eventHandler = new EventHandler(this);
             binding.activityTypeSpinner.setAdapter(activityTypesAdapter);
             binding.setHandler(eventHandler);
+
+            if (isTwoPane) {
+                binding.schedules.setVisibility(View.GONE);
+            }
         }
 
         void bindItem(WorkoutItem item) {
+            Timber.d("binding item with id %d to viewholder", item.id);
             this.item = item;
             binding.setWorkout(item);
+            binding.getRoot().setActivated(item.id == selectedItemId);
+        }
+
+        void onItemClicked() {
+            Timber.d("viewholder onItemCLicked selectedItemId: %d, clicked item id: %d", selectedItemId, item.id);
+            if (selectedItemId != item.id) {
+                setSelectedItemId(item.id);
+            }
         }
 
     }
@@ -236,6 +301,15 @@ public class WorkoutItemRecyclerViewAdapter
     @SuppressWarnings("unused") // members get used by databinding expressions
     public class EventHandler {
         private final ViewHolder viewHolder;
+
+        public final View.OnClickListener listItemClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Timber.d("listitemClickListener onclick");
+                viewHolder.onItemClicked();
+            }
+        };
+
 
         public final AdapterView.OnItemSelectedListener activityTypeSpinnerItemSelected = new AdapterView.OnItemSelectedListener() {
             @Override

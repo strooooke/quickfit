@@ -1,4 +1,4 @@
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2016 Juliane Lehmann <jl@lambdasoup.com>
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,26 +13,25 @@
   ~ See the License for the specific language governing permissions and
   ~    limitations under the License.
   -->
-<layout>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
+    <TextView
+        android:id="@+id/workout_list_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/workout_list_empty"
+        android:textAlignment="center" />
 
-        <variable
-            name="workout"
-            type="com.lambdasoup.quickfit.viewmodel.WorkoutItem" />
-    </data>
-
-
-    <com.lambdasoup.quickfit.util.ui.EmptyRecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/schedule_list"
+    <com.lambdasoup.quickfit.util.ui.EmptyRecyclerView
+        android:id="@+id/workout_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?android:colorBackground"
         app:layoutManager="LinearLayoutManager"
-        tools:context="com.lambdasoup.quickfit.ui.SchedulesFragment"
-        tools:listitem="@layout/schedule_list_content" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/workout_list_content" />
+</merge>
 
-
-</layout>

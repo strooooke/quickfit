@@ -14,26 +14,23 @@
  *    limitations under the License.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package com.lambdasoup.quickfit.util;
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
-        classpath 'me.tatarka:gradle-retrolambda:3.2.3'
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
+import java.util.Locale;
 
-allprojects {
-    repositories {
-        jcenter()
-    }
-}
+/**
+ * Allows referencing the locale set by the screengrabScript, or instead, if not running under
+ * that, a fixed locale.
+ */
+public class LocaleUtil {
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+    /**
+     * Not final, change in your test code if necessary
+     */
+    public static Locale FIXED_LOCALE = Locale.US;
+
+    public static Locale getTestLocale() {
+        Locale fromScreengrabScript = tools.fastlane.screengrab.locale.LocaleUtil.getTestLocale();
+        return fromScreengrabScript != null ? fromScreengrabScript : FIXED_LOCALE;
+    }
 }

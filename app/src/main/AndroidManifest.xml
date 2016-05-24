@@ -137,6 +137,7 @@
             android:name=".persist.FitApiFailureResolutionService"
             android:enabled="true"
             android:exported="false" />
+
     </application>
 
 </manifest>

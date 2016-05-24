@@ -35,6 +35,8 @@ android {
         resConfigs "en", "de"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
@@ -85,6 +87,7 @@ dependencies {
     compile 'com.android.support:support-v4:23.3.0'
     compile 'com.android.support:preference-v14:23.3.0'
     compile 'com.android.support:recyclerview-v7:23.3.0'
+    compile 'com.bartoszlipinski:viewpropertyobjectanimator:1.4.5'
     compile 'com.google.android.gms:play-services-fitness:8.4.0'
     compile 'com.jakewharton.timber:timber:4.1.2'
 }

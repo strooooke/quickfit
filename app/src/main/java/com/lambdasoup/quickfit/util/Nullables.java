@@ -14,26 +14,21 @@
  *    limitations under the License.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package com.lambdasoup.quickfit.util;
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
-        classpath 'me.tatarka:gradle-retrolambda:3.2.3'
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-allprojects {
-    repositories {
-        jcenter()
+/**
+ * Created by jl on 12.05.16.
+ */
+public class Nullables {
+    private Nullables() {
+        // do not instantiate
     }
-}
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+    @NonNull
+    public static <T> T coalesce(@Nullable T value, @NonNull T defaultValue) {
+        return value == null ? defaultValue : value;
+    }
 }

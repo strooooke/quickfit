@@ -38,33 +38,12 @@
     </android.support.design.widget.AppBarLayout>
 
 
-    <TextView
-        android:id="@+id/workout_list_empty"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/workout_list_empty"
-        android:textAlignment="center" />
-
-    <com.lambdasoup.quickfit.util.ui.EmptyRecyclerView
-        android:id="@+id/workout_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/background_light"
-        app:layoutManager="LinearLayoutManager"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:listitem="@layout/workout_list_content" />
+    <include layout="@layout/workout_list" />
 
 
+    <include layout="@layout/mini_fabs"/>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_add_white_24dp"
-        app:layout_behavior="com.lambdasoup.quickfit.util.ui.ScrollAwareFabBehavior" />
+    <include layout="@layout/fab_workout_list" />
 
 
 </android.support.design.widget.CoordinatorLayout>
