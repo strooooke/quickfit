@@ -33,18 +33,12 @@ import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.Toolbar;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
-import com.bartoszlipinski.viewpropertyobjectanimator.ViewPropertyObjectAnimator;
 import com.google.android.gms.fitness.FitnessActivities;
 import com.lambdasoup.quickfit.FitActivityService;
 import com.lambdasoup.quickfit.R;
@@ -144,9 +138,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
                 fabLayoutParams.gravity = Gravity.BOTTOM | Gravity.END;
                 fab.setLayoutParams(fabLayoutParams);
 
-
                 Fragment schedulesFragment = getSupportFragmentManager().findFragmentById(R.id.schedules_container);
-                Timber.d("schedulesFragment before remove: %s", schedulesFragment);
                 getSupportFragmentManager().beginTransaction()
                         .remove(schedulesFragment)
                         .commit();
@@ -377,16 +369,20 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
     }
 
     private void updateSchedulesPane(long workoutId) {
-        if (isTwoPane) {
-            SchedulesFragment fragment = (SchedulesFragment) getSupportFragmentManager().findFragmentById(R.id.schedules_container);
-            Timber.d("schedules fragment is present: %b", fragment != null);
-            if (workoutId != NO_ID && (fragment == null || workoutId != fragment.getWorkoutId())) {
-                // TODO: update workoutId in existing fragment?
+        if (!isTwoPane) {
+            return;
+        }
+        SchedulesFragment fragment = (SchedulesFragment) getSupportFragmentManager().findFragmentById(R.id.schedules_container);
+        Timber.d("schedules fragment is present: %b", fragment != null);
+        if (workoutId != NO_ID && (fragment == null || workoutId != fragment.getWorkoutId())) {
+            if (fragment == null) {
                 SchedulesFragment newFragment = SchedulesFragment.create(workoutId);
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.schedules_container, newFragment)
                         .commit();
+            } else {
+                fragment.setWorkoutId(workoutId);
             }
         }
     }

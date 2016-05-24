@@ -287,7 +287,6 @@ public class WorkoutItemRecyclerViewAdapter
             this.item = item;
             binding.setWorkout(item);
             binding.getRoot().setActivated(item.id == selectedItemId);
-            // TODO: elevate if selected and twoPane
         }
 
         void onItemClicked() {

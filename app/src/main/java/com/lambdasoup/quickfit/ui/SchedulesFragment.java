@@ -17,10 +17,12 @@
 package com.lambdasoup.quickfit.ui;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -48,8 +50,6 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
 
     private static final String ARG_WORKOUT_ID = "com.lambdasoup.quickfit_workoutId";
     private static final int LOADER_SCHEDULES = 1;
-
-    public static final long WORKOUT_ID_MISSING = -1;
 
     private long workoutId;
     private SchedulesRecyclerViewAdapter schedulesAdapter;
@@ -105,14 +105,24 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
         swipeDismiss.attachToRecyclerView(schedulesBinding.scheduleList);
 
         schedulesBinding.scheduleList.addItemDecoration(new DividerItemDecoration(getContext(), true));
-        getLoaderManager().initLoader(LOADER_SCHEDULES, null, this);
+
+        Bundle bundle = new Bundle(1);
+        bundle.putLong(ARG_WORKOUT_ID, workoutId);
+        getLoaderManager().initLoader(LOADER_SCHEDULES, bundle, this);
+    }
+
+    public void setWorkoutId(long workoutId) {
+        this.workoutId = workoutId;
+        Bundle bundle = new Bundle(1);
+        bundle.putLong(ARG_WORKOUT_ID, workoutId);
+        getLoaderManager().restartLoader(LOADER_SCHEDULES, bundle , this);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
             case LOADER_SCHEDULES:
-                return new SchedulesLoader(getContext(), workoutId);
+                return new SchedulesLoader(getContext(), args.getLong(ARG_WORKOUT_ID));
         }
         throw new IllegalArgumentException("Not a loader id: " + id);
     }
@@ -121,7 +131,6 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         switch (loader.getId()) {
             case LOADER_SCHEDULES:
-                // TODO: detached?
                 schedulesAdapter.swapCursor(data);
                 return;
         }
@@ -203,4 +212,5 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
     long getWorkoutId() {
         return workoutId;
     }
+
 }
