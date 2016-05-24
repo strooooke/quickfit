@@ -33,6 +33,7 @@
         android:layout_height="wrap_content"
         android:background='@{@bool/isTwoPane ? @drawable/selectable_item_background : @drawable/transparent}'
         android:clickable="true"
+        android:stateListAnimator="@animator/elevate_activated"
         app:onClickListener="@{handler.listItemClickListener}">
 
         <Spinner
