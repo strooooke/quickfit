@@ -22,6 +22,7 @@ import android.support.test.InstrumentationRegistry;
 
 import com.google.android.gms.fitness.FitnessActivities;
 import com.lambdasoup.quickfit.model.DayOfWeek;
+import com.lambdasoup.quickfit.persist.QuickFitContract;
 import com.lambdasoup.quickfit.persist.QuickFitContract.ScheduleEntry;
 import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
 import com.lambdasoup.quickfit.persist.QuickFitDbHelper;
@@ -33,6 +34,8 @@ import org.junit.runners.model.Statement;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
+import static com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry.TABLE_NAME;
 
 
 /**
@@ -133,6 +136,8 @@ public class DatabasePreparationTestRule implements TestRule {
             public void evaluate() throws Throwable {
                 try (SQLiteDatabase conn = dbHelper.getWritableDatabase()) {
                     Locale testLocale = LocaleUtil.getTestLocale();
+
+                    conn.delete(TABLE_NAME, null, null);
 
                     conn.delete(WorkoutEntry.TABLE_NAME, null, null);
 

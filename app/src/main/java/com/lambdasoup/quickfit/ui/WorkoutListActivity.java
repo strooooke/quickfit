@@ -18,6 +18,7 @@ package com.lambdasoup.quickfit.ui;
 
 import android.animation.ObjectAnimator;
 import android.app.LoaderManager;
+import android.app.PendingIntent;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -59,6 +60,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFragmentInteractionListener, TimeDialogFragment.OnFragmentInteractionListenerProvider {
 
 
+    public static final String EXTRA_NOTIFICATIONS_CANCEL_INTENT = "com.lambdasoup.quickfit.cancel_intent";
     public static final String EXTRA_SHOW_WORKOUT_ID = "com.lambdasoup.quickfit.show_workout_id";
 
     private static final String KEY_SHOW_WORKOUT_ID = "com.lambdasoup.quickfit.show_workout_id";
@@ -177,6 +179,15 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
     private void readIntentExtras() {
         if (getIntent().hasExtra(EXTRA_SHOW_WORKOUT_ID)) {
             idToSelect = getIntent().getLongExtra(EXTRA_SHOW_WORKOUT_ID, NO_ID);
+        }
+        if (getIntent().hasExtra(EXTRA_NOTIFICATIONS_CANCEL_INTENT)) {
+            PendingIntent cancelIntent = getIntent().getParcelableExtra(EXTRA_NOTIFICATIONS_CANCEL_INTENT);
+            try {
+                cancelIntent.send();
+            } catch (PendingIntent.CanceledException e) {
+                // intent is already canceled, do nothing
+                Timber.d("sending notification cancel intent failed: pending intent already canceled");
+            }
         }
     }
 

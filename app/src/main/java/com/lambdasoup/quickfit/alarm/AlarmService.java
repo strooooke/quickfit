@@ -328,17 +328,6 @@ public class AlarmService extends IntentServiceCompat {
                 return;
             }
 
-            NotificationCompat.Builder notification;
-            if (count == 1) {
-                Timber.d("refreshNotificationDisplay: single event");
-                toNotify.moveToFirst();
-                notification = notifySingleEvent(toNotify);
-            } else {
-                Timber.d("refreshNotificationDisplay: multiple events");
-                toNotify.moveToPosition(-1);
-                notification = notifyMultipleEvents(toNotify);
-            }
-
             long[] scheduleIds = new long[count];
             int i = 0;
             toNotify.moveToPosition(-1);
@@ -348,6 +337,19 @@ public class AlarmService extends IntentServiceCompat {
             }
 
             PendingIntent cancelIntent = PendingIntent.getService(getApplicationContext(), 0, getIntentOnNotificationsCanceled(this, scheduleIds), PendingIntent.FLAG_UPDATE_CURRENT);
+
+            NotificationCompat.Builder notification;
+            if (count == 1) {
+                Timber.d("refreshNotificationDisplay: single event");
+                toNotify.moveToFirst();
+                notification = notifySingleEvent(toNotify, cancelIntent);
+            } else {
+                Timber.d("refreshNotificationDisplay: multiple events");
+                toNotify.moveToPosition(-1);
+                notification = notifyMultipleEvents(toNotify, cancelIntent);
+            }
+
+
             notification.setDeleteIntent(cancelIntent);
             notification.setAutoCancel(true);
             notification.setPriority(Notification.PRIORITY_HIGH);
@@ -380,11 +382,12 @@ public class AlarmService extends IntentServiceCompat {
      * Relies on the caller to position the cursor on the desired row and to close the cursor.
      *
      * @param cursor Cursor to read the workout data from
+     * @param cancelIntent
      */
     @WorkerThread
     private
     @NonNull
-    NotificationCompat.Builder notifySingleEvent(@NonNull Cursor cursor) {
+    NotificationCompat.Builder notifySingleEvent(@NonNull Cursor cursor, PendingIntent cancelIntent) {
         NotificationCompat.Builder notification = new NotificationCompat.Builder(this);
 
 
@@ -407,6 +410,7 @@ public class AlarmService extends IntentServiceCompat {
 
         Intent workoutIntent = new Intent(getApplicationContext(), WorkoutListActivity.class);
         workoutIntent.putExtra(WorkoutListActivity.EXTRA_SHOW_WORKOUT_ID, workoutId);
+        workoutIntent.putExtra(WorkoutListActivity.EXTRA_NOTIFICATIONS_CANCEL_INTENT, cancelIntent);
         PendingIntent activityIntent = TaskStackBuilder.create(this)
                 .addNextIntentWithParentStack(workoutIntent)
                 .getPendingIntent(Constants.PENDING_INTENT_WORKOUT_LIST, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -440,14 +444,16 @@ public class AlarmService extends IntentServiceCompat {
      * Relies on the caller to position the cursor before the first row and to close the cursor.
      *
      * @param cursor Cursor to read the workout data from
+     * @param cancelIntent
      */
     @WorkerThread
     private
     @NonNull
-    NotificationCompat.Builder notifyMultipleEvents(@NonNull Cursor cursor) {
+    NotificationCompat.Builder notifyMultipleEvents(@NonNull Cursor cursor, PendingIntent cancelIntent) {
         NotificationCompat.Builder notification = new NotificationCompat.Builder(this);
 
         Intent workoutIntent = new Intent(getApplicationContext(), WorkoutListActivity.class);
+        workoutIntent.putExtra(WorkoutListActivity.EXTRA_NOTIFICATIONS_CANCEL_INTENT, cancelIntent);
         PendingIntent activityIntent = TaskStackBuilder.create(this)
                 .addNextIntentWithParentStack(workoutIntent)
                 .getPendingIntent(Constants.PENDING_INTENT_WORKOUT_LIST, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -517,6 +523,7 @@ public class AlarmService extends IntentServiceCompat {
         }
 
         try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
+            // TODO: why is this immediate, not deferred?
             db.beginTransactionNonExclusive();
             try {
                 for (Schedule schedule : schedules) {
