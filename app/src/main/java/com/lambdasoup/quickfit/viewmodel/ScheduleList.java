@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import timber.log.Timber;
+
 /**
  * List model for {@link ScheduleItem} items. Inspired by {@link android.support.v7.util.SortedList},
  * but does not depend on compare, itemsTheSame and contentsTheSame being compatible.
@@ -108,10 +110,9 @@ public class ScheduleList {
             dataset.remove(getPositionForId(leavingId));
             int oldPosition = getPositionForId(leavingId);
             callback.onRemoved(oldPosition);
-        }
-        if (!leavingIds.isEmpty()) {
             refreshPositions();
         }
+
         releaseWriteLock();
 
     }

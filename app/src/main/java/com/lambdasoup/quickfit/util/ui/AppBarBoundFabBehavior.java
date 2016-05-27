@@ -99,7 +99,6 @@ public class AppBarBoundFabBehavior extends FloatingActionButton.Behavior {
 
         @Override
         public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-            Timber.d("appBarLayout offset changed: new vertical offset is %d", verticalOffset);
             updateTranslationForAppBar(parent, fab, appBarLayout, verticalOffset);
         }
     }
