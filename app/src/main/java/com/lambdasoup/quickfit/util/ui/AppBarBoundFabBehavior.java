@@ -20,17 +20,10 @@ import android.content.Context;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.google.common.base.Optional;
-import com.google.common.primitives.Floats;
 import com.lambdasoup.quickfit.R;
-import com.lambdasoup.quickfit.util.Nullables;
-
-import java.util.Arrays;
-import java.util.List;
 
 import timber.log.Timber;
 
@@ -39,7 +32,7 @@ import static com.lambdasoup.quickfit.util.Nullables.coalesce;
 /**
  * Behavior for FABs that does not support anchoring to AppBarLayout, but instead translates the FAB
  * out of the bottom in sync with the AppBarLayout collapsing towards the top.
- *
+ * <p>
  * Extends FloatingActionButton.Behavior to keep using the pre-Lollipop shadow padding offset, and
  * hopefully also the Snackbar displacement (this is untested).
  */
@@ -52,15 +45,16 @@ public class AppBarBoundFabBehavior extends FloatingActionButton.Behavior {
 
     @Override
     public boolean layoutDependsOn(CoordinatorLayout parent, FloatingActionButton child, View dependency) {
+        if (dependency instanceof AppBarLayout) {
+            ((AppBarLayout) dependency).addOnOffsetChangedListener(new OnOffsetChangedListener(parent, child));
+        }
         return dependency instanceof AppBarLayout || super.layoutDependsOn(parent, child, dependency);
     }
 
     @Override
     public boolean onDependentViewChanged(CoordinatorLayout parent, FloatingActionButton fab, View dependency) {
+        //noinspection SimplifiableIfStatement
         if (dependency instanceof AppBarLayout) {
-            AppBarLayout appBarLayout = (AppBarLayout) dependency;
-            updateTranslationForAppBar(parent, fab, appBarLayout);
-
             // if the dependency is an AppBarLayout, do not allow super to react on that
             // we don't want that behavior
             return true;
@@ -68,12 +62,12 @@ public class AppBarBoundFabBehavior extends FloatingActionButton.Behavior {
         return super.onDependentViewChanged(parent, fab, dependency);
     }
 
-    private void updateTranslationForAppBar(CoordinatorLayout parent, FloatingActionButton fab, AppBarLayout appBarLayout) {
+    private void updateTranslationForAppBar(CoordinatorLayout parent, FloatingActionButton fab, AppBarLayout appBarLayout, int verticalOffset) {
         // fab should scroll out down in sync with the appBarLayout scrolling out up.
         // let's see how far along the way the appBarLayout is
         // (if displacementFraction == 0.0f then no displacement, appBar is fully expanded;
         //  if displacementFraction == 1.0f then full displacement, appBar is totally collapsed)
-        float displacementFraction = 1.0f - appBarLayout.getBottom() / (float) appBarLayout.getHeight();
+        float displacementFraction = - verticalOffset / (float) appBarLayout.getHeight();
 
         // need to separate translationY on the fab that comes from this behavior
         // and one that comes from other sources
@@ -94,5 +88,20 @@ public class AppBarBoundFabBehavior extends FloatingActionButton.Behavior {
         fab.setTranslationY(newTranslationYFromThis - translationYFromThis + fab.getTranslationY());
     }
 
+    private class OnOffsetChangedListener implements AppBarLayout.OnOffsetChangedListener {
+        private final CoordinatorLayout parent;
+        private final FloatingActionButton fab;
+
+        public OnOffsetChangedListener(CoordinatorLayout parent, FloatingActionButton child) {
+            this.parent = parent;
+            this.fab = child;
+        }
+
+        @Override
+        public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+            Timber.d("appBarLayout offset changed: new vertical offset is %d", verticalOffset);
+            updateTranslationForAppBar(parent, fab, appBarLayout, verticalOffset);
+        }
+    }
 
 }
