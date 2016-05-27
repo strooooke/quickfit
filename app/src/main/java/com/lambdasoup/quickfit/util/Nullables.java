@@ -20,7 +20,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
- * Created by jl on 12.05.16.
+ * Helper methods for Nullable values
  */
 public class Nullables {
     private Nullables() {

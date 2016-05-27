@@ -21,19 +21,16 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.test.uiautomator.UiDevice;
 import android.support.test.uiautomator.UiObject;
 import android.support.test.uiautomator.UiSelector;
 
 import com.lambdasoup.quickfit.alarm.AlarmService;
-import com.lambdasoup.quickfit.persist.QuickFitContract;
 import com.lambdasoup.quickfit.persist.QuickFitContract.ScheduleEntry;
 import com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry;
 import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
 import com.lambdasoup.quickfit.persist.QuickFitDbHelper;
-import com.lambdasoup.quickfit.ui.WorkoutListActivity;
 import com.lambdasoup.quickfit.util.DatabasePreparationTestRule;
 import com.lambdasoup.quickfit.util.LocaleUtil;
 
@@ -53,7 +50,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by jl on 26.05.16.
+ * Integration tests for the behaviour of the generated notifications.
  */
 
 @RunWith(AndroidJUnit4.class)
@@ -67,7 +64,8 @@ public class NotificationActionsTest {
     @Rule
     public final TestRule testRule = new DatabasePreparationTestRule();
 
-    @BeforeClass public static void setUpBeforeClass() throws Exception {
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
         targetContext = InstrumentationRegistry.getTargetContext();
         dbHelper = new QuickFitDbHelper(targetContext);
     }
@@ -85,6 +83,7 @@ public class NotificationActionsTest {
         deviceInstance.openNotification();
     }
 
+
     @Test
     public void contentAction() throws Exception {
         UiObject icon = deviceInstance.findObject(new UiSelector()
@@ -97,6 +96,36 @@ public class NotificationActionsTest {
         onView(withId(R.id.workout_list)).check(selectedDescendantsMatch(withText(label1), isDisplayed()));
 
         // check that notification got cleared
+        checkNotificationCleared();
+    }
+
+
+    @Test
+    public void snoozeAction() throws Exception {
+        long testStartMillis = System.currentTimeMillis();
+
+        UiObject snoozeButton = deviceInstance.findObject(new UiSelector()
+                .className(android.widget.Button.class)
+                .description("Snooze"));
+        snoozeButton.clickAndWaitForNewWindow();
+
+        // check that no session got inserted
+        try (SQLiteDatabase conn = dbHelper.getReadableDatabase()) {
+            try (Cursor cur = conn.query(
+                    SessionEntry.TABLE_NAME,
+                    SessionEntry.COLUMNS,
+                    null,
+                    null,
+                    null, null, null)) {
+
+                assertEquals(0, cur.getCount());
+            }
+        }
+
+        // check that the next alarm time got moved
+        checkNextAlarmTimeMoved(testStartMillis);
+
+        // check that the notification got cleared
         checkNotificationCleared();
     }
 
@@ -130,34 +159,7 @@ public class NotificationActionsTest {
         // check that the notification got cleared
         checkNotificationCleared();
     }
-    @Test
-    public void snoozeAction() throws Exception {
-        long testStartMillis = System.currentTimeMillis();
 
-        UiObject snoozeButton = deviceInstance.findObject(new UiSelector()
-                .className(android.widget.Button.class)
-                .description("Snooze"));
-        snoozeButton.clickAndWaitForNewWindow();
-
-        // check that no session got inserted
-        try (SQLiteDatabase conn = dbHelper.getReadableDatabase()) {
-            try (Cursor cur = conn.query(
-                    SessionEntry.TABLE_NAME,
-                    SessionEntry.COLUMNS,
-                    null,
-                    null,
-                    null, null, null)) {
-
-                assertEquals(0, cur.getCount());
-            }
-        }
-
-        // check that the next alarm time got moved
-        checkNextAlarmTimeMoved(testStartMillis);
-
-        // check that the notification got cleared
-        checkNotificationCleared();
-    }
 
     private void checkNextAlarmTimeMoved(long testStartMillis) {
         try (SQLiteDatabase conn = dbHelper.getReadableDatabase()) {

@@ -22,7 +22,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
 /**
- * Created by jl on 18.04.16.
+ * Base class for activities displaying dialog fragments.
  */
 public abstract class DialogActivity extends AppCompatActivity {
     private static final String TAG_DIALOG = "dialog";

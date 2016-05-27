@@ -22,7 +22,6 @@ import android.support.test.InstrumentationRegistry;
 
 import com.google.android.gms.fitness.FitnessActivities;
 import com.lambdasoup.quickfit.model.DayOfWeek;
-import com.lambdasoup.quickfit.persist.QuickFitContract;
 import com.lambdasoup.quickfit.persist.QuickFitContract.ScheduleEntry;
 import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
 import com.lambdasoup.quickfit.persist.QuickFitDbHelper;
@@ -39,7 +38,6 @@ import static com.lambdasoup.quickfit.persist.QuickFitContract.SessionEntry.TABL
 
 
 /**
- *
  * TestRule that prepares the database with fixed values. Values depend on the test locale stored
  * in the instrumentation arguments (accessed via LocaleUtil.getTestLocale()) by the screengrabScript
  * or, if running inside Android Studio, the one set statically in @{link LocaleUtil}.

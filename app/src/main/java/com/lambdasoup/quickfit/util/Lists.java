@@ -21,12 +21,13 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Created by jl on 14.03.16.
+ * Helper methods for {@link java.util.List} instances.
  */
 public class Lists {
     private Lists() {
         // do not instantiate
     }
+
 
     public static <S, T> List<T> map(List<S> source, Function<S, T> transformation) {
         return new AbstractList<T>() {

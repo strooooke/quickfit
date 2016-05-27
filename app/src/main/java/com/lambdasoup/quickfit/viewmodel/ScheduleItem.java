@@ -28,7 +28,7 @@ import java.util.Calendar;
 import java.util.Comparator;
 
 /**
- * Created by jl on 14.03.16.
+ * ViewModel for a single schedule item.
  */
 public class ScheduleItem {
     final public long id;

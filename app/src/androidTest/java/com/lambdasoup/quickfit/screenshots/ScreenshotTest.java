@@ -49,7 +49,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assume.assumeThat;
 
 /**
- * Created by jl on 06.04.16.
+ * Tests mainly meant to take screenshots for the play store. Run by screengrab for that purpose.
  */
 @RunWith(AndroidJUnit4.class)
 public class ScreenshotTest {

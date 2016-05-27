@@ -24,7 +24,8 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
 /**
- * Created by jl on 12.05.16.
+ * Matchers for device configuration, used to exclude tests depending on config
+ * by {@link org.junit.Assume}
  */
 public class ConfigurationMatchers {
 

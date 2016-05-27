@@ -19,7 +19,7 @@ package com.lambdasoup.quickfit.util;
 import java.util.Iterator;
 
 /**
- * Created by jl on 14.03.16.
+ * Helper methods for {@link java.lang.String}
  */
 public class Strings {
     private Strings() {

@@ -17,12 +17,10 @@
 package com.lambdasoup.quickfit.ui;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -115,7 +113,7 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
         this.workoutId = workoutId;
         Bundle bundle = new Bundle(1);
         bundle.putLong(ARG_WORKOUT_ID, workoutId);
-        getLoaderManager().restartLoader(LOADER_SCHEDULES, bundle , this);
+        getLoaderManager().restartLoader(LOADER_SCHEDULES, bundle, this);
     }
 
     @Override

@@ -28,7 +28,7 @@ import static android.support.test.espresso.core.deps.guava.collect.Iterables.an
 import static android.support.test.espresso.util.TreeIterables.breadthFirstViewTraversal;
 
 /**
- * Created by jl on 07.04.16.
+ * Matcher for matching i-th item of a recycler view or children thereof.
  */
 public class RecyclerViewMatcher {
     private final int recyclerViewId;

@@ -17,6 +17,7 @@
 package com.lambdasoup.quickfit.alarm;
 
 import android.app.AlarmManager;
+import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -34,6 +35,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 import android.support.v4.app.NotificationCompat.InboxStyle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.support.v7.app.NotificationCompat;
 import android.text.format.DateUtils;
@@ -49,7 +51,6 @@ import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
 import com.lambdasoup.quickfit.persist.QuickFitDbHelper;
 import com.lambdasoup.quickfit.ui.WorkoutListActivity;
 import com.lambdasoup.quickfit.util.DateTimes;
-import com.lambdasoup.quickfit.util.IntentServiceCompat;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -62,7 +63,7 @@ import static com.lambdasoup.quickfit.Constants.PENDING_INTENT_ALARM_RECEIVER;
  * A wakeful intent service that handles notifications due to alarms
  * and interaction with the AlarmManager.
  */
-public class AlarmService extends IntentServiceCompat {
+public class AlarmService extends IntentService {
 
     private static final String ACTION_ON_ALARM_RECEIVED = "com.lambdasoup.quickfit.alarm.action.ON_ALARM_RECEIVED";
     private static final String ACTION_ON_TIME_CHANGED = "com.lambdasoup.quickfit.alarm.action.ON_TIME_CHANGED";
@@ -354,7 +355,7 @@ public class AlarmService extends IntentServiceCompat {
             notification.setAutoCancel(true);
             notification.setPriority(Notification.PRIORITY_HIGH);
             notification.setSmallIcon(R.drawable.ic_stat_quickfit_icon);
-            notification.setColor(getColorCompat(R.color.colorPrimary));
+            notification.setColor(ContextCompat.getColor(this, R.color.colorPrimary));
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             String ringtoneUriStr = preferences.getString(getString(R.string.pref_key_notification_ringtone), null);
@@ -381,8 +382,10 @@ public class AlarmService extends IntentServiceCompat {
      * <p>
      * Relies on the caller to position the cursor on the desired row and to close the cursor.
      *
-     * @param cursor Cursor to read the workout data from
-     * @param cancelIntent
+     * @param cursor       Cursor to read the workout data from
+     * @param cancelIntent Pending intent to pass on to the content intent, allowing its receiver to
+     *                     execute it (update notification state in db to the fact that the notification
+     *                     is now cancelled)
      */
     @WorkerThread
     private
@@ -443,8 +446,10 @@ public class AlarmService extends IntentServiceCompat {
      * <p>
      * Relies on the caller to position the cursor before the first row and to close the cursor.
      *
-     * @param cursor Cursor to read the workout data from
-     * @param cancelIntent
+     * @param cursor       Cursor to read the workout data from
+     * @param cancelIntent Pending intent to pass on to the content intent, allowing its receiver to
+     *                     execute it (update notification state in db to the fact that the notification
+     *                     is now cancelled)
      */
     @WorkerThread
     private
@@ -523,7 +528,6 @@ public class AlarmService extends IntentServiceCompat {
         }
 
         try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
-            // TODO: why is this immediate, not deferred?
             db.beginTransactionNonExclusive();
             try {
                 for (Schedule schedule : schedules) {

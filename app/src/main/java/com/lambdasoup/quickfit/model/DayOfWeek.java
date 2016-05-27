@@ -23,7 +23,8 @@ import com.lambdasoup.quickfit.R;
 import java.util.Calendar;
 
 /**
- * Created by jl on 07.03.16.
+ * Days of the week, for display, persistence and calculations. Supports concept of week order that
+ * respects variable first days of the week.
  */
 public enum DayOfWeek {
     MONDAY(Calendar.MONDAY, R.string.monday),

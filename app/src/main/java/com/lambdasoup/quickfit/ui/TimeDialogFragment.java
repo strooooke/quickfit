@@ -25,9 +25,7 @@ import android.support.v4.app.DialogFragment;
 import android.text.format.DateFormat;
 import android.widget.TimePicker;
 
-/**
- * Created by jl on 18.03.16.
- */
+
 public class TimeDialogFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
 
     private static final String KEY_SCHEDULE_ID = "scheduleId";

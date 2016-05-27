@@ -32,7 +32,13 @@ import com.lambdasoup.quickfit.R;
 import timber.log.Timber;
 
 /**
- * Created by jl on 19.05.16.
+ * Custom ViewGroup displaying a Master-Detail flow. The detail pane is either hidden and the master pane
+ * horizontally fills this ViewGroup, or the master pane has a fixed width, sitting at the start,
+ * followed by a divider and the detail pane, filling the rest of the available horizontal space.
+ *
+ * Call {@link #showDetail()} and {@link #hideDetail()} to change between the two states.
+ *
+ * State changes are animated.
  */
 @RemoteViews.RemoteView
 public class MasterDetailLayout extends LinearLayout {

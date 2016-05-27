@@ -26,7 +26,7 @@ import java.util.TimeZone;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by jl on 22.03.16.
+ * Tests for {@link DateTimes}.
  */
 public class DateTimesTest {
 

@@ -21,7 +21,7 @@ import com.lambdasoup.quickfit.model.DayOfWeek;
 import java.util.Calendar;
 
 /**
- * Created by jl on 22.03.16.
+ * Helper methods for manipulating datetime values expressed as posix timestamps
  */
 public class DateTimes {
     private DateTimes() {
@@ -30,9 +30,6 @@ public class DateTimes {
 
 
     public static long getNextOccurrence(long now, DayOfWeek dayOfWeek, int hour, int minute) {
-        Calendar nowCal = Calendar.getInstance();
-        nowCal.setTimeInMillis(now);
-
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(now);
 

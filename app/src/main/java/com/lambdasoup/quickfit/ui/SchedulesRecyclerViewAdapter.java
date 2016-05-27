@@ -36,7 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by jl on 15.03.16.
+ * RecyclerViewAdapter for {@link ScheduleItem}; with item set change animations and
+ * swipe-dismiss support for items.
  */
 public class SchedulesRecyclerViewAdapter extends RecyclerView.Adapter<SchedulesRecyclerViewAdapter.ViewHolder> {
     private final ConstantListAdapter<DayOfWeek> dayOfWeekAdapter;
