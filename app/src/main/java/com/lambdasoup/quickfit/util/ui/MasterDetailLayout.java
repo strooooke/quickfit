@@ -36,7 +36,7 @@ import timber.log.Timber;
  * horizontally fills this ViewGroup, or the master pane has a fixed width, sitting at the start,
  * followed by a divider and the detail pane, filling the rest of the available horizontal space.
  *
- * Call {@link #showDetail()} and {@link #hideDetail()} to change between the two states.
+ * Call {@link #requestShowDetail()} and {@link #requestHideDetail()} to change between the two states.
  *
  * State changes are animated.
  */
@@ -53,6 +53,7 @@ public class MasterDetailLayout extends LinearLayout {
     private boolean showDetail = false;
     private View masterView;
     private View detailView;
+    private Runnable afterLayout;
 
     public MasterDetailLayout(Context context) {
         this(context, null);
@@ -91,6 +92,10 @@ public class MasterDetailLayout extends LinearLayout {
                 ViewGroup.LayoutParams masterLayoutParams = masterView.getLayoutParams();
                 masterLayoutParams.width = innerWidth;
                 masterView.setLayoutParams(masterLayoutParams);
+
+                if (afterLayout != null) {
+                    afterLayout.run();
+                }
             }
         });
     }
@@ -107,10 +112,19 @@ public class MasterDetailLayout extends LinearLayout {
         detailView.setVisibility(GONE);
     }
 
-    public void showDetail() {
-        Timber.d("showing detail pane");
+    public void requestShowDetail() {
+        Timber.d("requested showDetail");
         showDetail = true;
 
+        if (isLaidOut()) {
+            showDetail();
+        } else {
+            enqueueAfterLayout(this::showDetail);
+        }
+    }
+
+    private void showDetail() {
+        Timber.d("showing detail pane");
         detailView.setVisibility(VISIBLE);
 
         ObjectAnimator animator = ViewPropertyObjectAnimator
@@ -121,9 +135,19 @@ public class MasterDetailLayout extends LinearLayout {
         animator.start();
     }
 
-    public void hideDetail() {
-        Timber.d("hiding detail pane");
+    public void requestHideDetail() {
+        Timber.d("requested hideDetail");
         showDetail = false;
+
+        if (isLaidOut()) {
+            hideDetail();
+        } else {
+            enqueueAfterLayout(this::hideDetail);
+        }
+    }
+
+    private void hideDetail() {
+        Timber.d("hiding detail pane");
 
         ObjectAnimator animator = ViewPropertyObjectAnimator
                 .animate(masterView)
@@ -138,6 +162,21 @@ public class MasterDetailLayout extends LinearLayout {
                 .setDuration(animationDuration)
                 .get();
         animator.start();
+    }
+
+    private void enqueueAfterLayout(Runnable action) {
+        if (afterLayout == null) {
+            afterLayout = action;
+            return;
+        }
+
+        // same action already requested? just keep it
+        if (action == afterLayout) {
+            return;
+        }
+
+        // opposite action requested? those cancel.
+        afterLayout = null;
     }
 
     /**

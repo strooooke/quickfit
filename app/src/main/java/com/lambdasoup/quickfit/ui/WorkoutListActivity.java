@@ -345,7 +345,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
         fab.setOnClickListener(view -> showMiniFabs());
 
-        masterDetailView.showDetail();
+        masterDetailView.requestShowDetail();
 
 
         SchedulesFragment newFragment = SchedulesFragment.create(workoutId);
@@ -364,7 +364,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         hideMiniFabs();
         fab.setOnClickListener(view -> addNewWorkout());
 
-        masterDetailView.hideDetail();
+        masterDetailView.requestHideDetail();
 
     }
 
