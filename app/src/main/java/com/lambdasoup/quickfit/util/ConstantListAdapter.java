@@ -17,6 +17,7 @@
 package com.lambdasoup.quickfit.util;
 
 import android.content.Context;
+import android.os.Parcelable;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -25,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,7 +34,7 @@ import java.util.List;
  * Reusable adapter for use in Spinner and list dialog.
  * Does not support modification of contents.
  */
-public class ConstantListAdapter<T> extends BaseAdapter {
+public class ConstantListAdapter<T> extends BaseAdapter implements Serializable {
     private final Function<? super T, ? extends CharSequence> transformation;
     private final LayoutInflater inflater;
     private final int resource;

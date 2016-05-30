@@ -173,7 +173,7 @@ public class WorkoutItemRecyclerViewAdapter
                 // more schedule data for current workout item
                 WorkoutItem.Builder currentWorkout = newItems.get(newItems.size() - 1);
 
-                ScheduleItem.Builder newScheduleItem = new ScheduleItem.Builder(null)
+                ScheduleItem.Builder newScheduleItem = new ScheduleItem.Builder()
                         .withScheduleId(cursor.getLong(cursor.getColumnIndex(WorkoutEntry.SCHEDULE_ID)))
                         .withHour(cursor.getInt(cursor.getColumnIndex(WorkoutEntry.HOUR)))
                         .withMinute(cursor.getInt(cursor.getColumnIndex(WorkoutEntry.MINUTE)))

@@ -28,11 +28,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.lambdasoup.quickfit.R;
 import com.lambdasoup.quickfit.alarm.AlarmService;
 import com.lambdasoup.quickfit.databinding.FragmentSchedulesBinding;
 import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
 import com.lambdasoup.quickfit.persist.QuickFitContract;
+import com.lambdasoup.quickfit.util.ConstantListAdapter;
 import com.lambdasoup.quickfit.util.DateTimes;
 import com.lambdasoup.quickfit.util.ui.DividerItemDecoration;
 import com.lambdasoup.quickfit.util.ui.LeaveBehind;
@@ -44,7 +46,7 @@ import timber.log.Timber;
 
 
 public class SchedulesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
-        SchedulesRecyclerViewAdapter.OnScheduleInteractionListener, TimeDialogFragment.OnFragmentInteractionListener {
+        SchedulesRecyclerViewAdapter.OnScheduleInteractionListener, TimeDialogFragment.OnFragmentInteractionListener, DayOfWeekDialogFragment.OnFragmentInteractionListener {
 
     private static final String ARG_WORKOUT_ID = "com.lambdasoup.quickfit_workoutId";
     private static final int LOADER_SCHEDULES = 1;
@@ -77,6 +79,8 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
         } else {
             throw new IllegalArgumentException("Argument 'workoutId' is missing");
         }
+
+
     }
 
 
@@ -108,6 +112,8 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
         Bundle bundle = new Bundle(1);
         bundle.putLong(ARG_WORKOUT_ID, workoutId);
         getLoaderManager().initLoader(LOADER_SCHEDULES, bundle, this);
+
+
     }
 
 
@@ -142,9 +148,13 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
         throw new IllegalArgumentException("Not a loader id: " + loader.getId());
     }
 
+    @Override
+    public void onDayOfWeekEditRequested(long scheduleId, DayOfWeek oldValue) {
+        ((DialogActivity) getActivity()).showDialog(DayOfWeekDialogFragment.newInstance(scheduleId, oldValue));
+    }
 
     @Override
-    public void onDayOfWeekChanged(long scheduleId, DayOfWeek newDayOfWeek) {
+    public void onListItemChanged(long scheduleId, DayOfWeek newDayOfWeek) {
         ScheduleItem oldScheduleItem = schedulesAdapter.getById(scheduleId);
         long nextAlarmMillis = DateTimes.getNextOccurrence(System.currentTimeMillis(), newDayOfWeek, oldScheduleItem.hour, oldScheduleItem.minute);
 
@@ -156,6 +166,7 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
 
         refreshAlarm();
     }
+
 
     @Override
     public void onTimeEditRequested(long scheduleId, int oldHour, int oldMinute) {
@@ -207,5 +218,6 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
     long getWorkoutId() {
         return workoutId;
     }
+
 
 }

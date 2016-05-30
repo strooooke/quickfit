@@ -16,34 +16,39 @@
 
 package com.lambdasoup.quickfit.ui;
 
+
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.text.format.DateFormat;
-import android.widget.TimePicker;
+import android.support.v7.app.AlertDialog;
 
+import com.lambdasoup.quickfit.R;
+import com.lambdasoup.quickfit.model.DayOfWeek;
+import com.lambdasoup.quickfit.util.Arrays;
 
-public class TimeDialogFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
+/**
+ * Created by jl on 30.05.16.
+ */
+public class DayOfWeekDialogFragment extends DialogFragment implements DialogInterface.OnClickListener {
 
     private static final String KEY_SCHEDULE_ID = "scheduleId";
-    private static final String KEY_OLD_HOUR = "oldHour";
-    private static final String KEY_OLD_MINUTE = "oldMinute";
+    private static final String KEY_OLD_VALUE = "oldValue";
 
     private OnFragmentInteractionListener listener;
+    private DayOfWeek[] week;
 
-    public TimeDialogFragment() {
+    public DayOfWeekDialogFragment() {
         // It's a fragment, it needs a default constructor
     }
 
-    public static TimeDialogFragment newInstance(long scheduleId, int oldHour, int oldMinute) {
-        TimeDialogFragment fragment = new TimeDialogFragment();
+    public static DayOfWeekDialogFragment newInstance(long objectId, DayOfWeek oldValue) {
+        DayOfWeekDialogFragment fragment = new DayOfWeekDialogFragment();
         Bundle args = new Bundle();
-        args.putLong(KEY_SCHEDULE_ID, scheduleId);
-        args.putInt(KEY_OLD_HOUR, oldHour);
-        args.putInt(KEY_OLD_MINUTE, oldMinute);
+        args.putLong(KEY_SCHEDULE_ID, objectId);
+        args.putParcelable(KEY_OLD_VALUE, oldValue);
         fragment.setArguments(args);
         return fragment;
     }
@@ -52,10 +57,11 @@ public class TimeDialogFragment extends DialogFragment implements TimePickerDial
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         if (activity instanceof OnFragmentInteractionListenerProvider) {
-            listener = ((OnFragmentInteractionListenerProvider) activity).getOnTimeDialogFragmentInteractionListener();
+            listener = ((OnFragmentInteractionListenerProvider) activity).getOnDayOfWeekDialogFragmentInteractionListener();
         } else {
             throw new RuntimeException(activity.toString() + " must implement OnFragmentInteractionListenerProvider");
         }
+        week = DayOfWeek.getWeek();
     }
 
     @Override
@@ -67,24 +73,28 @@ public class TimeDialogFragment extends DialogFragment implements TimePickerDial
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        int hour = getArguments().getInt(KEY_OLD_HOUR);
-        int minute = getArguments().getInt(KEY_OLD_MINUTE);
 
-        // Create a new instance of TimePickerDialog and return it
-        return new TimePickerDialog(getActivity(), this, hour, minute,
-                DateFormat.is24HourFormat(getActivity()));
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setTitle(R.string.title_schedule_dayOfWeek)
+                .setItems(Arrays.map(week, String[].class, dayOfWeek -> getResources().getString(dayOfWeek.fullNameResId)), this)
+                .setOnDismissListener(this)
+                .create();
+
+        return dialog;
     }
 
-    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        listener.onTimeChanged(getArguments().getLong(KEY_SCHEDULE_ID), hourOfDay, minute);
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        if (listener != null) {
+            listener.onListItemChanged(getArguments().getLong(KEY_SCHEDULE_ID), week[which]);
+        }
     }
 
     interface OnFragmentInteractionListenerProvider {
-        OnFragmentInteractionListener getOnTimeDialogFragmentInteractionListener();
+        OnFragmentInteractionListener getOnDayOfWeekDialogFragmentInteractionListener();
     }
 
     interface OnFragmentInteractionListener {
-        void onTimeChanged(long scheduleId, int newHour, int newMinute);
+        void onListItemChanged(long objectId, DayOfWeek newValue);
     }
-
 }

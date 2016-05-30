@@ -57,7 +57,8 @@ import static android.support.v7.widget.RecyclerView.NO_ID;
 
 public class WorkoutListActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         WorkoutItemRecyclerViewAdapter.OnWorkoutInteractionListener, DurationMinutesDialogFragment.OnFragmentInteractionListener,
-        LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFragmentInteractionListener, TimeDialogFragment.OnFragmentInteractionListenerProvider {
+        LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFragmentInteractionListener,
+        TimeDialogFragment.OnFragmentInteractionListenerProvider, DayOfWeekDialogFragment.OnFragmentInteractionListenerProvider {
 
 
     public static final String EXTRA_NOTIFICATIONS_CANCEL_INTENT = "com.lambdasoup.quickfit.cancel_intent";
@@ -467,7 +468,12 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
 
     @Override
-    public TimeDialogFragment.OnFragmentInteractionListener getOnFragmentInteractionListener() {
+    public TimeDialogFragment.OnFragmentInteractionListener getOnTimeDialogFragmentInteractionListener() {
         return (TimeDialogFragment.OnFragmentInteractionListener) getSupportFragmentManager().findFragmentById(R.id.schedules_container);
+    }
+
+    @Override
+    public DayOfWeekDialogFragment.OnFragmentInteractionListener getOnDayOfWeekDialogFragmentInteractionListener() {
+        return (DayOfWeekDialogFragment.OnFragmentInteractionListener) getSupportFragmentManager().findFragmentById(R.id.schedules_container);
     }
 }

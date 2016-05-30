@@ -40,7 +40,7 @@ import java.util.List;
  * swipe-dismiss support for items.
  */
 public class SchedulesRecyclerViewAdapter extends RecyclerView.Adapter<SchedulesRecyclerViewAdapter.ViewHolder> {
-    private final ConstantListAdapter<DayOfWeek> dayOfWeekAdapter;
+
     private ScheduleList dataset;
     private OnScheduleInteractionListener onScheduleInteractionListener;
 
@@ -73,12 +73,7 @@ public class SchedulesRecyclerViewAdapter extends RecyclerView.Adapter<Schedules
         });
         setHasStableIds(true);
 
-        dayOfWeekAdapter = new ConstantListAdapter<>(
-                context,
-                android.R.layout.simple_spinner_item,
-                android.R.layout.simple_spinner_dropdown_item,
-                DayOfWeek.getWeek(),
-                dayOfWeek -> context.getResources().getString(dayOfWeek.fullNameResId));
+
     }
 
     @Override
@@ -118,7 +113,7 @@ public class SchedulesRecyclerViewAdapter extends RecyclerView.Adapter<Schedules
         cursor.moveToPosition(-1);
         List<ScheduleItem> newItems = new ArrayList<>(cursor.getCount());
         while (cursor.moveToNext()) {
-            ScheduleItem newScheduleItem = new ScheduleItem.Builder(dayOfWeekAdapter::getPosition)
+            ScheduleItem newScheduleItem = new ScheduleItem.Builder()
                     .withScheduleId(cursor.getLong(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.SCHEDULE_ID)))
                     .withHour(cursor.getInt(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.HOUR)))
                     .withMinute(cursor.getInt(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.MINUTE)))
@@ -135,9 +130,10 @@ public class SchedulesRecyclerViewAdapter extends RecyclerView.Adapter<Schedules
     }
 
     public interface OnScheduleInteractionListener {
-        void onDayOfWeekChanged(long scheduleId, DayOfWeek newDayOfWeek);
 
         void onTimeEditRequested(long scheduleId, int oldHour, int oldMinute);
+
+        void onDayOfWeekEditRequested(long scheduleId, DayOfWeek dayOfWeek);
     }
 
     public class ViewHolder extends LeaveBehind.LeaveBehindViewHolder {
@@ -150,7 +146,6 @@ public class SchedulesRecyclerViewAdapter extends RecyclerView.Adapter<Schedules
             super(binding.getRoot(), binding.listItem, binding.leaveBehindEnd, binding.leaveBehindStart);
             this.binding = binding;
             this.eventHandler = new EventHandler(this);
-            binding.dayOfWeek.setAdapter(dayOfWeekAdapter);
             binding.setHandler(eventHandler);
         }
 
@@ -164,22 +159,12 @@ public class SchedulesRecyclerViewAdapter extends RecyclerView.Adapter<Schedules
     public class EventHandler {
         private final ViewHolder viewHolder;
 
-        public final AdapterView.OnItemSelectedListener dayOfWeekSpinnerItemSelected = new AdapterView.OnItemSelectedListener() {
+        public final View.OnClickListener dayOfWeekClicked = new View.OnClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (viewHolder.item.dayOfWeekIndex == position) {
-                    // do not update database if view state is already identical to model
-                    // e.g. if selection event originates from data bind
-                    return;
-                }
+            public void onClick(View v) {
                 if (onScheduleInteractionListener != null) {
-                    DayOfWeek dayOfWeek = dayOfWeekAdapter.getItem(position);
-                    onScheduleInteractionListener.onDayOfWeekChanged(viewHolder.item.id, dayOfWeek);
+                    onScheduleInteractionListener.onDayOfWeekEditRequested(viewHolder.item.id, viewHolder.item.dayOfWeek);
                 }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
             }
         };
 
