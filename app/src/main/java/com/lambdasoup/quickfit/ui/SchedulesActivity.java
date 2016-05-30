@@ -117,7 +117,7 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
         cursor.moveToFirst();
 
         long workoutId = cursor.getLong(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.WORKOUT_ID));
-        WorkoutItem workoutItem = new WorkoutItem.Builder(this, null)
+        WorkoutItem workoutItem = new WorkoutItem.Builder(this)
                 .withWorkoutId(workoutId)
                 .withActivityTypeKey(cursor.getString(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.ACTIVITY_TYPE)))
                 .withDurationInMinutes(cursor.getInt(cursor.getColumnIndex(QuickFitContract.WorkoutEntry.DURATION_MINUTES)))

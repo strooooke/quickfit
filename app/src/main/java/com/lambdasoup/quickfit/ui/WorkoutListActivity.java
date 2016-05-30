@@ -58,7 +58,7 @@ import static android.support.v7.widget.RecyclerView.NO_ID;
 public class WorkoutListActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         WorkoutItemRecyclerViewAdapter.OnWorkoutInteractionListener, DurationMinutesDialogFragment.OnFragmentInteractionListener,
         LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFragmentInteractionListener,
-        TimeDialogFragment.OnFragmentInteractionListenerProvider, DayOfWeekDialogFragment.OnFragmentInteractionListenerProvider {
+        TimeDialogFragment.OnFragmentInteractionListenerProvider, DayOfWeekDialogFragment.OnFragmentInteractionListenerProvider, ActivityTypeDialogFragment.OnFragmentInteractionListener {
 
 
     public static final String EXTRA_NOTIFICATIONS_CANCEL_INTENT = "com.lambdasoup.quickfit.cancel_intent";
@@ -422,6 +422,10 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         startActivity(intent);
     }
 
+    @Override
+    public void onActivityTypeEditRequested(long workoutId) {
+        showDialog(ActivityTypeDialogFragment.newInstance(workoutId));
+    }
 
     @Override
     public void onActivityTypeChanged(long workoutId, String newActivityTypeKey) {

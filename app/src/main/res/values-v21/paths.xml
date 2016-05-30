@@ -16,9 +16,9 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-    <string name="path_add_ne">M21,12 L 12,12 12,3</string>
-    <string name="path_add_sw">M 12,21 L 12,12 3,12</string>
-    <string name="path_expand_less">M 4,16 L 12,8 20,16</string>
-    <string name="path_expand_less_turned">M 20.485,14.828 L 9.172,14.828 9.172,3.515</string>
-    <string name="path_expand_less_middle">M 9.172,14.828 L 9.172,14.828 9.172,14.828</string>
+    <string name="path_add_ne" translatable="false">M21,12 L 12,12 12,3</string>
+    <string name="path_add_sw" translatable="false">M 12,21 L 12,12 3,12</string>
+    <string name="path_expand_less" translatable="false">M 4,16 L 12,8 20,16</string>
+    <string name="path_expand_less_turned" translatable="false">M 20.485,14.828 L 9.172,14.828 9.172,3.515</string>
+    <string name="path_expand_less_middle" translatable="false">M 9.172,14.828 L 9.172,14.828 9.172,14.828</string>
 </resources>

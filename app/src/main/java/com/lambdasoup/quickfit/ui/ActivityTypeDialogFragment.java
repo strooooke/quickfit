@@ -16,7 +16,6 @@
 
 package com.lambdasoup.quickfit.ui;
 
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -24,29 +23,34 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.lambdasoup.quickfit.R;
-import com.lambdasoup.quickfit.model.DayOfWeek;
+import com.lambdasoup.quickfit.model.FitActivity;
 import com.lambdasoup.quickfit.util.Arrays;
+import com.lambdasoup.quickfit.util.ConstantListAdapter;
 
-/**
- * Created by jl on 30.05.16.
- */
-public class DayOfWeekDialogFragment extends DialogFragment implements DialogInterface.OnClickListener {
+public class ActivityTypeDialogFragment extends DialogFragment implements DialogInterface.OnClickListener {
 
-    private static final String KEY_SCHEDULE_ID = "scheduleId";
+    private static final String KEY_WORKOUT_ID = "workoutId";
 
     private OnFragmentInteractionListener listener;
-    private DayOfWeek[] week;
+    private ConstantListAdapter<FitActivity> activityTypesAdapter;
 
-    public DayOfWeekDialogFragment() {
+    public ActivityTypeDialogFragment() {
         // It's a fragment, it needs a default constructor
     }
 
-    public static DayOfWeekDialogFragment newInstance(long objectId, DayOfWeek oldValue) {
-        DayOfWeekDialogFragment fragment = new DayOfWeekDialogFragment();
+    public static ActivityTypeDialogFragment newInstance(long workoutId) {
+        ActivityTypeDialogFragment fragment = new ActivityTypeDialogFragment();
         Bundle args = new Bundle();
-        args.putLong(KEY_SCHEDULE_ID, objectId);
+        args.putLong(KEY_WORKOUT_ID, workoutId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -54,12 +58,11 @@ public class DayOfWeekDialogFragment extends DialogFragment implements DialogInt
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (activity instanceof OnFragmentInteractionListenerProvider) {
-            listener = ((OnFragmentInteractionListenerProvider) activity).getOnDayOfWeekDialogFragmentInteractionListener();
+        if (activity instanceof OnFragmentInteractionListener) {
+            listener = (OnFragmentInteractionListener) activity;
         } else {
-            throw new RuntimeException(activity.toString() + " must implement OnFragmentInteractionListenerProvider");
+            throw new RuntimeException(activity.toString() + " must implement OnFragmentInteractionListener");
         }
-        week = DayOfWeek.getWeek();
     }
 
     @Override
@@ -71,10 +74,18 @@ public class DayOfWeekDialogFragment extends DialogFragment implements DialogInt
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        FitActivity[] fitActivities = FitActivity.all(getResources());
+        java.util.Arrays.sort(fitActivities, (left, right) -> left.displayName.compareToIgnoreCase(right.displayName));
+        activityTypesAdapter = new ConstantListAdapter<>(
+                getContext(),
+                android.R.layout.simple_list_item_1,
+                android.R.layout.simple_spinner_dropdown_item,
+                fitActivities,
+                fitAct -> fitAct.displayName);
 
         AlertDialog dialog = new AlertDialog.Builder(getContext())
-                .setTitle(R.string.title_schedule_dayOfWeek)
-                .setItems(Arrays.map(week, String[].class, dayOfWeek -> getResources().getString(dayOfWeek.fullNameResId)), this)
+                .setTitle(R.string.title_workout_activityType)
+                .setAdapter(activityTypesAdapter, this)
                 .setOnDismissListener(this)
                 .create();
 
@@ -84,15 +95,12 @@ public class DayOfWeekDialogFragment extends DialogFragment implements DialogInt
     @Override
     public void onClick(DialogInterface dialog, int which) {
         if (listener != null) {
-            listener.onListItemChanged(getArguments().getLong(KEY_SCHEDULE_ID), week[which]);
+            listener.onActivityTypeChanged(getArguments().getLong(KEY_WORKOUT_ID), activityTypesAdapter.getItem(which).key);
         }
     }
 
-    interface OnFragmentInteractionListenerProvider {
-        OnFragmentInteractionListener getOnDayOfWeekDialogFragmentInteractionListener();
-    }
 
     interface OnFragmentInteractionListener {
-        void onListItemChanged(long objectId, DayOfWeek newValue);
+        void onActivityTypeChanged(long workoutId, String newActivityTypeKey);
     }
 }

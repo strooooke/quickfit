@@ -97,4 +97,6 @@
         <item>8 Stunden</item>
         <item>24 Stunden</item>
     </string-array>
+    <string name="title_schedule_dayOfWeek">Wochentag auswählen</string>
+    <string name="title_workout_activityType">Aktivität auswählen</string>
 </resources>

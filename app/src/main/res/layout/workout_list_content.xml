@@ -36,22 +36,27 @@
         app:onClickListener="@{handler.listItemClickListener}"
         tools:ignore="UnusedAttribute">
 
-        <Spinner
-            android:id="@+id/activity_type_spinner"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/activity_type"
+            style="?attr/textAppearanceListItem"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            app:onItemSelectedListener="@{handler.activityTypeSpinnerItemSelected}"
-            app:selection="@{workout.activityTypeIndex}" />
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:padding="4dp"
+            android:text="@{workout.activityTypeDisplayName}"
+            app:onClickListener="@{handler.activityTypeClicked}"
+            tools:text="High intensity interval training" />
+
 
         <TextView
             android:id="@+id/duration_mins"
             style="?attr/textAppearanceListItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/activity_type_spinner"
+            android:layout_below="@id/activity_type"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:padding="4dp"

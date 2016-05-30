@@ -32,6 +32,7 @@
     <string name="title_workout_label">Label</string>
     <string name="button_done_workout_label">Set new label</string>
     <string name="title_schedule_dayOfWeek">Select day of the week</string>
+    <string name="title_workout_activityType">Select activity type</string>
     <string name="calories_hint"><i>Calories</i></string>
     <string name="title_calories">Calories</string>
     <string name="button_done_calories">Set new calorie amount</string>
