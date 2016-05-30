@@ -60,6 +60,7 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
         arguments.putLong(ARG_WORKOUT_ID, workoutId);
         SchedulesFragment fragment = new SchedulesFragment();
         fragment.setArguments(arguments);
+        Timber.d("created schedules fragment: %d", fragment.hashCode());
         return fragment;
     }
 
@@ -109,15 +110,10 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
         getLoaderManager().initLoader(LOADER_SCHEDULES, bundle, this);
     }
 
-    public void setWorkoutId(long workoutId) {
-        this.workoutId = workoutId;
-        Bundle bundle = new Bundle(1);
-        bundle.putLong(ARG_WORKOUT_ID, workoutId);
-        getLoaderManager().restartLoader(LOADER_SCHEDULES, bundle, this);
-    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Timber.d("onCreateLoader with args %s on schedules fragment %d", args, this.hashCode());
         switch (id) {
             case LOADER_SCHEDULES:
                 return new SchedulesLoader(getContext(), args.getLong(ARG_WORKOUT_ID));
@@ -127,6 +123,7 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Timber.d("onLoadFinished, cursor is null? %s, cursor size is %d on schedules fragment %d", data == null, data == null ? 0 : data.getCount(), this.hashCode());
         switch (loader.getId()) {
             case LOADER_SCHEDULES:
                 schedulesAdapter.swapCursor(data);

@@ -386,15 +386,11 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         SchedulesFragment fragment = (SchedulesFragment) getSupportFragmentManager().findFragmentById(R.id.schedules_container);
         Timber.d("schedules fragment is present: %b", fragment != null);
         if (workoutId != NO_ID && (fragment == null || workoutId != fragment.getWorkoutId())) {
-            if (fragment == null) {
-                SchedulesFragment newFragment = SchedulesFragment.create(workoutId);
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.schedules_container, newFragment)
-                        .commit();
-            } else {
-                fragment.setWorkoutId(workoutId);
-            }
+            SchedulesFragment newFragment = SchedulesFragment.create(workoutId);
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.schedules_container, newFragment)
+                    .commit();
         }
     }
 
