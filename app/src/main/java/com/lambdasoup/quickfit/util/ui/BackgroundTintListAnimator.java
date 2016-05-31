@@ -42,7 +42,7 @@ public class BackgroundTintListAnimator {
     private static class ColorStateListEvaluator implements TypeEvaluator<ColorStateList> {
         static final ColorStateListEvaluator INSTANCE = new ColorStateListEvaluator();
 
-        private ArgbEvaluator argbEvaluator = new ArgbEvaluator();
+        private final ArgbEvaluator argbEvaluator = new ArgbEvaluator();
 
         @Override
         public ColorStateList evaluate(float fraction, ColorStateList startValue, ColorStateList endValue) {

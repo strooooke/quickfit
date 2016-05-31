@@ -93,7 +93,7 @@ public class SchedulesFragment extends Fragment implements LoaderManager.LoaderC
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Timber.d("activity created, initializing view binding");
-        schedulesAdapter = new SchedulesRecyclerViewAdapter(getContext());
+        schedulesAdapter = new SchedulesRecyclerViewAdapter();
         schedulesAdapter.setOnScheduleInteractionListener(this);
         schedulesBinding.scheduleList.setAdapter(schedulesAdapter);
 

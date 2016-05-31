@@ -29,9 +29,7 @@ import com.lambdasoup.quickfit.R;
 import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.util.Arrays;
 
-/**
- * Created by jl on 30.05.16.
- */
+
 public class DayOfWeekDialogFragment extends DialogFragment implements DialogInterface.OnClickListener {
 
     private static final String KEY_SCHEDULE_ID = "scheduleId";
@@ -75,15 +73,15 @@ public class DayOfWeekDialogFragment extends DialogFragment implements DialogInt
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         week = DayOfWeek.getWeek();
+        //noinspection ConstantConditions
         checkedItemPosition = Arrays.firstIndexOf(week, getArguments().getParcelable(KEY_OLD_VALUE));
-        AlertDialog dialog = new AlertDialog.Builder(getContext())
+
+        return new AlertDialog.Builder(getContext())
                 .setTitle(R.string.title_schedule_dayOfWeek)
                 .setSingleChoiceItems(Arrays.map(week, String[].class, dayOfWeek -> getResources().getString(dayOfWeek.fullNameResId)), checkedItemPosition, this)
                 .setPositiveButton(R.string.button_done_schedule_dayOfWeek, this)
                 .setNegativeButton(R.string.cancel, this)
                 .create();
-
-        return dialog;
     }
 
     @Override

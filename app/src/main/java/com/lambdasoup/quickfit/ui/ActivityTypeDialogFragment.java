@@ -27,7 +27,6 @@ import android.support.v7.app.AlertDialog;
 import com.lambdasoup.quickfit.R;
 import com.lambdasoup.quickfit.model.FitActivity;
 import com.lambdasoup.quickfit.util.Arrays;
-import com.lambdasoup.quickfit.util.ConstantListAdapter;
 
 public class ActivityTypeDialogFragment extends DialogFragment implements DialogInterface.OnClickListener {
 
@@ -72,17 +71,16 @@ public class ActivityTypeDialogFragment extends DialogFragment implements Dialog
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         fitActivities = FitActivity.all(getResources());
         java.util.Arrays.sort(fitActivities, (left, right) -> left.displayName.compareToIgnoreCase(right.displayName));
+        //noinspection ConstantConditions
         checkedItemPosition = Arrays.firstIndexOf(fitActivities, FitActivity.fromKey(getArguments().getString(KEY_OLD_VALUE_KEY), getResources()));
 
 
-        AlertDialog dialog = new AlertDialog.Builder(getContext())
+        return new AlertDialog.Builder(getContext())
                 .setTitle(R.string.title_workout_activityType)
                 .setSingleChoiceItems(Arrays.map(fitActivities, String[].class, fitAct -> fitAct.displayName), checkedItemPosition, this)
                 .setPositiveButton(R.string.button_done_workout_activityType, this)
                 .setNegativeButton(R.string.cancel, this)
                 .create();
-
-        return dialog;
     }
 
     @Override

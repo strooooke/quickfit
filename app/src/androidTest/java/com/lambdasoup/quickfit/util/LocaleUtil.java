@@ -27,6 +27,7 @@ public class LocaleUtil {
     /**
      * Not final, change in your test code if necessary
      */
+    @SuppressWarnings("CanBeFinal")
     public static Locale FIXED_LOCALE = Locale.US;
 
     public static Locale getTestLocale() {

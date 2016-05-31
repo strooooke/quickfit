@@ -16,18 +16,15 @@
 
 package com.lambdasoup.quickfit.ui;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 
 import com.lambdasoup.quickfit.databinding.ScheduleListContentBinding;
 import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.persist.QuickFitContract;
-import com.lambdasoup.quickfit.util.ConstantListAdapter;
 import com.lambdasoup.quickfit.util.ui.LeaveBehind;
 import com.lambdasoup.quickfit.viewmodel.ScheduleItem;
 import com.lambdasoup.quickfit.viewmodel.ScheduleList;
@@ -44,7 +41,7 @@ public class SchedulesRecyclerViewAdapter extends RecyclerView.Adapter<Schedules
     private ScheduleList dataset;
     private OnScheduleInteractionListener onScheduleInteractionListener;
 
-    public SchedulesRecyclerViewAdapter(Context context) {
+    public SchedulesRecyclerViewAdapter() {
         dataset = new ScheduleList(new ScheduleList.ItemChangeCallback() {
             @Override
             public void onInserted(int position) {

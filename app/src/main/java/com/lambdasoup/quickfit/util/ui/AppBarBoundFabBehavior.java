@@ -25,8 +25,6 @@ import android.view.View;
 
 import com.lambdasoup.quickfit.R;
 
-import timber.log.Timber;
-
 import static com.lambdasoup.quickfit.util.Nullables.coalesce;
 
 /**
@@ -67,7 +65,7 @@ public class AppBarBoundFabBehavior extends FloatingActionButton.Behavior {
         // let's see how far along the way the appBarLayout is
         // (if displacementFraction == 0.0f then no displacement, appBar is fully expanded;
         //  if displacementFraction == 1.0f then full displacement, appBar is totally collapsed)
-        float displacementFraction = - verticalOffset / (float) appBarLayout.getHeight();
+        float displacementFraction = -verticalOffset / (float) appBarLayout.getHeight();
 
         // need to separate translationY on the fab that comes from this behavior
         // and one that comes from other sources

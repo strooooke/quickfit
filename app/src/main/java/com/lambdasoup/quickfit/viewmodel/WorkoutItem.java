@@ -25,7 +25,6 @@ import android.support.annotation.Nullable;
 import com.lambdasoup.quickfit.R;
 import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.model.FitActivity;
-import com.lambdasoup.quickfit.util.Function;
 import com.lambdasoup.quickfit.util.Strings;
 
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ public class WorkoutItem {
     final public int calories;
     final public String label;
     final public String scheduleDisplay;
-    public FitActivity activityType;
+    public final FitActivity activityType;
 
     private WorkoutItem(long id, FitActivity activityType, int durationInMinutes, int calories, @Nullable String label, @NonNull String scheduleDisplay) {
         this.id = id;

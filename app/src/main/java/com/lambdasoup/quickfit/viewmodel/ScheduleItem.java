@@ -19,7 +19,6 @@ package com.lambdasoup.quickfit.viewmodel;
 import android.support.annotation.Nullable;
 
 import com.lambdasoup.quickfit.model.DayOfWeek;
-import com.lambdasoup.quickfit.util.Function;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -37,9 +36,15 @@ public class ScheduleItem {
     final public int minute;
     final public int hour;
 
-
-
-    private ScheduleItem(long id, DayOfWeek dayOfWeek, String time, int minute, int hour) {
+    /**
+     * For use by testing and Builder
+     * @param id
+     * @param dayOfWeek
+     * @param time
+     * @param minute
+     * @param hour
+     */
+    ScheduleItem(long id, DayOfWeek dayOfWeek, String time, int minute, int hour) {
         this.id = id;
         this.dayOfWeek = dayOfWeek;
         this.time = time;

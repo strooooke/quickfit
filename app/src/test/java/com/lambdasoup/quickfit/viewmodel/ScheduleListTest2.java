@@ -22,17 +22,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.verification.VerificationMode;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -103,9 +97,6 @@ public class ScheduleListTest2 {
         assertEquals(3, removalArgs.getAllValues().size());
         verifyNoMoreInteractions(itemChangeCallback);
     }
-
-
-
 
 
 }
