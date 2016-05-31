@@ -34,7 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
- * Created by jl on 17.03.16.
+ * Tests {@link ScheduleList}, in particular the swapping algorithm.
  */
 public class ScheduleListTest {
     private static final ScheduleItem ID_2_OLD = new ScheduleItem(2000L, DayOfWeek.MONDAY, "10:00", 10, 0);

@@ -23,18 +23,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 
 import com.lambdasoup.quickfit.databinding.WorkoutListContentBinding;
 import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.model.FitActivity;
 import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
-import com.lambdasoup.quickfit.util.ConstantListAdapter;
 import com.lambdasoup.quickfit.viewmodel.ScheduleItem;
 import com.lambdasoup.quickfit.viewmodel.WorkoutItem;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -42,19 +39,21 @@ import java.util.Set;
 
 import timber.log.Timber;
 
+import static android.support.v7.widget.RecyclerView.NO_ID;
 import static com.lambdasoup.quickfit.util.Lists.map;
 
 public class WorkoutItemRecyclerViewAdapter
         extends RecyclerView.Adapter<WorkoutItemRecyclerViewAdapter.ViewHolder> {
-
     private final Context context;
 
     private final SortedList<WorkoutItem> dataset;
-    private final ConstantListAdapter<FitActivity> activityTypesAdapter;
+    private final boolean isTwoPane;
     private OnWorkoutInteractionListener onWorkoutInteractionListener;
+    private long selectedItemId = NO_ID;
 
-    public WorkoutItemRecyclerViewAdapter(Context context) {
+    public WorkoutItemRecyclerViewAdapter(Context context, boolean isTwoPane) {
         this.context = context;
+        this.isTwoPane = isTwoPane;
         dataset = new SortedList<>(WorkoutItem.class, new SortedList.Callback<WorkoutItem>() {
             @Override
             public int compare(WorkoutItem left, WorkoutItem right) {
@@ -63,10 +62,11 @@ public class WorkoutItemRecyclerViewAdapter
 
             @Override
             public boolean areContentsTheSame(WorkoutItem oldItem, WorkoutItem newItem) {
-                return oldItem.activityTypeDisplayName.equals(newItem.activityTypeDisplayName)
+                return Objects.equals(oldItem.activityType, newItem.activityType)
                         && oldItem.durationInMinutes == newItem.durationInMinutes
                         && Objects.equals(oldItem.label, newItem.label)
-                        && oldItem.calories == newItem.calories;
+                        && oldItem.calories == newItem.calories
+                        && oldItem.scheduleDisplay.equals(newItem.scheduleDisplay);
             }
 
             @Override
@@ -96,14 +96,7 @@ public class WorkoutItemRecyclerViewAdapter
         });
         setHasStableIds(true);
 
-        FitActivity[] fitActivities = FitActivity.all(context.getResources());
-        Arrays.sort(fitActivities, (left, right) -> left.displayName.compareToIgnoreCase(right.displayName));
-        activityTypesAdapter = new ConstantListAdapter<>(
-                context,
-                android.R.layout.simple_list_item_1,
-                android.R.layout.simple_spinner_dropdown_item,
-                fitActivities,
-                fitAct -> fitAct.displayName);
+
     }
 
     @Override
@@ -111,7 +104,7 @@ public class WorkoutItemRecyclerViewAdapter
         if (position >= 0 && position < dataset.size()) {
             return dataset.get(position).id;
         }
-        return RecyclerView.NO_ID;
+        return NO_ID;
     }
 
     public void setOnWorkoutInteractionListener(OnWorkoutInteractionListener onWorkoutInteractionListener) {
@@ -152,7 +145,7 @@ public class WorkoutItemRecyclerViewAdapter
             long workoutId = cursor.getLong(cursor.getColumnIndex(WorkoutEntry.WORKOUT_ID));
             if (workoutId != prevId) {
                 // next workout, start new item
-                WorkoutItem.Builder newItem = new WorkoutItem.Builder(context, activityTypesAdapter::getPosition)
+                WorkoutItem.Builder newItem = new WorkoutItem.Builder(context)
                         .withWorkoutId(workoutId)
                         .withActivityTypeKey(cursor.getString(cursor.getColumnIndex(WorkoutEntry.ACTIVITY_TYPE)))
                         .withDurationInMinutes(cursor.getInt(cursor.getColumnIndex(WorkoutEntry.DURATION_MINUTES)))
@@ -168,7 +161,7 @@ public class WorkoutItemRecyclerViewAdapter
                 // more schedule data for current workout item
                 WorkoutItem.Builder currentWorkout = newItems.get(newItems.size() - 1);
 
-                ScheduleItem.Builder newScheduleItem = new ScheduleItem.Builder(null)
+                ScheduleItem.Builder newScheduleItem = new ScheduleItem.Builder()
                         .withScheduleId(cursor.getLong(cursor.getColumnIndex(WorkoutEntry.SCHEDULE_ID)))
                         .withHour(cursor.getInt(cursor.getColumnIndex(WorkoutEntry.HOUR)))
                         .withMinute(cursor.getInt(cursor.getColumnIndex(WorkoutEntry.MINUTE)))
@@ -194,11 +187,55 @@ public class WorkoutItemRecyclerViewAdapter
         return dataset.indexOf(WorkoutItem.getForIdHack(id));
     }
 
+    public void setSelectedItemId(long selectedItemId) {
+        if (selectedItemId == this.selectedItemId) {
+            Timber.d("reselecting already selected item, ignoring");
+            return;
+        }
+
+        long previousSelectedItemId = this.selectedItemId;
+        this.selectedItemId = selectedItemId;
+
+        Timber.d("setSelectedItemId previous: %d new: %d", previousSelectedItemId, selectedItemId);
+        notifyItemChanged(getPosition(previousSelectedItemId));
+        notifyItemChanged(getPosition(selectedItemId));
+
+        if (onWorkoutInteractionListener != null) {
+            onWorkoutInteractionListener.onItemSelected(selectedItemId);
+        }
+    }
+
+
+    public void setSelectedItemIdAfterDeletionOf(long itemIdToDelete) {
+        setSelectedItemId(getSelectedItemIdAfterDeletion(itemIdToDelete));
+    }
+
+    private long getSelectedItemIdAfterDeletion(long itemIdToDelete) {
+        if (itemIdToDelete != selectedItemId) {
+            return selectedItemId;
+        }
+        int deletePos = getPosition(itemIdToDelete);
+        if (deletePos == SortedList.INVALID_POSITION) {
+            return NO_ID;
+        }
+        if (deletePos == 0) {
+            if (getItemCount() == 1) {
+                // list will be empty after this deletion
+                return NO_ID;
+            } else {
+                return getItemId(1);
+            }
+        }
+        return getItemId(deletePos - 1);
+    }
+
+    public long getSelectedItemId() {
+        return selectedItemId;
+    }
+
 
     public interface OnWorkoutInteractionListener {
         void onDoneItClick(long workoutId);
-
-        void onActivityTypeChanged(long workoutId, String newActivityTypeKey);
 
         void onDurationMinsEditRequested(long workoutId, int oldValue);
 
@@ -206,9 +243,13 @@ public class WorkoutItemRecyclerViewAdapter
 
         void onCaloriesEditRequested(long workoutId, int oldValue);
 
+        void onActivityTypeEditRequested(long workoutId, FitActivity oldValue);
+
         void onDeleteClick(long workoutId);
 
         void onSchedulesEditRequested(long workoutId);
+
+        void onItemSelected(long workoutId);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -221,13 +262,25 @@ public class WorkoutItemRecyclerViewAdapter
             super(binding.getRoot());
             this.binding = binding;
             this.eventHandler = new EventHandler(this);
-            binding.activityTypeSpinner.setAdapter(activityTypesAdapter);
             binding.setHandler(eventHandler);
+
+            if (isTwoPane) {
+                binding.schedules.setVisibility(View.GONE);
+            }
         }
 
         void bindItem(WorkoutItem item) {
+            Timber.d("binding item with id %d to viewholder", item.id);
             this.item = item;
             binding.setWorkout(item);
+            binding.getRoot().setActivated(item.id == selectedItemId);
+        }
+
+        void onItemClicked() {
+            Timber.d("viewholder onItemCLicked selectedItemId: %d, clicked item id: %d", selectedItemId, item.id);
+            if (selectedItemId != item.id) {
+                setSelectedItemId(item.id);
+            }
         }
 
     }
@@ -236,24 +289,20 @@ public class WorkoutItemRecyclerViewAdapter
     public class EventHandler {
         private final ViewHolder viewHolder;
 
-        public final AdapterView.OnItemSelectedListener activityTypeSpinnerItemSelected = new AdapterView.OnItemSelectedListener() {
+        public final View.OnClickListener listItemClickListener = new View.OnClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Timber.d("ActivityType item selected at position %d", position);
-                if (viewHolder.item.activityTypeIndex == position) {
-                    // do not update database if view state is already identical to model
-                    // e.g. if selection event originates from data bind
-                    Timber.d("ignoring itemSelection event where new position identical to model");
-                    return;
-                }
-                if (onWorkoutInteractionListener != null) {
-                    FitActivity activityType = activityTypesAdapter.getItem(position);
-                    onWorkoutInteractionListener.onActivityTypeChanged(viewHolder.item.id, activityType.key);
-                }
+            public void onClick(View v) {
+                Timber.d("listitemClickListener onclick");
+                viewHolder.onItemClicked();
             }
+        };
 
+        public final View.OnClickListener activityTypeClicked = new View.OnClickListener() {
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+            public void onClick(View v) {
+                if (onWorkoutInteractionListener != null) {
+                    onWorkoutInteractionListener.onActivityTypeEditRequested(viewHolder.item.id, viewHolder.item.activityType);
+                }
             }
         };
 

@@ -29,7 +29,14 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Created by jl on 15.03.16.
+ * List model for {@link ScheduleItem} items. Inspired by {@link android.support.v7.util.SortedList},
+ * but does not depend on compare, itemsTheSame and contentsTheSame being compatible.
+ * <p>
+ * Assumes that item.id is a unique key for items; assumes that there are no duplicate ids in swapped
+ * in item iterables.
+ * <p>
+ * Not threadsafe; current usage is always on the main thread. Detects attempts for concurrent updates
+ * and warns by throwing.
  */
 public class ScheduleList {
     private static final int POSITION_INVALID = -1;
@@ -101,10 +108,9 @@ public class ScheduleList {
             dataset.remove(getPositionForId(leavingId));
             int oldPosition = getPositionForId(leavingId);
             callback.onRemoved(oldPosition);
-        }
-        if (!leavingIds.isEmpty()) {
             refreshPositions();
         }
+
         releaseWriteLock();
 
     }

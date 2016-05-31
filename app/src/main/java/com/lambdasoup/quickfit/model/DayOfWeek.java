@@ -16,6 +16,8 @@
 
 package com.lambdasoup.quickfit.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.StringRes;
 
 import com.lambdasoup.quickfit.R;
@@ -23,9 +25,10 @@ import com.lambdasoup.quickfit.R;
 import java.util.Calendar;
 
 /**
- * Created by jl on 07.03.16.
+ * Days of the week, for display, persistence and calculations. Supports concept of week order that
+ * respects variable first days of the week.
  */
-public enum DayOfWeek {
+public enum DayOfWeek implements Parcelable {
     MONDAY(Calendar.MONDAY, R.string.monday),
     TUESDAY(Calendar.TUESDAY, R.string.tuesday),
     WEDNESDAY(Calendar.WEDNESDAY, R.string.wednesday),
@@ -80,4 +83,25 @@ public enum DayOfWeek {
         }
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeString(name());
+    }
+
+    public static final Creator<DayOfWeek> CREATOR = new Creator<DayOfWeek>() {
+        @Override
+        public DayOfWeek createFromParcel(final Parcel source) {
+            return DayOfWeek.valueOf(source.readString());
+        }
+
+        @Override
+        public DayOfWeek[] newArray(final int size) {
+            return new DayOfWeek[size];
+        }
+    };
 }

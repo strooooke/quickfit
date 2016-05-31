@@ -25,7 +25,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by jl on 21.03.16.
+ * Tests for {@link Lists}
  */
 public class ListsTest {
     private static final Comparator<String> ordering = String.CASE_INSENSITIVE_ORDER;

@@ -16,11 +16,15 @@
 
 package com.lambdasoup.quickfit.screenshots;
 
+import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.lambdasoup.quickfit.R;
 import com.lambdasoup.quickfit.ui.WorkoutListActivity;
+import com.lambdasoup.quickfit.util.DatabasePreparationTestRule;
+import com.lambdasoup.quickfit.util.LocaleUtil;
+import com.lambdasoup.quickfit.util.SystemScreengrab;
 
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -28,10 +32,8 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.runner.RunWith;
 
-import java.util.Locale;
 
 import tools.fastlane.screengrab.locale.LocaleTestRule;
-import tools.fastlane.screengrab.locale.LocaleUtil;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -41,16 +43,18 @@ import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static com.lambdasoup.quickfit.screenshots.RecyclerViewMatcher.withRecyclerView;
+import static com.lambdasoup.quickfit.util.ConfigurationMatchers.isWideScreen;
+import static com.lambdasoup.quickfit.util.RecyclerViewMatcher.withRecyclerView;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assume.assumeThat;
 
 /**
- * Created by jl on 06.04.16.
+ * Tests mainly meant to take screenshots for the play store. Run by screengrab for that purpose.
  */
 @RunWith(AndroidJUnit4.class)
 public class ScreenshotTest {
     @ClassRule
-    public static final RuleChain classRules = RuleChain.outerRule(new FixedLocaleTestRule(Locale.US))
-            .around(new LocaleTestRule())
+    public static final RuleChain classRules = RuleChain.outerRule(new LocaleTestRule())
             .around(new DatabasePreparationTestRule());
 
     @Rule
@@ -66,16 +70,26 @@ public class ScreenshotTest {
         SystemScreengrab.takeScreenshot("main_activity");
     }
 
-
     @Test
-    public void viewSchedule() throws Exception {
+    public void viewScheduleNormal() throws Exception {
+        assumeThat(InstrumentationRegistry.getTargetContext(), not(isWideScreen()));
+
         onView(withRecyclerView(R.id.workout_list).atPosition(0, withId(R.id.schedules))).perform(click());
 
-        // withSpinnerText does not work - uses toString on spinner items; ignores custom layout
-        onView(withRecyclerView(R.id.schedule_list).atPosition(1, withId(R.id.day_of_week))).check(matches(hasDescendant(withText(R.string.saturday))));
+        onView(withRecyclerView(R.id.schedule_list).atPosition(1, withId(R.id.day_of_week))).check(matches(withText(R.string.saturday)));
 
         SystemScreengrab.takeScreenshot("schedule_activity");
     }
 
+    @Test
+    public void viewScheduleWideScreen() throws Exception {
+        assumeThat(InstrumentationRegistry.getTargetContext(), isWideScreen());
+        onView(withRecyclerView(R.id.workout_list).atPosition(0)).perform(click());
+
+        // withSpinnerText does not work - uses toString on spinner items; ignores custom layout
+        onView(withRecyclerView(R.id.schedule_list).atPosition(1, withId(R.id.day_of_week))).check(matches(withText(R.string.saturday)));
+
+        SystemScreengrab.takeScreenshot("wide_list_with_fab");
+    }
 
 }

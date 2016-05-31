@@ -30,7 +30,7 @@ import static com.lambdasoup.quickfit.model.DayOfWeek.TUESDAY;
 import static com.lambdasoup.quickfit.model.DayOfWeek.WEDNESDAY;
 
 /**
- * Created by jl on 07.03.16.
+ * Tests for {@link DayOfWeek}
  */
 public class DayOfWeekTest {
 

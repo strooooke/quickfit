@@ -16,19 +16,23 @@
 
 package com.lambdasoup.quickfit.util;
 
+import android.support.annotation.NonNull;
+
 import java.util.AbstractList;
 import java.util.Comparator;
 import java.util.List;
 
 /**
- * Created by jl on 14.03.16.
+ * Helper methods for {@link java.util.List} instances.
  */
 public class Lists {
     private Lists() {
         // do not instantiate
     }
 
-    public static <S, T> List<T> map(List<S> source, Function<S, T> transformation) {
+
+    @NonNull
+    public static <S, T> List<T> map(@NonNull  List<S> source, @NonNull Function<S, T> transformation) {
         return new AbstractList<T>() {
             @Override
             public T get(int location) {
@@ -50,7 +54,7 @@ public class Lists {
      * according to ordering. In other words, the left-most possible insertion
      * point for item that keeps list ordered is found.
      */
-    public static <T> int bisectLeft(List<T> list, Comparator<T> ordering, T item) {
+    public static <T> int bisectLeft(@NonNull List<T> list, @NonNull Comparator<T> ordering, @NonNull T item) {
         int low = 0;
         int high = list.size();
         int mid;

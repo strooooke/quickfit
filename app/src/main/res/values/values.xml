@@ -26,12 +26,17 @@
         <item>1440</item>
     </string-array>
 
-    <string name="pref_key_disconnect_g_fit">com.lambdasoup.quickfit.preference.DISCONNECT_G_FIT</string>
-    <string name="pref_key_notification_ringtone">com.lambdasoup.quickfit.preference.NOTIFICATION_RINGTONE</string>
-    <string name="pref_key_snooze_duration_mins">com.lambdasoup.quickfit.preference.SNOOZE_DURATION_MINS</string>
-    <string name="pref_key_snooze">com.lambdasoup.quickfit.preference.CATEGORY_SNOOZE</string>
-    <string name="pref_key_notification_vibrate">com.lambdasoup.quickfit.preference.NOTIFICATION_VIBRATE</string>
-    <string name="pref_key_notification_led">com.lambdasoup.quickfit.preference.NOTIFICATION_LED</string>
-    <string name="pref_key_notifications">com.lambdasoup.quickfit.preference.CATEGORY_NOTIFICATIONS</string>
-    <string name="pref_key_account_settings">com.lambdasoup.quickfit.preference.CATEGORY_GOOGLE_ACCOUNT</string>
+    <string name="pref_key_disconnect_g_fit" translatable="false">com.lambdasoup.quickfit.preference.DISCONNECT_G_FIT</string>
+    <string name="pref_key_notification_ringtone" translatable="false">com.lambdasoup.quickfit.preference.NOTIFICATION_RINGTONE</string>
+    <string name="pref_key_snooze_duration_mins" translatable="false">com.lambdasoup.quickfit.preference.SNOOZE_DURATION_MINS</string>
+    <string name="pref_key_snooze" translatable="false">com.lambdasoup.quickfit.preference.CATEGORY_SNOOZE</string>
+    <string name="pref_key_notification_vibrate" translatable="false">com.lambdasoup.quickfit.preference.NOTIFICATION_VIBRATE</string>
+    <string name="pref_key_notification_led" translatable="false">com.lambdasoup.quickfit.preference.NOTIFICATION_LED</string>
+    <string name="pref_key_notifications" translatable="false">com.lambdasoup.quickfit.preference.CATEGORY_NOTIFICATIONS</string>
+    <string name="pref_key_account_settings" translatable="false">com.lambdasoup.quickfit.preference.CATEGORY_GOOGLE_ACCOUNT</string>
+
+    <integer name="fab_animation_duration">@android:integer/config_mediumAnimTime</integer>
+    <integer name="master_detail_animation_duration">@android:integer/config_mediumAnimTime</integer>
+
+    <item type="id" name="fab_translationY_from_AppBarBoundFabBehavior"/>
 </resources>

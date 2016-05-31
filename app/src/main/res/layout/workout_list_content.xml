@@ -18,7 +18,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="workout"
             type="com.lambdasoup.quickfit.viewmodel.WorkoutItem" />
@@ -30,24 +29,34 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background='@{@bool/isTwoPane ? @drawable/selectable_item_background : @drawable/transparent}'
+        android:clickable="true"
+        android:stateListAnimator="@animator/elevate_activated"
+        app:onClickListener="@{handler.listItemClickListener}"
+        tools:ignore="UnusedAttribute">
 
-        <Spinner
-            android:id="@+id/activity_type_spinner"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/activity_type"
+            style="?attr/textAppearanceListItem"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            app:onItemSelectedListener="@{handler.activityTypeSpinnerItemSelected}"
-            app:selection="@{workout.activityTypeIndex}" />
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:padding="4dp"
+            android:text="@{workout.activityType.displayName}"
+            app:onClickListener="@{handler.activityTypeClicked}"
+            tools:text="High intensity interval training" />
+
 
         <TextView
             android:id="@+id/duration_mins"
             style="?attr/textAppearanceListItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/activity_type_spinner"
+            android:layout_below="@id/activity_type"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:padding="4dp"
@@ -55,32 +64,26 @@
             app:onClickListener="@{handler.durationMinsClicked}"
             tools:text="123 minutes" />
 
-        <TextView
-            android:id="@+id/label"
-            style="?attr/subtitleTextAppearance"
-            android:layout_width="match_parent"
+        <FrameLayout
+            android:id="@+id/label_frame"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/duration_mins"
+            android:layout_toStartOf="@+id/delete_button"
+            android:layout_alignParentStart="true"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:hint="@string/label_hint"
-            android:padding="4dp"
-            android:text="@{workout.label}"
-            app:onClickListener="@{handler.labelClicked}" />
-
-        <TextView
-            android:id="@+id/schedules"
-            style="?attr/subtitleTextAppearance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/label"
-            android:layout_toStartOf="@+id/delete_button"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:hint="@string/schedules_hint"
-            android:padding="4dp"
-            android:text="@{workout.scheduleDisplay}"
-            app:onClickListener="@{handler.schedulesClicked}" />
+            >
+            <TextView
+                android:id="@+id/label"
+                style="?attr/subtitleTextAppearance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/label_hint"
+                android:padding="4dp"
+                android:text="@{workout.label}"
+                app:onClickListener="@{handler.labelClicked}" />
+        </FrameLayout>
 
         <ImageButton
             android:id="@+id/delete_button"
@@ -88,12 +91,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_alignTop="@id/schedules"
+            android:layout_alignTop="@id/label_frame"
             android:layout_marginEnd="12dp"
             android:contentDescription="@string/delete_button"
             android:padding="4dp"
-            android:src="@drawable/ic_delete_54perc_black_24dp"
+            app:srcCompat="@drawable/ic_delete_54perc_black_24dp"
             app:onClickListener="@{handler.deleteButtonClicked}" />
+
+
+        <TextView
+            android:id="@+id/schedules"
+            style="?attr/subtitleTextAppearance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/label_frame"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:hint="@string/schedules_hint"
+            android:padding="4dp"
+            android:text="@{workout.scheduleDisplay}"
+            app:onClickListener="@{handler.schedulesClicked}" />
+
 
         <TextView
             android:id="@+id/calories"

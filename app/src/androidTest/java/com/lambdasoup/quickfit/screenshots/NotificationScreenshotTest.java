@@ -24,14 +24,14 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.test.uiautomator.UiDevice;
-import android.support.test.uiautomator.UiObject;
-import android.support.test.uiautomator.UiSelector;
 
 import com.lambdasoup.quickfit.Constants;
 import com.lambdasoup.quickfit.alarm.AlarmService;
 import com.lambdasoup.quickfit.persist.QuickFitContract.ScheduleEntry;
 import com.lambdasoup.quickfit.persist.QuickFitDbHelper;
 import com.lambdasoup.quickfit.ui.WorkoutListActivity;
+import com.lambdasoup.quickfit.util.DatabasePreparationTestRule;
+import com.lambdasoup.quickfit.util.SystemScreengrab;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -41,11 +41,7 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.runner.RunWith;
 
-import java.util.Locale;
-
 import tools.fastlane.screengrab.locale.LocaleTestRule;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * Tests correct appearance of a single notification, taking a screenshot in the process
@@ -53,8 +49,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(AndroidJUnit4.class)
 public class NotificationScreenshotTest {
     @ClassRule
-    public static final RuleChain classRules = RuleChain.outerRule(new FixedLocaleTestRule(Locale.US))
-            .around(new LocaleTestRule())
+    public static final RuleChain classRules = RuleChain.outerRule(new LocaleTestRule())
             .around(new DatabasePreparationTestRule());
 
     private static UiDevice deviceInstance;
@@ -88,22 +83,5 @@ public class NotificationScreenshotTest {
         SystemScreengrab.takeScreenshot("notification");
     }
 
-    @Test
-    public void didItButtonPresent() throws Exception {
-        UiObject didItButton = deviceInstance.findObject(new UiSelector()
-                .className(android.widget.Button.class)
-                .description("Did it!")
-                .clickable(true));
-        assertTrue("Missing DidIt button", didItButton.exists());
-    }
-
-    @Test
-    public void snoozeButtonPresent() throws Exception {
-        UiObject snoozeButton = deviceInstance.findObject(new UiSelector()
-                .className(android.widget.Button.class)
-                .description("Snooze")
-                .clickable(true));
-        assertTrue("Missing snooze button", snoozeButton.exists());
-    }
 
 }

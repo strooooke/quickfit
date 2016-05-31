@@ -34,8 +34,13 @@
     <string name="calories_hint"><i>Kalorien</i></string>
     <string name="title_calories">Kalorien</string>
     <string name="button_done_calories">Neue Kalorienanzahl setzen</string>
+    <string name="title_schedule_dayOfWeek">Wochentag</string>
+    <string name="title_workout_activityType">Aktivität</string>
+    <string name="button_done_schedule_dayOfWeek">Neuen Wochentag setzen</string>
+    <string name="button_done_workout_activityType">Neue Aktivität setzen</string>
     <string name="schedules_hint"><i>Termin planen</i></string>
     <string name="delete_button">löschen</string>
+    <string name="cancel">Abbrechen</string>
 
     <plurals name="duration_mins_format">
         <item quantity="one">%d Minute</item>
@@ -97,4 +102,5 @@
         <item>8 Stunden</item>
         <item>24 Stunden</item>
     </string-array>
+
 </resources>

@@ -19,11 +19,12 @@ package com.lambdasoup.quickfit.viewmodel;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.lambdasoup.quickfit.R;
 import com.lambdasoup.quickfit.model.DayOfWeek;
 import com.lambdasoup.quickfit.model.FitActivity;
-import com.lambdasoup.quickfit.util.Function;
 import com.lambdasoup.quickfit.util.Strings;
 
 import java.util.ArrayList;
@@ -34,17 +35,15 @@ import static com.lambdasoup.quickfit.util.Lists.map;
 
 public class WorkoutItem {
     final public long id;
-    final public int activityTypeIndex;
-    final public String activityTypeDisplayName;
     final public int durationInMinutes;
     final public int calories;
     final public String label;
     final public String scheduleDisplay;
+    public final FitActivity activityType;
 
-    private WorkoutItem(long id, int activityTypeIndex, String activityTypeDisplayName, int durationInMinutes, int calories, String label, String scheduleDisplay) {
+    private WorkoutItem(long id, FitActivity activityType, int durationInMinutes, int calories, @Nullable String label, @NonNull String scheduleDisplay) {
         this.id = id;
-        this.activityTypeIndex = activityTypeIndex;
-        this.activityTypeDisplayName = activityTypeDisplayName;
+        this.activityType = activityType;
         this.durationInMinutes = durationInMinutes;
         this.calories = calories;
         this.label = label;
@@ -52,14 +51,13 @@ public class WorkoutItem {
     }
 
     public static WorkoutItem getForIdHack(long id) {
-        return new WorkoutItem(id, 0, "", 0, 0, "", "");
+        return new WorkoutItem(id, null, 0, 0, "", "");
     }
 
     @Override
     public String toString() {
         return "WorkoutItem{" + "id=" + id +
-                ", activityTypeIndex=" + activityTypeIndex +
-                ", activityTypeDisplayName='" + activityTypeDisplayName + '\'' +
+                ", activityType='" + activityType + '\'' +
                 ", durationInMinutes=" + durationInMinutes +
                 ", calories=" + calories +
                 ", label='" + label + '\'' +
@@ -69,7 +67,6 @@ public class WorkoutItem {
 
     public static class Builder {
         private final Context context;
-        private final Function<FitActivity, Integer> fitActPositionSupplier;
         private final List<ScheduleItem> scheduleItems = new ArrayList<>();
         private long workoutId;
         private String activityTypeKey;
@@ -77,20 +74,18 @@ public class WorkoutItem {
         private int calories;
         private String label;
 
-        public Builder(Context context, Function<FitActivity, Integer> fitActPositionSupplier) {
+        public Builder(Context context) {
             this.context = context;
-            this.fitActPositionSupplier = fitActPositionSupplier;
         }
 
 
         public WorkoutItem build(DayOfWeek[] week) {
             FitActivity fitActivity = FitActivity.fromKey(activityTypeKey, context.getResources());
-            int activityTypeIndex = (fitActPositionSupplier != null ? fitActPositionSupplier.apply(fitActivity) : 0);
 
             Collections.sort(scheduleItems, new ScheduleItem.ByCalendar(week));
 
             String schedulesDisplay = Strings.join(", ", map(scheduleItems, this::formatScheduleShort));
-            return new WorkoutItem(workoutId, activityTypeIndex, fitActivity.displayName, durationInMinutes, calories, label, schedulesDisplay);
+            return new WorkoutItem(workoutId, fitActivity, durationInMinutes, calories, label, schedulesDisplay);
         }
 
         private String formatScheduleShort(ScheduleItem scheduleItem) {

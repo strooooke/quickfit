@@ -25,9 +25,7 @@ import android.support.v4.app.DialogFragment;
 import android.text.format.DateFormat;
 import android.widget.TimePicker;
 
-/**
- * Created by jl on 18.03.16.
- */
+
 public class TimeDialogFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
 
     private static final String KEY_SCHEDULE_ID = "scheduleId";
@@ -53,10 +51,10 @@ public class TimeDialogFragment extends DialogFragment implements TimePickerDial
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (activity instanceof OnFragmentInteractionListener) {
-            listener = (OnFragmentInteractionListener) activity;
+        if (activity instanceof OnFragmentInteractionListenerProvider) {
+            listener = ((OnFragmentInteractionListenerProvider) activity).getOnTimeDialogFragmentInteractionListener();
         } else {
-            throw new RuntimeException(activity.toString() + " must implement OnFragmentInteractionListener");
+            throw new RuntimeException(activity.toString() + " must implement OnFragmentInteractionListenerProvider");
         }
     }
 
@@ -79,6 +77,10 @@ public class TimeDialogFragment extends DialogFragment implements TimePickerDial
 
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         listener.onTimeChanged(getArguments().getLong(KEY_SCHEDULE_ID), hourOfDay, minute);
+    }
+
+    interface OnFragmentInteractionListenerProvider {
+        OnFragmentInteractionListener getOnTimeDialogFragmentInteractionListener();
     }
 
     interface OnFragmentInteractionListener {

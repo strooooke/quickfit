@@ -17,6 +17,7 @@
 package com.lambdasoup.quickfit.alarm;
 
 import android.app.AlarmManager;
+import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -34,6 +35,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 import android.support.v4.app.NotificationCompat.InboxStyle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.support.v7.app.NotificationCompat;
 import android.text.format.DateUtils;
@@ -49,7 +51,6 @@ import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
 import com.lambdasoup.quickfit.persist.QuickFitDbHelper;
 import com.lambdasoup.quickfit.ui.WorkoutListActivity;
 import com.lambdasoup.quickfit.util.DateTimes;
-import com.lambdasoup.quickfit.util.IntentServiceCompat;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -62,7 +63,7 @@ import static com.lambdasoup.quickfit.Constants.PENDING_INTENT_ALARM_RECEIVER;
  * A wakeful intent service that handles notifications due to alarms
  * and interaction with the AlarmManager.
  */
-public class AlarmService extends IntentServiceCompat {
+public class AlarmService extends IntentService {
 
     private static final String ACTION_ON_ALARM_RECEIVED = "com.lambdasoup.quickfit.alarm.action.ON_ALARM_RECEIVED";
     private static final String ACTION_ON_TIME_CHANGED = "com.lambdasoup.quickfit.alarm.action.ON_TIME_CHANGED";
@@ -328,17 +329,6 @@ public class AlarmService extends IntentServiceCompat {
                 return;
             }
 
-            NotificationCompat.Builder notification;
-            if (count == 1) {
-                Timber.d("refreshNotificationDisplay: single event");
-                toNotify.moveToFirst();
-                notification = notifySingleEvent(toNotify);
-            } else {
-                Timber.d("refreshNotificationDisplay: multiple events");
-                toNotify.moveToPosition(-1);
-                notification = notifyMultipleEvents(toNotify);
-            }
-
             long[] scheduleIds = new long[count];
             int i = 0;
             toNotify.moveToPosition(-1);
@@ -348,11 +338,24 @@ public class AlarmService extends IntentServiceCompat {
             }
 
             PendingIntent cancelIntent = PendingIntent.getService(getApplicationContext(), 0, getIntentOnNotificationsCanceled(this, scheduleIds), PendingIntent.FLAG_UPDATE_CURRENT);
+
+            NotificationCompat.Builder notification;
+            if (count == 1) {
+                Timber.d("refreshNotificationDisplay: single event");
+                toNotify.moveToFirst();
+                notification = notifySingleEvent(toNotify, cancelIntent);
+            } else {
+                Timber.d("refreshNotificationDisplay: multiple events");
+                toNotify.moveToPosition(-1);
+                notification = notifyMultipleEvents(toNotify, cancelIntent);
+            }
+
+
             notification.setDeleteIntent(cancelIntent);
             notification.setAutoCancel(true);
             notification.setPriority(Notification.PRIORITY_HIGH);
             notification.setSmallIcon(R.drawable.ic_stat_quickfit_icon);
-            notification.setColor(getColorCompat(R.color.colorPrimary));
+            notification.setColor(ContextCompat.getColor(this, R.color.colorPrimary));
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             String ringtoneUriStr = preferences.getString(getString(R.string.pref_key_notification_ringtone), null);
@@ -379,12 +382,15 @@ public class AlarmService extends IntentServiceCompat {
      * <p>
      * Relies on the caller to position the cursor on the desired row and to close the cursor.
      *
-     * @param cursor Cursor to read the workout data from
+     * @param cursor       Cursor to read the workout data from
+     * @param cancelIntent Pending intent to pass on to the content intent, allowing its receiver to
+     *                     execute it (update notification state in db to the fact that the notification
+     *                     is now cancelled)
      */
     @WorkerThread
     private
     @NonNull
-    NotificationCompat.Builder notifySingleEvent(@NonNull Cursor cursor) {
+    NotificationCompat.Builder notifySingleEvent(@NonNull Cursor cursor, PendingIntent cancelIntent) {
         NotificationCompat.Builder notification = new NotificationCompat.Builder(this);
 
 
@@ -407,6 +413,7 @@ public class AlarmService extends IntentServiceCompat {
 
         Intent workoutIntent = new Intent(getApplicationContext(), WorkoutListActivity.class);
         workoutIntent.putExtra(WorkoutListActivity.EXTRA_SHOW_WORKOUT_ID, workoutId);
+        workoutIntent.putExtra(WorkoutListActivity.EXTRA_NOTIFICATIONS_CANCEL_INTENT, cancelIntent);
         PendingIntent activityIntent = TaskStackBuilder.create(this)
                 .addNextIntentWithParentStack(workoutIntent)
                 .getPendingIntent(Constants.PENDING_INTENT_WORKOUT_LIST, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -439,15 +446,19 @@ public class AlarmService extends IntentServiceCompat {
      * <p>
      * Relies on the caller to position the cursor before the first row and to close the cursor.
      *
-     * @param cursor Cursor to read the workout data from
+     * @param cursor       Cursor to read the workout data from
+     * @param cancelIntent Pending intent to pass on to the content intent, allowing its receiver to
+     *                     execute it (update notification state in db to the fact that the notification
+     *                     is now cancelled)
      */
     @WorkerThread
     private
     @NonNull
-    NotificationCompat.Builder notifyMultipleEvents(@NonNull Cursor cursor) {
+    NotificationCompat.Builder notifyMultipleEvents(@NonNull Cursor cursor, PendingIntent cancelIntent) {
         NotificationCompat.Builder notification = new NotificationCompat.Builder(this);
 
         Intent workoutIntent = new Intent(getApplicationContext(), WorkoutListActivity.class);
+        workoutIntent.putExtra(WorkoutListActivity.EXTRA_NOTIFICATIONS_CANCEL_INTENT, cancelIntent);
         PendingIntent activityIntent = TaskStackBuilder.create(this)
                 .addNextIntentWithParentStack(workoutIntent)
                 .getPendingIntent(Constants.PENDING_INTENT_WORKOUT_LIST, PendingIntent.FLAG_UPDATE_CURRENT);

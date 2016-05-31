@@ -23,7 +23,7 @@ import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
 import com.lambdasoup.quickfit.persist.QuickFitContract;
 
 /**
- * Created by jl on 15.03.16.
+ * Loader for a single workout.
  */
 public class WorkoutLoader extends CursorLoader {
     public WorkoutLoader(Context context, long workoutId) {

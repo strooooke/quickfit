@@ -17,7 +17,7 @@
 package com.lambdasoup.quickfit.util;
 
 /**
- * Created by jl on 14.03.16.
+ * Generic interface for a function.
  */
 public interface Function<S, T> {
     T apply(S source);
