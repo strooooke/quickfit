@@ -29,6 +29,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".ui.SchedulesActivity">
+      <TextView
+            android:id="@+id/schedule_list_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/schedule_list_empty"
+            android:textAlignment="center" />
+
+        <android.support.v4.widget.NestedScrollView
+            android:id="@+id/schedules_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            />
+
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/app_bar"
@@ -86,22 +102,6 @@
 
             </android.support.design.widget.CollapsingToolbarLayout>
         </android.support.design.widget.AppBarLayout>
-
-        <TextView
-            android:id="@+id/schedule_list_empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="@string/schedule_list_empty"
-            android:textAlignment="center" />
-
-        <android.support.v4.widget.NestedScrollView
-            android:id="@+id/schedules_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            />
 
 
         <android.support.design.widget.FloatingActionButton
