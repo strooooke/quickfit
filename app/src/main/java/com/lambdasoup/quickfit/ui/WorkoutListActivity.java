@@ -43,6 +43,7 @@ import android.view.View;
 import com.google.android.gms.fitness.FitnessActivities;
 import com.lambdasoup.quickfit.FitActivityService;
 import com.lambdasoup.quickfit.R;
+import com.lambdasoup.quickfit.model.FitActivity;
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
 import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
 import com.lambdasoup.quickfit.util.ui.BackgroundTintListAnimator;
@@ -423,8 +424,8 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
     }
 
     @Override
-    public void onActivityTypeEditRequested(long workoutId) {
-        showDialog(ActivityTypeDialogFragment.newInstance(workoutId));
+    public void onActivityTypeEditRequested(long workoutId, FitActivity oldValue) {
+        showDialog(ActivityTypeDialogFragment.newInstance(workoutId, oldValue));
     }
 
     @Override

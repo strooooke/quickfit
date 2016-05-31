@@ -46,7 +46,7 @@
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:padding="4dp"
-            android:text="@{workout.activityTypeDisplayName}"
+            android:text="@{workout.activityType.displayName}"
             app:onClickListener="@{handler.activityTypeClicked}"
             tools:text="High intensity interval training" />
 

@@ -23,13 +23,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import com.lambdasoup.quickfit.R;
 import com.lambdasoup.quickfit.model.FitActivity;
@@ -39,18 +32,21 @@ import com.lambdasoup.quickfit.util.ConstantListAdapter;
 public class ActivityTypeDialogFragment extends DialogFragment implements DialogInterface.OnClickListener {
 
     private static final String KEY_WORKOUT_ID = "workoutId";
+    private static final String KEY_OLD_VALUE_KEY = "oldValue";
 
     private OnFragmentInteractionListener listener;
-    private ConstantListAdapter<FitActivity> activityTypesAdapter;
+    private int checkedItemPosition;
+    private FitActivity[] fitActivities;
 
     public ActivityTypeDialogFragment() {
         // It's a fragment, it needs a default constructor
     }
 
-    public static ActivityTypeDialogFragment newInstance(long workoutId) {
+    public static ActivityTypeDialogFragment newInstance(long workoutId, FitActivity oldValue) {
         ActivityTypeDialogFragment fragment = new ActivityTypeDialogFragment();
         Bundle args = new Bundle();
         args.putLong(KEY_WORKOUT_ID, workoutId);
+        args.putString(KEY_OLD_VALUE_KEY, oldValue.key);
         fragment.setArguments(args);
         return fragment;
     }
@@ -74,19 +70,16 @@ public class ActivityTypeDialogFragment extends DialogFragment implements Dialog
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        FitActivity[] fitActivities = FitActivity.all(getResources());
+        fitActivities = FitActivity.all(getResources());
         java.util.Arrays.sort(fitActivities, (left, right) -> left.displayName.compareToIgnoreCase(right.displayName));
-        activityTypesAdapter = new ConstantListAdapter<>(
-                getContext(),
-                android.R.layout.simple_list_item_1,
-                android.R.layout.simple_spinner_dropdown_item,
-                fitActivities,
-                fitAct -> fitAct.displayName);
+        checkedItemPosition = Arrays.firstIndexOf(fitActivities, FitActivity.fromKey(getArguments().getString(KEY_OLD_VALUE_KEY), getResources()));
+
 
         AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setTitle(R.string.title_workout_activityType)
-                .setAdapter(activityTypesAdapter, this)
-                .setOnDismissListener(this)
+                .setSingleChoiceItems(Arrays.map(fitActivities, String[].class, fitAct -> fitAct.displayName), checkedItemPosition, this)
+                .setPositiveButton(R.string.button_done_workout_activityType, this)
+                .setNegativeButton(R.string.cancel, this)
                 .create();
 
         return dialog;
@@ -94,9 +87,19 @@ public class ActivityTypeDialogFragment extends DialogFragment implements Dialog
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        if (listener != null) {
-            listener.onActivityTypeChanged(getArguments().getLong(KEY_WORKOUT_ID), activityTypesAdapter.getItem(which).key);
+        switch (which) {
+            case DialogInterface.BUTTON_POSITIVE:
+                if (listener != null) {
+                    listener.onActivityTypeChanged(getArguments().getLong(KEY_WORKOUT_ID), fitActivities[checkedItemPosition].key);
+                }
+                break;
+            case DialogInterface.BUTTON_NEGATIVE:
+                break;
+            default:
+                checkedItemPosition = which;
+                break;
         }
+
     }
 
 

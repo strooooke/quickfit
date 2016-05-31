@@ -80,6 +80,7 @@ public class CaloriesDialogFragment extends DialogFragment implements DialogInte
                 .setView(dialogContent)
                 .setTitle(R.string.title_calories)
                 .setPositiveButton(R.string.button_done_calories, this)
+                .setNegativeButton(R.string.cancel, this)
                 .create();
     }
 
@@ -91,6 +92,8 @@ public class CaloriesDialogFragment extends DialogFragment implements DialogInte
                 numberPicker.clearFocus();
                 int newVal = numberPicker.getValue();
                 listener.onCaloriesChanged(getArguments().getLong(KEY_WORKOUT_ID), newVal);
+                break;
+            case DialogInterface.BUTTON_NEGATIVE:
                 break;
             default:
                 throw new IllegalStateException("No such button.");

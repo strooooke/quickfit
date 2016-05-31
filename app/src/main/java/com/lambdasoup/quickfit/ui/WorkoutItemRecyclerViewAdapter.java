@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 
 import com.lambdasoup.quickfit.databinding.WorkoutListContentBinding;
 import com.lambdasoup.quickfit.model.DayOfWeek;
+import com.lambdasoup.quickfit.model.FitActivity;
 import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry;
 import com.lambdasoup.quickfit.viewmodel.ScheduleItem;
 import com.lambdasoup.quickfit.viewmodel.WorkoutItem;
@@ -61,7 +62,7 @@ public class WorkoutItemRecyclerViewAdapter
 
             @Override
             public boolean areContentsTheSame(WorkoutItem oldItem, WorkoutItem newItem) {
-                return oldItem.activityTypeDisplayName.equals(newItem.activityTypeDisplayName)
+                return Objects.equals(oldItem.activityType, newItem.activityType)
                         && oldItem.durationInMinutes == newItem.durationInMinutes
                         && Objects.equals(oldItem.label, newItem.label)
                         && oldItem.calories == newItem.calories
@@ -242,7 +243,7 @@ public class WorkoutItemRecyclerViewAdapter
 
         void onCaloriesEditRequested(long workoutId, int oldValue);
 
-        void onActivityTypeEditRequested(long workoutId);
+        void onActivityTypeEditRequested(long workoutId, FitActivity oldValue);
 
         void onDeleteClick(long workoutId);
 
@@ -300,7 +301,7 @@ public class WorkoutItemRecyclerViewAdapter
             @Override
             public void onClick(View v) {
                 if (onWorkoutInteractionListener != null) {
-                    onWorkoutInteractionListener.onActivityTypeEditRequested(viewHolder.item.id);
+                    onWorkoutInteractionListener.onActivityTypeEditRequested(viewHolder.item.id, viewHolder.item.activityType);
                 }
             }
         };

@@ -17,6 +17,8 @@
 package com.lambdasoup.quickfit.model;
 
 import android.content.res.Resources;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import com.google.android.gms.fitness.FitnessActivities;
@@ -186,5 +188,6 @@ public class FitActivity {
         result = 31 * result + displayName.hashCode();
         return result;
     }
+
 
 }

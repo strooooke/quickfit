@@ -81,6 +81,7 @@ public class LabelDialogFragment extends DialogFragment implements DialogInterfa
                 .setView(dialogContent)
                 .setTitle(R.string.title_workout_label)
                 .setPositiveButton(R.string.button_done_workout_label, this)
+                .setNegativeButton(R.string.cancel, this)
                 .create();
 
         editText.requestFocus();
@@ -104,6 +105,8 @@ public class LabelDialogFragment extends DialogFragment implements DialogInterfa
         switch (which) {
             case DialogInterface.BUTTON_POSITIVE:
                 onDone();
+                break;
+            case DialogInterface.BUTTON_NEGATIVE:
                 break;
             default:
                 throw new IllegalStateException("No such button.");

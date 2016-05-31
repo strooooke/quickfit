@@ -126,7 +126,7 @@ public class SchedulesActivity extends BaseActivity implements LoaderManager.Loa
                 .build(null);
         workoutBinding.setWorkout(workoutItem);
 
-        workoutBinding.toolbarLayout.setTitle(workoutItem.activityTypeDisplayName);
+        workoutBinding.toolbarLayout.setTitle(workoutItem.activityType.displayName);
     }
 
 

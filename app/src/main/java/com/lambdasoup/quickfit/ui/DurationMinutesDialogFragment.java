@@ -80,6 +80,7 @@ public class DurationMinutesDialogFragment extends DialogFragment implements Dia
                 .setView(dialogContent)
                 .setTitle(R.string.title_workout_duration)
                 .setPositiveButton(R.string.button_done_workout_duration, this)
+                .setNegativeButton(R.string.cancel, this)
                 .create();
     }
 
@@ -91,6 +92,8 @@ public class DurationMinutesDialogFragment extends DialogFragment implements Dia
                 numberPicker.clearFocus();
                 int newVal = numberPicker.getValue();
                 listener.onDurationChanged(getArguments().getLong(KEY_WORKOUT_ID), newVal);
+                break;
+            case DialogInterface.BUTTON_NEGATIVE:
                 break;
             default:
                 throw new IllegalStateException("No such button.");

@@ -36,15 +36,15 @@ import static com.lambdasoup.quickfit.util.Lists.map;
 
 public class WorkoutItem {
     final public long id;
-    final public String activityTypeDisplayName;
     final public int durationInMinutes;
     final public int calories;
     final public String label;
     final public String scheduleDisplay;
+    public FitActivity activityType;
 
-    private WorkoutItem(long id, @NonNull String activityTypeDisplayName, int durationInMinutes, int calories, @Nullable String label, @NonNull String scheduleDisplay) {
+    private WorkoutItem(long id, FitActivity activityType, int durationInMinutes, int calories, @Nullable String label, @NonNull String scheduleDisplay) {
         this.id = id;
-        this.activityTypeDisplayName = activityTypeDisplayName;
+        this.activityType = activityType;
         this.durationInMinutes = durationInMinutes;
         this.calories = calories;
         this.label = label;
@@ -52,13 +52,13 @@ public class WorkoutItem {
     }
 
     public static WorkoutItem getForIdHack(long id) {
-        return new WorkoutItem(id, "", 0, 0, "", "");
+        return new WorkoutItem(id, null, 0, 0, "", "");
     }
 
     @Override
     public String toString() {
         return "WorkoutItem{" + "id=" + id +
-                ", activityTypeDisplayName='" + activityTypeDisplayName + '\'' +
+                ", activityType='" + activityType + '\'' +
                 ", durationInMinutes=" + durationInMinutes +
                 ", calories=" + calories +
                 ", label='" + label + '\'' +
@@ -86,7 +86,7 @@ public class WorkoutItem {
             Collections.sort(scheduleItems, new ScheduleItem.ByCalendar(week));
 
             String schedulesDisplay = Strings.join(", ", map(scheduleItems, this::formatScheduleShort));
-            return new WorkoutItem(workoutId, fitActivity.displayName, durationInMinutes, calories, label, schedulesDisplay);
+            return new WorkoutItem(workoutId, fitActivity, durationInMinutes, calories, label, schedulesDisplay);
         }
 
         private String formatScheduleShort(ScheduleItem scheduleItem) {

@@ -35,9 +35,12 @@ import com.lambdasoup.quickfit.util.Arrays;
 public class DayOfWeekDialogFragment extends DialogFragment implements DialogInterface.OnClickListener {
 
     private static final String KEY_SCHEDULE_ID = "scheduleId";
+    private static final String KEY_OLD_VALUE = "oldValue";
 
     private OnFragmentInteractionListener listener;
     private DayOfWeek[] week;
+
+    private int checkedItemPosition;
 
     public DayOfWeekDialogFragment() {
         // It's a fragment, it needs a default constructor
@@ -47,6 +50,7 @@ public class DayOfWeekDialogFragment extends DialogFragment implements DialogInt
         DayOfWeekDialogFragment fragment = new DayOfWeekDialogFragment();
         Bundle args = new Bundle();
         args.putLong(KEY_SCHEDULE_ID, objectId);
+        args.putParcelable(KEY_OLD_VALUE, oldValue);
         fragment.setArguments(args);
         return fragment;
     }
@@ -59,7 +63,6 @@ public class DayOfWeekDialogFragment extends DialogFragment implements DialogInt
         } else {
             throw new RuntimeException(activity.toString() + " must implement OnFragmentInteractionListenerProvider");
         }
-        week = DayOfWeek.getWeek();
     }
 
     @Override
@@ -71,11 +74,13 @@ public class DayOfWeekDialogFragment extends DialogFragment implements DialogInt
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
+        week = DayOfWeek.getWeek();
+        checkedItemPosition = Arrays.firstIndexOf(week, getArguments().getParcelable(KEY_OLD_VALUE));
         AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setTitle(R.string.title_schedule_dayOfWeek)
-                .setItems(Arrays.map(week, String[].class, dayOfWeek -> getResources().getString(dayOfWeek.fullNameResId)), this)
-                .setOnDismissListener(this)
+                .setSingleChoiceItems(Arrays.map(week, String[].class, dayOfWeek -> getResources().getString(dayOfWeek.fullNameResId)), checkedItemPosition, this)
+                .setPositiveButton(R.string.button_done_schedule_dayOfWeek, this)
+                .setNegativeButton(R.string.cancel, this)
                 .create();
 
         return dialog;
@@ -83,9 +88,19 @@ public class DayOfWeekDialogFragment extends DialogFragment implements DialogInt
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        if (listener != null) {
-            listener.onListItemChanged(getArguments().getLong(KEY_SCHEDULE_ID), week[which]);
+        switch (which) {
+            case DialogInterface.BUTTON_POSITIVE:
+                if (listener != null) {
+                    listener.onListItemChanged(getArguments().getLong(KEY_SCHEDULE_ID), week[checkedItemPosition]);
+                }
+                break;
+            case DialogInterface.BUTTON_NEGATIVE:
+                break;
+            default:
+                checkedItemPosition = which;
+                break;
         }
+
     }
 
     interface OnFragmentInteractionListenerProvider {
