@@ -76,8 +76,7 @@ public class ScreenshotTest {
 
         onView(withRecyclerView(R.id.workout_list).atPosition(0, withId(R.id.schedules))).perform(click());
 
-        // withSpinnerText does not work - uses toString on spinner items; ignores custom layout
-        onView(withRecyclerView(R.id.schedule_list).atPosition(1, withId(R.id.day_of_week))).check(matches(hasDescendant(withText(R.string.saturday))));
+        onView(withRecyclerView(R.id.schedule_list).atPosition(1, withId(R.id.day_of_week))).check(matches(withText(R.string.saturday)));
 
         SystemScreengrab.takeScreenshot("schedule_activity");
     }
@@ -88,7 +87,7 @@ public class ScreenshotTest {
         onView(withRecyclerView(R.id.workout_list).atPosition(0)).perform(click());
 
         // withSpinnerText does not work - uses toString on spinner items; ignores custom layout
-        onView(withRecyclerView(R.id.schedule_list).atPosition(1, withId(R.id.day_of_week))).check(matches(hasDescendant(withText(R.string.saturday))));
+        onView(withRecyclerView(R.id.schedule_list).atPosition(1, withId(R.id.day_of_week))).check(matches(withText(R.string.saturday)));
 
         SystemScreengrab.takeScreenshot("wide_list_with_fab");
     }

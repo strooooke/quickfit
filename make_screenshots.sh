@@ -14,8 +14,8 @@
 avd_images=( "Nexus_5_API_23_x86" "Nexus_7_API_23" "Nexus_10_API_23" )
 device_types=( "phone" "sevenInch" "tenInch" )
 
-echo Killing all emulators first!
-adb emu kill
+echo Killing running emulator first!
+expect -f kill-emulator.exp
 
 ./gradlew assembleScreengrabDebugAndroidTest assembleScreengrabDebug
 
@@ -46,6 +46,7 @@ do
   
   echo Done, killing this emulator now!
   # finally kill the emulator
-  adb -s emulator-5554 emu kill
+  # adb -e emu kill
+  expect -f kill-emulator.exp
 done
 
