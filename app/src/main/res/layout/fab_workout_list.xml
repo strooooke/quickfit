@@ -23,5 +23,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:layout_behavior="com.lambdasoup.quickfit.util.ui.AppBarBoundFabBehavior" />
+        app:layout_behavior="@string/appbarsyncedfab_fab_behavior" />
 </merge>

@@ -29,7 +29,7 @@
         app:layout_anchor="@id/fab"
         app:layout_anchorGravity="center"
         app:fabSize="mini"
-        app:layout_behavior="com.lambdasoup.quickfit.util.ui.AppBarBoundFabBehavior"
+        app:layout_behavior="@string/appbarsyncedfab_fab_behavior"
         tools:ignore="InconsistentLayout" />
 
     <android.support.design.widget.FloatingActionButton
@@ -42,6 +42,6 @@
         app:layout_anchor="@id/fab"
         app:layout_anchorGravity="center"
         app:fabSize="mini"
-        app:layout_behavior="com.lambdasoup.quickfit.util.ui.AppBarBoundFabBehavior"
+        app:layout_behavior="@string/appbarsyncedfab_fab_behavior"
         tools:ignore="InconsistentLayout" />
 </merge>
