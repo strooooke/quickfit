@@ -16,6 +16,7 @@
 
 package com.lambdasoup.quickfit.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -72,7 +73,7 @@ public class LabelDialogFragment extends DialogFragment implements DialogInterfa
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View dialogContent = LayoutInflater.from(getContext()).inflate(R.layout.dialog_label, null);
+        @SuppressLint("InflateParams") View dialogContent = LayoutInflater.from(getContext()).inflate(R.layout.dialog_label, null);
         EditText editText = (EditText) dialogContent.findViewById(R.id.label_input);
         editText.setText(getArguments().getString(KEY_OLD_VALUE));
         editText.setOnEditorActionListener(this);
