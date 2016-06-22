@@ -46,8 +46,6 @@ public class FitApiFailureResolutionService extends Service {
     private FitApiFailureResolver currentForegroundResolver = null;
     private boolean isBound = false;
 
-    public FitApiFailureResolutionService() {
-    }
 
     public static Intent getFailureResolutionIntent(Context context, ConnectionResult connectionResult) {
         if (connectionResult.isSuccess()) {

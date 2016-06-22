@@ -57,7 +57,7 @@ public class CaloriesDialogFragment extends DialogFragment implements DialogInte
         if (activity instanceof OnFragmentInteractionListener) {
             listener = (OnFragmentInteractionListener) activity;
         } else {
-            throw new RuntimeException(activity.toString() + " must implement OnFragmentInteractionListener");
+            throw new IllegalArgumentException(activity.toString() + " must implement OnFragmentInteractionListener");
         }
     }
 

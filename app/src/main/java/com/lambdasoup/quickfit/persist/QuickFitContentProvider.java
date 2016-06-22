@@ -59,6 +59,7 @@ public class QuickFitContentProvider extends ContentProvider {
     private static final int TYPE_SCHEDULES = 7;
     private static final int TYPE_SCHEDULE_ID = 8;
     private static final UriMatcher uriMatcher = new UriMatcher(0);
+    public static final String VND_PREFIX = "vnd";
 
     static {
         uriMatcher.addURI(AUTHORITY, PATH_WORKOUTS, TYPE_WORKOUTS);
@@ -176,19 +177,19 @@ public class QuickFitContentProvider extends ContentProvider {
     public String getType(@NonNull Uri uri) {
         switch (uriMatcher.match(uri)) {
             case TYPE_WORKOUT_ID:
-                return ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd." + AUTHORITY + ".workout";
+                return ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + VND_PREFIX + "." + AUTHORITY + ".workout";
             case TYPE_WORKOUTS:
-                return ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".workout";
+                return ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + VND_PREFIX + "." + AUTHORITY + ".workout";
             case TYPE_SESSION_ID:
-                return ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd." + AUTHORITY + ".session";
+                return ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + VND_PREFIX + "." + AUTHORITY + ".session";
             case TYPE_SESSIONS:
-                return ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".session";
+                return ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + VND_PREFIX + "." + AUTHORITY + ".session";
             case TYPE_WORKOUT_ID_SCHEDULES:
             case TYPE_SCHEDULES:
-                return ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".schedule";
+                return ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + VND_PREFIX + "." + AUTHORITY + ".schedule";
             case TYPE_WORKOUT_ID_SCHEDULE_ID:
             case TYPE_SCHEDULE_ID:
-                return ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd." + AUTHORITY + ".schedule";
+                return ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + VND_PREFIX + "." + AUTHORITY + ".schedule";
             default:
                 throw new IllegalArgumentException("Invalid content URI:" + uri);
         }

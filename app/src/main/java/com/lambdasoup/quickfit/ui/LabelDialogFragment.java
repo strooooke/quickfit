@@ -60,7 +60,7 @@ public class LabelDialogFragment extends DialogFragment implements DialogInterfa
         if (activity instanceof OnFragmentInteractionListener) {
             listener = (OnFragmentInteractionListener) activity;
         } else {
-            throw new RuntimeException(activity.toString() + " must implement OnFragmentInteractionListener");
+            throw new IllegalArgumentException(activity.toString() + " must implement OnFragmentInteractionListener");
         }
     }
 

@@ -169,6 +169,8 @@ public class FitActivity {
                 '}';
     }
 
+    // GENERATED START
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -187,5 +189,6 @@ public class FitActivity {
         return result;
     }
 
+    // GENERATED END
 
 }
