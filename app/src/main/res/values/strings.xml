@@ -94,7 +94,7 @@
     <string name="pref_notification_vibrate_summary_on">Vibrate</string>
     <string name="pref_snooze">Snooze</string>
     <string name="pref_snooze_title">Snooze duration</string>
-
+    <string name="action_privacy">Privacy Policy</string>
 
 
     <string-array name="pref_snooze_durations">
