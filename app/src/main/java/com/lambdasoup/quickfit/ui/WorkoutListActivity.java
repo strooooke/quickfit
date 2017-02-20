@@ -53,6 +53,7 @@ import com.lambdasoup.quickfit.util.ui.MasterDetailLayout;
 
 import timber.log.Timber;
 
+import static android.net.Uri.parse;
 import static android.support.v7.widget.RecyclerView.NO_ID;
 
 
@@ -215,6 +216,9 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
                 return true;
             case R.id.action_about:
                 startActivity(new Intent(getBaseContext(), AboutActivity.class));
+                return true;
+            case R.id.action_privacy:
+                startActivity(new Intent(Intent.ACTION_VIEW, parse("https://lambdasoup.com/privacypolicy-quickfit/")));
                 return true;
             default:
                 // If we got here, the user's action was not recognized.

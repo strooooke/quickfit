@@ -35,6 +35,8 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.lambdasoup.quickfit.FitActivityService;
 import com.lambdasoup.quickfit.persist.FitApiFailureResolutionService;
 
+import timber.log.Timber;
+
 /**
  * Base class for activities that bind to {@link FitApiFailureResolutionService}; which allows to interrupt the
  * user with Fit Api connection failure resolution while this activity is in the foreground. Can also be started with an
@@ -111,7 +113,7 @@ public abstract class BaseActivity extends DialogActivity implements FitApiFailu
             try {
                 connectionResult.startResolutionForResult(this, REQUEST_FAILURE_RESOLUTION);
             } catch (IntentSender.SendIntentException e) {
-                Log.e(TAG, "Exception while starting resolution activity", e);
+                Timber.e(e, "Exception while starting resolution activity");
             }
         }
     }

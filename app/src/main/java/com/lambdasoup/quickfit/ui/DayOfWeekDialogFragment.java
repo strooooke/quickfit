@@ -59,7 +59,7 @@ public class DayOfWeekDialogFragment extends DialogFragment implements DialogInt
         if (activity instanceof OnFragmentInteractionListenerProvider) {
             listener = ((OnFragmentInteractionListenerProvider) activity).getOnDayOfWeekDialogFragmentInteractionListener();
         } else {
-            throw new RuntimeException(activity.toString() + " must implement OnFragmentInteractionListenerProvider");
+            throw new IllegalArgumentException(activity.toString() + " must implement OnFragmentInteractionListenerProvider");
         }
     }
 

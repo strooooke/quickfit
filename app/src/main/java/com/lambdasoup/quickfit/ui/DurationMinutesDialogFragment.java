@@ -16,6 +16,7 @@
 
 package com.lambdasoup.quickfit.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -56,7 +57,7 @@ public class DurationMinutesDialogFragment extends DialogFragment implements Dia
         if (activity instanceof OnFragmentInteractionListener) {
             listener = (OnFragmentInteractionListener) activity;
         } else {
-            throw new RuntimeException(activity.toString() + " must implement OnFragmentInteractionListener");
+            throw new IllegalArgumentException(activity.toString() + " must implement OnFragmentInteractionListener");
         }
     }
 
@@ -69,7 +70,7 @@ public class DurationMinutesDialogFragment extends DialogFragment implements Dia
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View dialogContent = LayoutInflater.from(getContext()).inflate(R.layout.dialog_duration_minutes, null);
+        @SuppressLint("InflateParams") View dialogContent = LayoutInflater.from(getContext()).inflate(R.layout.dialog_duration_minutes, null);
         NumberPicker numberPicker = ((NumberPicker) dialogContent.findViewById(R.id.duration_mins_picker));
         numberPicker.setMinValue(1);
         numberPicker.setMaxValue(9999);

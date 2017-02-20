@@ -16,6 +16,7 @@
 
 package com.lambdasoup.quickfit.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -56,7 +57,7 @@ public class CaloriesDialogFragment extends DialogFragment implements DialogInte
         if (activity instanceof OnFragmentInteractionListener) {
             listener = (OnFragmentInteractionListener) activity;
         } else {
-            throw new RuntimeException(activity.toString() + " must implement OnFragmentInteractionListener");
+            throw new IllegalArgumentException(activity.toString() + " must implement OnFragmentInteractionListener");
         }
     }
 
@@ -69,7 +70,7 @@ public class CaloriesDialogFragment extends DialogFragment implements DialogInte
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View dialogContent = LayoutInflater.from(getContext()).inflate(R.layout.dialog_calories, null);
+        @SuppressLint("InflateParams") View dialogContent = LayoutInflater.from(getContext()).inflate(R.layout.dialog_calories, null);
         NumberPicker numberPicker = ((NumberPicker) dialogContent.findViewById(R.id.calories_picker));
         numberPicker.setMinValue(0);
         numberPicker.setMaxValue(9999);

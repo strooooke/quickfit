@@ -16,6 +16,7 @@
 
 package com.lambdasoup.quickfit.viewmodel;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.lambdasoup.quickfit.model.DayOfWeek;
@@ -91,8 +92,8 @@ public class ScheduleItem {
     public static class ByCalendar implements Comparator<ScheduleItem> {
         private final DayOfWeek[] week;
 
-        public ByCalendar(@Nullable DayOfWeek[] week) {
-            this.week = week == null ? new DayOfWeek[0] : week;
+        public ByCalendar(@NonNull DayOfWeek[] week) {
+            this.week = week;
         }
 
         @Override
@@ -115,7 +116,7 @@ public class ScheduleItem {
                     return 1;
                 }
             }
-            throw new RuntimeException("The week seems to be missing days. Week is: " + Arrays.toString(week) + ", trying to find " + left.dayOfWeek + " and " + right.dayOfWeek);
+            throw new IllegalStateException("The week seems to be missing days. Week is: " + Arrays.toString(week) + ", trying to find " + left.dayOfWeek + " and " + right.dayOfWeek);
         }
     }
 

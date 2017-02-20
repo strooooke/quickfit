@@ -46,8 +46,6 @@ public class FitApiFailureResolutionService extends Service {
     private FitApiFailureResolver currentForegroundResolver = null;
     private boolean isBound = false;
 
-    public FitApiFailureResolutionService() {
-    }
 
     public static Intent getFailureResolutionIntent(Context context, ConnectionResult connectionResult) {
         if (connectionResult.isSuccess()) {
@@ -117,7 +115,7 @@ public class FitApiFailureResolutionService extends Service {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setContentTitle(getResources().getString(R.string.permission_needed_play_service_title))
                 .setContentText(getResources().getString(R.string.permission_needed_play_service))
-                .setSmallIcon(R.drawable.common_ic_googleplayservices)
+                .setSmallIcon(R.drawable.ic_fitness_center_white_24px)
                 .setContentIntent(resultPendingIntent)
                 .setAutoCancel(true);
 

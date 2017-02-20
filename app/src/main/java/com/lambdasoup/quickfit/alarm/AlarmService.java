@@ -388,9 +388,8 @@ public class AlarmService extends IntentService {
      *                     is now cancelled)
      */
     @WorkerThread
-    private
     @NonNull
-    NotificationCompat.Builder notifySingleEvent(@NonNull Cursor cursor, PendingIntent cancelIntent) {
+    private NotificationCompat.Builder notifySingleEvent(@NonNull Cursor cursor, PendingIntent cancelIntent) {
         NotificationCompat.Builder notification = new NotificationCompat.Builder(this);
 
 
@@ -452,9 +451,8 @@ public class AlarmService extends IntentService {
      *                     is now cancelled)
      */
     @WorkerThread
-    private
     @NonNull
-    NotificationCompat.Builder notifyMultipleEvents(@NonNull Cursor cursor, PendingIntent cancelIntent) {
+    private NotificationCompat.Builder notifyMultipleEvents(@NonNull Cursor cursor, PendingIntent cancelIntent) {
         NotificationCompat.Builder notification = new NotificationCompat.Builder(this);
 
         Intent workoutIntent = new Intent(getApplicationContext(), WorkoutListActivity.class);

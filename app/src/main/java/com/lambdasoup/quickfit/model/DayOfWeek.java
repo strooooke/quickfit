@@ -18,6 +18,7 @@ package com.lambdasoup.quickfit.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 
 import com.lambdasoup.quickfit.R;
@@ -45,10 +46,12 @@ public enum DayOfWeek implements Parcelable {
         this.fullNameResId = fullNameResId;
     }
 
+    @NonNull
     public static DayOfWeek[] getWeek() {
         return getWeek(Calendar.getInstance());
     }
 
+    @NonNull
     protected static DayOfWeek[] getWeek(Calendar calendar) {
         int firstDay = calendar.getFirstDayOfWeek();
         DayOfWeek[] week = new DayOfWeek[7];
@@ -83,6 +86,9 @@ public enum DayOfWeek implements Parcelable {
         }
     }
 
+    // GENERATED START
+    // by parcelable AndroidStudio plugin
+
     @Override
     public int describeContents() {
         return 0;
@@ -104,4 +110,6 @@ public enum DayOfWeek implements Parcelable {
             return new DayOfWeek[size];
         }
     };
+
+    // GENERATED END
 }
