@@ -102,5 +102,6 @@
         <item>8 Stunden</item>
         <item>24 Stunden</item>
     </string-array>
+    <string name="action_privacy">Datenschutzerklärung</string>
 
 </resources>
