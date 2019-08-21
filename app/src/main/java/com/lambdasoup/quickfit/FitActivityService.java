@@ -10,8 +10,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.StringRes;
-import android.support.annotation.WorkerThread;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
+import androidx.annotation.WorkerThread;
 import android.widget.Toast;
 
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider;
@@ -19,10 +21,13 @@ import com.lambdasoup.quickfit.persist.QuickFitContract;
 
 import java.util.concurrent.TimeUnit;
 
+import androidx.core.app.JobIntentService;
 import timber.log.Timber;
 
+import static com.lambdasoup.quickfit.Constants.JOB_ID_FIT_ACTIVITY_SERVICE;
 
-public class FitActivityService extends IntentService {
+
+public class FitActivityService extends JobIntentService {
     private static final String ACTION_INSERT_SESSION = "com.lambdasoup.quickfit.action.INSERT_SESSION";
     private static final String ACTION_SESSION_SYNC = "com.lambdasoup.quickfit.action.SESSION_SYNC";
     private static final String ACTION_SET_PERIODIC_SYNC = "com.lambdasoup.quickfit.action.SET_PERIODIC_SYNC";
@@ -32,43 +37,33 @@ public class FitActivityService extends IntentService {
     private static final String ACCOUNT_TYPE = "com.lambdasoup.quickfit";
     private final Account account = new Account("QuickFit", ACCOUNT_TYPE);
 
-    public FitActivityService() {
-        super("FitActivityService");
+    public static void enqueueInsertSession(Context context, long workoutId) {
+        Intent intent = new Intent(ACTION_INSERT_SESSION).putExtra(EXTRA_WORKOUT_ID, workoutId);
+        JobIntentService.enqueueWork(context, FitActivityService.class, JOB_ID_FIT_ACTIVITY_SERVICE, intent);
     }
 
-    public static Intent getIntentInsertSession(Context context, long workoutId) {
-        Intent intent = new Intent(context, FitActivityService.class);
-        intent.setAction(ACTION_INSERT_SESSION);
-        intent.putExtra(EXTRA_WORKOUT_ID, workoutId);
-        return intent;
+    public static void enqueueSyncSession(Context context) {
+        Intent intent = new Intent(ACTION_SESSION_SYNC);
+        JobIntentService.enqueueWork(context, FitActivityService.class, JOB_ID_FIT_ACTIVITY_SERVICE, intent);
     }
 
-    public static Intent getIntentSyncSession(Context context) {
-        Intent intent = new Intent(context, FitActivityService.class);
-        intent.setAction(ACTION_SESSION_SYNC);
-        return intent;
-    }
-
-    public static Intent getIntentSetPeriodicSync(Context context) {
-        Intent intent = new Intent(context, FitActivityService.class);
-        intent.setAction(ACTION_SET_PERIODIC_SYNC);
-        return intent;
+    public static void enqueueSetPeriodicSync(Context context) {
+        Intent intent = new Intent(ACTION_SET_PERIODIC_SYNC);
+        JobIntentService.enqueueWork(context, FitActivityService.class, JOB_ID_FIT_ACTIVITY_SERVICE, intent);
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-        if (intent != null) {
-            final String action = intent.getAction();
-            if (ACTION_INSERT_SESSION.equals(action)) {
-                long workoutId = intent.getLongExtra(EXTRA_WORKOUT_ID, -1);
-                handleInsertSession(workoutId);
-            } else if (ACTION_SESSION_SYNC.equals(action)) {
-                requestSync();
-            } else if (ACTION_SET_PERIODIC_SYNC.equals(action)) {
-                setPeriodicSync();
-            } else {
-                throw new IllegalArgumentException("Action " + action + " not supported.");
-            }
+    protected void onHandleWork(@NonNull Intent intent) {
+        final String action = intent.getAction();
+        if (ACTION_INSERT_SESSION.equals(action)) {
+            long workoutId = intent.getLongExtra(EXTRA_WORKOUT_ID, -1);
+            handleInsertSession(workoutId);
+        } else if (ACTION_SESSION_SYNC.equals(action)) {
+            requestSync();
+        } else if (ACTION_SET_PERIODIC_SYNC.equals(action)) {
+            setPeriodicSync();
+        } else {
+            throw new IllegalArgumentException("Action " + action + " not supported.");
         }
     }
 

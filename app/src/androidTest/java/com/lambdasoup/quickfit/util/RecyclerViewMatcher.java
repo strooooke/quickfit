@@ -17,15 +17,15 @@
 package com.lambdasoup.quickfit.util;
 
 import android.content.res.Resources;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-import static android.support.test.espresso.core.deps.guava.collect.Iterables.any;
-import static android.support.test.espresso.util.TreeIterables.breadthFirstViewTraversal;
+import static androidx.test.espresso.core.deps.guava.collect.Iterables.any;
+import static androidx.test.espresso.util.TreeIterables.breadthFirstViewTraversal;
 
 /**
  * Matcher for matching i-th item of a recycler view or children thereof.

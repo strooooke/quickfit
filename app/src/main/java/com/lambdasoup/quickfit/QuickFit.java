@@ -17,6 +17,10 @@
 package com.lambdasoup.quickfit;
 
 import android.app.Application;
+import android.os.Build;
+
+import com.lambdasoup.quickfit.alarm.AlarmService;
+import com.lambdasoup.quickfit.persist.FitApiFailureResolutionService;
 
 import timber.log.Timber;
 
@@ -29,11 +33,14 @@ public class QuickFit extends Application {
 
         // ensure that our sync adapter is set to sync periodically, to catch any problems with
         // missing manual sync requests eventually
-        startService(FitActivityService.getIntentSetPeriodicSync(getApplicationContext()));
+        FitActivityService.enqueueSetPeriodicSync(getApplicationContext());
 
         // init logging
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         }
+
+        AlarmService.initNotificationChannels(this);
+        FitApiFailureResolutionService.initNotificationChannels(this);
     }
 }

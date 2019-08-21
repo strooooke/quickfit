@@ -27,7 +27,8 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     app:masterPaneWidth="400dp"
     app:animationDuration="@integer/master_detail_animation_duration"
-    tools:context="com.lambdasoup.quickfit.ui.WorkoutListActivity">
+    tools:context="com.lambdasoup.quickfit.ui.WorkoutListActivity"
+    tools:ignore="MissingDefaultResource">
 
 
     <FrameLayout

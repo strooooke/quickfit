@@ -19,6 +19,7 @@ package com.lambdasoup.quickfit.alarm;
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
@@ -32,12 +33,12 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.WorkerThread;
-import android.support.v4.app.NotificationCompat.InboxStyle;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.WakefulBroadcastReceiver;
-import android.support.v7.app.NotificationCompat;
+import androidx.annotation.NonNull;
+import androidx.annotation.WorkerThread;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationCompat.InboxStyle;
+import androidx.core.content.ContextCompat;
+import androidx.legacy.content.WakefulBroadcastReceiver;
 import android.text.format.DateUtils;
 
 import com.lambdasoup.quickfit.Constants;
@@ -57,6 +58,7 @@ import java.util.concurrent.TimeUnit;
 
 import timber.log.Timber;
 
+import static com.lambdasoup.quickfit.Constants.NOTIFICATION_CHANNEL_ID_ALARM;
 import static com.lambdasoup.quickfit.Constants.PENDING_INTENT_ALARM_RECEIVER;
 
 /**
@@ -84,6 +86,18 @@ public class AlarmService extends IntentService {
     public AlarmService() {
         super("AlarmService");
         dbHelper = new QuickFitDbHelper(this);
+    }
+
+    public static void initNotificationChannels(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    NOTIFICATION_CHANNEL_ID_ALARM,
+                    context.getString(R.string.notification_channel_alarm_name),
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+
+            context.getSystemService(NotificationManager.class).createNotificationChannel(channel);
+        }
     }
 
     /**
@@ -222,7 +236,7 @@ public class AlarmService extends IntentService {
     @WorkerThread
     private void handleOnDidIt(long scheduleId, long workoutId) {
         Timber.d("Handling onDidIt");
-        startService(FitActivityService.getIntentInsertSession(getApplicationContext(), workoutId));
+        FitActivityService.enqueueInsertSession(getApplicationContext(), workoutId);
         setDontShowNotificationForIds(new long[]{scheduleId});
         refreshNotificationDisplay();
     }
@@ -390,8 +404,7 @@ public class AlarmService extends IntentService {
     @WorkerThread
     @NonNull
     private NotificationCompat.Builder notifySingleEvent(@NonNull Cursor cursor, PendingIntent cancelIntent) {
-        NotificationCompat.Builder notification = new NotificationCompat.Builder(this);
-
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(this, Constants.NOTIFICATION_CHANNEL_ID_ALARM);
 
         FitActivity fitActivity = FitActivity.fromKey(cursor.getString(cursor.getColumnIndex(WorkoutEntry.ACTIVITY_TYPE)), getResources());
         String label = "";
@@ -453,7 +466,7 @@ public class AlarmService extends IntentService {
     @WorkerThread
     @NonNull
     private NotificationCompat.Builder notifyMultipleEvents(@NonNull Cursor cursor, PendingIntent cancelIntent) {
-        NotificationCompat.Builder notification = new NotificationCompat.Builder(this);
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(this, Constants.NOTIFICATION_CHANNEL_ID_ALARM);
 
         Intent workoutIntent = new Intent(getApplicationContext(), WorkoutListActivity.class);
         workoutIntent.putExtra(WorkoutListActivity.EXTRA_NOTIFICATIONS_CANCEL_INTENT, cancelIntent);
@@ -540,7 +553,6 @@ public class AlarmService extends IntentService {
             }
         }
     }
-
 
     private static class Schedule {
         public final long id;

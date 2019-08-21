@@ -1,3 +1,7 @@
 <component name="CopyrightManager">
-  <settings default="default" />
+  <settings default="JL_Lambdasoup">
+    <module2copyright>
+      <element module="All" copyright="JL_Lambdasoup" />
+    </module2copyright>
+  </settings>
 </component>

@@ -27,12 +27,15 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.RemoteException;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
+import com.google.android.gms.fitness.FitnessOptions;
+import com.google.android.gms.fitness.SessionsClient;
 import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSource;
 import com.google.android.gms.fitness.data.DataType;
@@ -96,7 +99,7 @@ class QuickFitSyncAdapter extends AbstractThreadedSyncAdapter {
                 )
                 .addOnConnectionFailedListener(
                         result -> {
-                            Timber.d("connection failed");
+                            Timber.d("connection failed: %s", result.getErrorMessage());
                             getContext().startService(FitApiFailureResolutionService.getFailureResolutionIntent(getContext(), result));
                         }
                 )

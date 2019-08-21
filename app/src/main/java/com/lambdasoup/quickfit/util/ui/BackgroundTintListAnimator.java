@@ -21,12 +21,14 @@ import android.animation.ObjectAnimator;
 import android.animation.TypeEvaluator;
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.support.annotation.ColorRes;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 /**
- * Provides an object animator suitable for animating the background color of a {@link android.support.design.widget.FloatingActionButton}.
+ * Provides an object animator suitable for animating the background color of a {@link FloatingActionButton}.
  * As this can only be done by setting its backgroundTintList to singleton-valued ColorStateLists, the dirty parts necessary are
  * stored here.
  */

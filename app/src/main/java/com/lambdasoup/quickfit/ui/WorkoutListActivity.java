@@ -28,12 +28,12 @@ import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.graphics.drawable.VectorDrawableCompat;
-import android.support.v4.app.Fragment;
-import android.support.v7.util.SortedList;
-import android.support.v7.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.SortedList;
+import androidx.appcompat.widget.Toolbar;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -54,7 +54,7 @@ import com.lambdasoup.quickfit.util.ui.MasterDetailLayout;
 import timber.log.Timber;
 
 import static android.net.Uri.parse;
-import static android.support.v7.widget.RecyclerView.NO_ID;
+import static androidx.recyclerview.widget.RecyclerView.NO_ID;
 
 
 public class WorkoutListActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>,
@@ -260,8 +260,8 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
     }
 
     private void setMiniFabOffsets() {
-        int fabSize = getResources().getDimensionPixelSize(android.support.design.R.dimen.design_fab_size_normal);
-        int miniFabSize = getResources().getDimensionPixelSize(android.support.design.R.dimen.design_fab_size_mini);
+        int fabSize = getResources().getDimensionPixelSize(R.dimen.design_lib_fab_size_normal);
+        int miniFabSize = getResources().getDimensionPixelSize(R.dimen.design_lib_fab_size_mini);
         int separation = getResources().getDimensionPixelSize(R.dimen.list_item_height) - miniFabSize;
 
         offsetFabAddWorkout = ((float) fabSize) / 2.0f + separation + ((float) miniFabSize) / 2.0f;
@@ -403,7 +403,7 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
 
     @Override
     public void onDoneItClick(long workoutId) {
-        startService(FitActivityService.getIntentInsertSession(getApplicationContext(), workoutId));
+        FitActivityService.enqueueInsertSession(getApplicationContext(), workoutId);
     }
 
     @Override

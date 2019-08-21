@@ -18,11 +18,15 @@ package com.lambdasoup.quickfit;
 
 public class Constants {
     public static final int NOTIFICATION_PLAY_INTERACTION = 0;
+    public static final String NOTIFICATION_CHANNEL_ID_PLAY_INTERACTION = "play_interaction";
     public static final int NOTIFICATION_ALARM = 1;
+    public static final String NOTIFICATION_CHANNEL_ID_ALARM = "alarm";
     public static final int PENDING_INTENT_ALARM_RECEIVER = 0;
     public static final int PENDING_INTENT_WORKOUT_LIST = 1;
     public static final int PENDING_INTENT_DID_IT = 2;
     public static final int PENDING_INTENT_SNOOZE = 3;
+    public static final int JOB_ID_FIT_ACTIVITY_SERVICE = 100;
+
 
     private Constants() {
         // do not instantiate

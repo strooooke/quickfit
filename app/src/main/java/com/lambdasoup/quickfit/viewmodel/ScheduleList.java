@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * List model for {@link ScheduleItem} items. Inspired by {@link android.support.v7.util.SortedList},
+ * List model for {@link ScheduleItem} items. Inspired by {@link androidx.recyclerview.widget.SortedList},
  * but does not depend on compare, itemsTheSame and contentsTheSame being compatible.
  * <p>
  * Assumes that item.id is a unique key for items; assumes that there are no duplicate ids in swapped
