@@ -16,9 +16,9 @@
 
 package com.lambdasoup.quickfit.screenshots;
 
-import androidx.test.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.lambdasoup.quickfit.R;
 import com.lambdasoup.quickfit.ui.WorkoutListActivity;
@@ -70,7 +70,7 @@ public class ScreenshotTest {
 
     @Test
     public void viewScheduleNormal() throws Exception {
-        assumeThat(InstrumentationRegistry.getTargetContext(), not(isWideScreen()));
+        assumeThat(InstrumentationRegistry.getInstrumentation().getTargetContext(), not(isWideScreen()));
 
         onView(withRecyclerView(R.id.workout_list).atPosition(0, withId(R.id.schedules))).perform(click());
 
@@ -81,7 +81,7 @@ public class ScreenshotTest {
 
     @Test
     public void viewScheduleWideScreen() throws Exception {
-        assumeThat(InstrumentationRegistry.getTargetContext(), isWideScreen());
+        assumeThat(InstrumentationRegistry.getInstrumentation().getTargetContext(), isWideScreen());
         onView(withRecyclerView(R.id.workout_list).atPosition(0)).perform(click());
 
         // withSpinnerText does not work - uses toString on spinner items; ignores custom layout

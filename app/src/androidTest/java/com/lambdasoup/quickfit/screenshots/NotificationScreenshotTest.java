@@ -20,10 +20,6 @@ import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import androidx.test.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
-import androidx.test.uiautomator.UiDevice;
 
 import com.lambdasoup.quickfit.Constants;
 import com.lambdasoup.quickfit.alarm.AlarmService;
@@ -41,6 +37,10 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.runner.RunWith;
 
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
+import androidx.test.uiautomator.UiDevice;
 import tools.fastlane.screengrab.locale.LocaleTestRule;
 
 /**
@@ -60,7 +60,7 @@ public class NotificationScreenshotTest {
     @BeforeClass
     public static void setUp() throws Exception {
         deviceInstance = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-        Context targetContext = InstrumentationRegistry.getTargetContext();
+        Context targetContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         QuickFitDbHelper dbHelper = new QuickFitDbHelper(targetContext);
         try (SQLiteDatabase conn = dbHelper.getWritableDatabase()) {
             ContentValues values = new ContentValues();
@@ -74,7 +74,7 @@ public class NotificationScreenshotTest {
 
     @AfterClass
     public static void tearDown() {
-        Context targetContext = InstrumentationRegistry.getTargetContext();
+        Context targetContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         ((NotificationManager) targetContext.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(Constants.NOTIFICATION_ALARM);
     }
 

@@ -17,14 +17,16 @@
 package com.lambdasoup.quickfit.util;
 
 import android.content.res.Resources;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-import static androidx.test.espresso.core.deps.guava.collect.Iterables.any;
+import androidx.recyclerview.widget.RecyclerView;
+
+import static androidx.test.espresso.core.internal.deps.guava.collect.Iterables.filter;
+import static androidx.test.espresso.core.internal.deps.guava.collect.Iterables.isEmpty;
 import static androidx.test.espresso.util.TreeIterables.breadthFirstViewTraversal;
 
 /**
@@ -66,8 +68,7 @@ public class RecyclerViewMatcher {
                 this.resources = view.getResources();
 
                 if (childView == null) {
-                    RecyclerView recyclerView =
-                            (RecyclerView) view.getRootView().findViewById(recyclerViewId);
+                    RecyclerView recyclerView = view.getRootView().findViewById(recyclerViewId);
                     if (recyclerView != null && recyclerView.getId() == recyclerViewId) {
                         childView = recyclerView.getChildAt(position);
                         if (childView == null) {
@@ -86,7 +87,7 @@ public class RecyclerViewMatcher {
             }
 
             private boolean isDescendantOfChild(View view) {
-                return any(breadthFirstViewTraversal(childView), descendantView -> descendantView == view);
+                return !isEmpty(filter(breadthFirstViewTraversal(childView), descendantView -> descendantView == view));
             }
         };
     }

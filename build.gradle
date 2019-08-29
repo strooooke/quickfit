@@ -22,7 +22,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.2'
+        classpath 'com.android.tools.build:gradle:3.5.0'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -33,6 +33,19 @@ allprojects {
         google()
         jcenter()
         maven { url "https://jitpack.io" }
+    }
+}
+
+subprojects {
+    project.configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            // Raise all transitive support lib dependencies to final version before jetifying
+            if (details.requested.group == 'com.android.support'
+                    && !details.requested.name.contains('multidex')) {
+                details.useVersion "28.0.0"
+                println "Forcing support lib version to 28.0.0 for $details.requested"
+            }
+        }
     }
 }
 

@@ -20,10 +20,6 @@ def version_major = 1
 def version_minor = 3
 def version_patch = 0
 
-ext {
-    supportLibVersion = "28.0.0"
-}
-
 android {
     compileSdkVersion 28
     buildToolsVersion "28.0.3"
@@ -85,13 +81,14 @@ dependencies {
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
 
     implementation "com.github.strooooke:appbarsyncedfab:v0.4"
+    implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation "com.bartoszlipinski:viewpropertyobjectanimator:1.4.5"
-    implementation "com.google.android.gms:play-services-fitness:17.0.0"
+    implementation "com.google.android.gms:play-services-fitness:18.0.0"
     implementation "com.jakewharton.timber:timber:4.7.1"
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
 }

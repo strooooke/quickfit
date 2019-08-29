@@ -20,7 +20,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Environment;
-import androidx.test.InstrumentationRegistry;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -29,6 +28,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Locale;
 
+import androidx.test.platform.app.InstrumentationRegistry;
 import timber.log.Timber;
 import tools.fastlane.screengrab.file.Chmod;
 
@@ -50,22 +50,17 @@ public class SystemScreengrab {
         Bitmap bitmap = InstrumentationRegistry.getInstrumentation().getUiAutomation().takeScreenshot();
 
         File file = screenshotFile(filename);
-        OutputStream fos = null;
-        try {
-            fos = new BufferedOutputStream(new FileOutputStream(file));
+        try (OutputStream fos = new BufferedOutputStream(new FileOutputStream(file))) {
             bitmap.compress(Bitmap.CompressFormat.PNG, FULL_QUALITY, fos);
             Chmod.chmodPlusR(file);
         } finally {
             bitmap.recycle();
-            if (fos != null) {
-                fos.close();
-            }
         }
 
     }
 
     private static File screenshotFile(String screenshotName) throws IOException {
-        File screenshotDirectory = getFilesDirectory(InstrumentationRegistry.getTargetContext(), Locale.getDefault());
+        File screenshotDirectory = getFilesDirectory(InstrumentationRegistry.getInstrumentation().getTargetContext(), Locale.getDefault());
         String screenshotFileName = System.currentTimeMillis() + NAME_SEPARATOR + screenshotName + EXTENSION;
         return new File(screenshotDirectory, screenshotFileName);
     }
@@ -79,7 +74,7 @@ public class SystemScreengrab {
         }
 
         if (directory == null) {
-            internalDir = new File(context.getDir("screengrab", 1), localeToDirName(locale));
+            internalDir = new File(context.getDir("screengrab", Context.MODE_PRIVATE), localeToDirName(locale));
             directory = initializeDirectory(internalDir);
         }
 
@@ -99,7 +94,7 @@ public class SystemScreengrab {
             }
         } catch (IOException e) {
             // masks missing write_external_storage permission when running this as part
-            // of a regular morphing_add_expand_less, and not the screengrab flavor with added permissions.
+            // of a regular connectedTest, and not the screengrab flavor with added permissions.
         }
 
         return null;
