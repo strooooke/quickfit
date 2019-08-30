@@ -19,7 +19,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
 >
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_schedule"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
         app:layout_behavior="@string/appbarsyncedfab_fab_behavior"
         tools:ignore="InconsistentLayout" />
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_workout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -18,7 +18,7 @@ package com.lambdasoup.quickfit.util;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 
 import com.google.android.gms.fitness.FitnessActivities;
 import com.lambdasoup.quickfit.model.DayOfWeek;

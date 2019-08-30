@@ -17,7 +17,7 @@
 package com.lambdasoup.quickfit.model;
 
 import android.content.res.Resources;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.android.gms.fitness.FitnessActivities;
 import com.lambdasoup.quickfit.R;

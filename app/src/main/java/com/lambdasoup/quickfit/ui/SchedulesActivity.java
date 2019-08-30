@@ -19,7 +19,7 @@ package com.lambdasoup.quickfit.ui;
 import android.app.LoaderManager;
 import android.content.Loader;
 import android.database.Cursor;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 
 import com.lambdasoup.quickfit.R;

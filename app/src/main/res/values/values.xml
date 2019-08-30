@@ -38,4 +38,8 @@
     <integer name="fab_animation_duration">@android:integer/config_mediumAnimTime</integer>
     <integer name="master_detail_animation_duration">@android:integer/config_mediumAnimTime</integer>
 
+    <!-- Resources are private in material design lib, so we cannot use it - but still need to not-alias it. *sigh*-->
+    <dimen name="design_lib_fab_size_mini">40dp</dimen>
+    <dimen name="design_lib_fab_size_normal">56dp</dimen>
+
 </resources>

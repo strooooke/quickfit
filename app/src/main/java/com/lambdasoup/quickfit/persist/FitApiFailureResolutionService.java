@@ -17,6 +17,7 @@
 package com.lambdasoup.quickfit.persist;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -25,13 +26,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
+import timber.log.Timber;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.lambdasoup.quickfit.Constants;
 import com.lambdasoup.quickfit.R;
 import com.lambdasoup.quickfit.ui.WorkoutListActivity;
+
+import static com.lambdasoup.quickfit.Constants.NOTIFICATION_CHANNEL_ID_PLAY_INTERACTION;
 
 /**
  * Service that handles fit api connection failures: by notification if no suitable activity is
@@ -46,6 +50,17 @@ public class FitApiFailureResolutionService extends Service {
     private FitApiFailureResolver currentForegroundResolver = null;
     private boolean isBound = false;
 
+    public static void initNotificationChannels(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    NOTIFICATION_CHANNEL_ID_PLAY_INTERACTION,
+                    context.getString(R.string.notification_channel_play_interaction_name),
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+
+            context.getSystemService(NotificationManager.class).createNotificationChannel(channel);
+        }
+    }
 
     public static Intent getFailureResolutionIntent(Context context, ConnectionResult connectionResult) {
         if (connectionResult.isSuccess()) {
@@ -88,11 +103,13 @@ public class FitApiFailureResolutionService extends Service {
     }
 
     private void handleErrorInForeground(ConnectionResult connectionResult, int startId) {
+        Timber.d("Resolving Fit API error while application in foreground");
         currentForegroundResolver.onFitApiFailure(connectionResult);
         stopSelfResult(startId);
     }
 
     private void handleErrorInBackground(ConnectionResult connectionResult, int startId) {
+        Timber.d("Resolving Fit API error while application in background");
         if (!connectionResult.hasResolution()) {
             // Show the localized error notification
             GoogleApiAvailability.getInstance().showErrorNotification(this, connectionResult.getErrorCode());
@@ -112,7 +129,7 @@ public class FitApiFailureResolutionService extends Service {
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID_PLAY_INTERACTION)
                 .setContentTitle(getResources().getString(R.string.permission_needed_play_service_title))
                 .setContentText(getResources().getString(R.string.permission_needed_play_service))
                 .setSmallIcon(R.drawable.ic_fitness_center_white_24px)

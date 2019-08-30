@@ -20,16 +20,18 @@ package com.lambdasoup.quickfit.util.ui;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.AttributeSet;
+
+import com.google.android.material.appbar.AppBarLayout;
 
 /**
  * Does not toggle visibility of an external View (like https://gist.github.com/adelnizamutdinov/31c8f054d1af4588dc5c ),
  * because the RecyclerViews should be part of the view of a fragment, which should be shown as content in a CoordinatorLayout.
  * Then, there must a single child of CoordinatorLayout that the fragment attaches into. That child, as direct child
- * of CoordinatorLayout, must be carrier of {@link android.support.design.widget.AppBarLayout.ScrollingViewBehavior}. Nesting the
+ * of CoordinatorLayout, must be carrier of {@link AppBarLayout.ScrollingViewBehavior}. Nesting the
  * empty view into that child makes the empty view scroll too, which is undesirable.
  *
  * Thus, the empty view is not part of the fragment, but must be supplied by the containing activity layout and displayed

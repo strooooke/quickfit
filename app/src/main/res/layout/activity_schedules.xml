@@ -23,12 +23,12 @@
             type="com.lambdasoup.quickfit.viewmodel.WorkoutItem" />
     </data>
 
-    <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".ui.SchedulesActivity">
+    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                         xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                         xmlns:tools="http://schemas.android.com/tools"
+                                                         android:layout_width="match_parent"
+                                                         android:layout_height="match_parent"
+                                                         tools:context=".ui.SchedulesActivity">
       <TextView
             android:id="@+id/schedule_list_empty"
             android:layout_width="match_parent"
@@ -37,7 +37,7 @@
             android:text="@string/schedule_list_empty"
             android:textAlignment="center" />
 
-        <android.support.v4.widget.NestedScrollView
+        <androidx.core.widget.NestedScrollView
             android:id="@+id/schedules_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -46,13 +46,13 @@
             />
 
 
-        <android.support.design.widget.AppBarLayout
+        <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/app_bar_height"
             android:theme="@style/AppTheme.AppBarOverlay">
 
-            <android.support.design.widget.CollapsingToolbarLayout
+            <com.google.android.material.appbar.CollapsingToolbarLayout
                 android:id="@+id/toolbar_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -93,18 +93,18 @@
                 </LinearLayout>
 
 
-                <android.support.v7.widget.Toolbar
+                <androidx.appcompat.widget.Toolbar
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     app:layout_collapseMode="pin"
                     app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-            </android.support.design.widget.CollapsingToolbarLayout>
-        </android.support.design.widget.AppBarLayout>
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+        </com.google.android.material.appbar.AppBarLayout>
 
 
-        <android.support.design.widget.FloatingActionButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -113,5 +113,5 @@
             app:layout_anchor="@id/app_bar"
             app:layout_anchorGravity="bottom|end" />
 
-    </android.support.design.widget.CoordinatorLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

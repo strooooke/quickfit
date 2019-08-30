@@ -17,7 +17,7 @@
 package com.lambdasoup.quickfit.ui;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.webkit.WebView;
 
 public class AboutActivity extends AppCompatActivity {

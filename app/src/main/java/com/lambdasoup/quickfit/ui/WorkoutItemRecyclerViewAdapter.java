@@ -18,8 +18,8 @@ package com.lambdasoup.quickfit.ui;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.support.v7.util.SortedList;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.SortedList;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +39,7 @@ import java.util.Set;
 
 import timber.log.Timber;
 
-import static android.support.v7.widget.RecyclerView.NO_ID;
+import static androidx.recyclerview.widget.RecyclerView.NO_ID;
 import static com.lambdasoup.quickfit.util.Lists.map;
 
 public class WorkoutItemRecyclerViewAdapter

@@ -25,10 +25,9 @@ import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.util.Log;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -136,7 +135,7 @@ public abstract class BaseActivity extends DialogActivity implements FitApiFailu
             failureResolutionInProgress = false;
             getIntent().removeExtra(EXTRA_PLAY_API_CONNECT_RESULT);
             if (resultCode == RESULT_OK) {
-                startService(FitActivityService.getIntentSyncSession(getApplicationContext()));
+                FitActivityService.enqueueSyncSession(getApplicationContext());
             }
         }
     }
