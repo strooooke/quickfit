@@ -27,7 +27,7 @@ import com.lambdasoup.quickfit.databinding.ActivitySchedulesBinding;
 import com.lambdasoup.quickfit.persist.QuickFitContract;
 import com.lambdasoup.quickfit.viewmodel.WorkoutItem;
 
-public class SchedulesActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>, TimeDialogFragment.OnFragmentInteractionListenerProvider, DayOfWeekDialogFragment.OnFragmentInteractionListenerProvider {
+public class SchedulesActivity extends FitFailureResolutionActivity implements LoaderManager.LoaderCallbacks<Cursor>, TimeDialogFragment.OnFragmentInteractionListenerProvider, DayOfWeekDialogFragment.OnFragmentInteractionListenerProvider {
 
     public static final String EXTRA_WORKOUT_ID = "com.lambdasoup.quickfit_workoutId";
     private static final int LOADER_WORKOUT = 0;

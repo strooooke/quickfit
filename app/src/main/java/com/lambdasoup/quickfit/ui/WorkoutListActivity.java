@@ -57,7 +57,7 @@ import static android.net.Uri.parse;
 import static androidx.recyclerview.widget.RecyclerView.NO_ID;
 
 
-public class WorkoutListActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>,
+public class WorkoutListActivity extends FitFailureResolutionActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         WorkoutItemRecyclerViewAdapter.OnWorkoutInteractionListener, DurationMinutesDialogFragment.OnFragmentInteractionListener,
         LabelDialogFragment.OnFragmentInteractionListener, CaloriesDialogFragment.OnFragmentInteractionListener,
         TimeDialogFragment.OnFragmentInteractionListenerProvider, DayOfWeekDialogFragment.OnFragmentInteractionListenerProvider, ActivityTypeDialogFragment.OnFragmentInteractionListener {

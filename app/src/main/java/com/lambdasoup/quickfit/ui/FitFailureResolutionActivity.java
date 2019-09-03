@@ -41,9 +41,8 @@ import timber.log.Timber;
  * user with Fit Api connection failure resolution while this activity is in the foreground. Can also be started with an
  * intent with a failure connection result as extra to start the resolution process.
  */
-public abstract class BaseActivity extends DialogActivity implements FitApiFailureResolutionService.FitApiFailureResolver {
+public abstract class FitFailureResolutionActivity extends DialogActivity implements FitApiFailureResolutionService.FitApiFailureResolver {
     public static final String EXTRA_PLAY_API_CONNECT_RESULT = "com.lambdasoup.quickfit.play_api_connect_result";
-    private static final String TAG = BaseActivity.class.getSimpleName();
     private static final int REQUEST_FAILURE_RESOLUTION = 0;
     private static final String KEY_FAILURE_RESOLUTION_IN_PROGRESS = "com.lambdasoup.quickfit.failure_resolution_in_progress";
     private static final String TAG_ERROR_DIALOG = "error_dialog";
@@ -52,7 +51,7 @@ public abstract class BaseActivity extends DialogActivity implements FitApiFailu
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             FitApiFailureResolutionService.Binder binder = (FitApiFailureResolutionService.Binder) service;
-            binder.registerAsCurrentForeground(BaseActivity.this);
+            binder.registerAsCurrentForeground(FitFailureResolutionActivity.this);
         }
 
         @Override
@@ -154,7 +153,7 @@ public abstract class BaseActivity extends DialogActivity implements FitApiFailu
 
         @Override
         public void onDismiss(DialogInterface dialog) {
-            ((BaseActivity) getActivity()).onDialogDismissed();
+            ((FitFailureResolutionActivity) getActivity()).onDialogDismissed();
         }
     }
 
