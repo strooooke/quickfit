@@ -66,12 +66,8 @@ public class SystemScreengrab {
     }
 
     private static File getFilesDirectory(Context context, Locale locale) throws IOException {
-        File directory = null;
-        File internalDir;
-        if (Build.VERSION.SDK_INT >= 21) {
-            internalDir = new File(Environment.getExternalStorageDirectory(), getDirectoryName(context, locale));
-            directory = initializeDirectory(internalDir);
-        }
+        File internalDir = new File(Environment.getExternalStorageDirectory(), getDirectoryName(context, locale));
+        File directory = initializeDirectory(internalDir);
 
         if (directory == null) {
             internalDir = new File(context.getDir("screengrab", Context.MODE_PRIVATE), localeToDirName(locale));

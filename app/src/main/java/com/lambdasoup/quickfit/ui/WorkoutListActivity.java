@@ -104,20 +104,6 @@ public class WorkoutListActivity extends BaseActivity implements LoaderManager.L
         //noinspection ConstantConditions
         fab.setOnClickListener(view -> addNewWorkout());
 
-        // need to set statelistdrawable referencing vector drawables programmatically, because
-        // support library vector drawable support in 23.3.0 does not allow vector drawable
-        // references in xml statelistdrawables
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            VectorDrawableCompat drawableAdd = VectorDrawableCompat.create(getResources(), R.drawable.ic_add_white_fat_24dp, getTheme());
-            VectorDrawableCompat drawableExpandLess = VectorDrawableCompat.create(getResources(), R.drawable.ic_expand_less_white_fat_24dp, getTheme());
-
-            StateListDrawable stateListDrawable = new StateListDrawable();
-            stateListDrawable.addState(new int[]{android.R.attr.state_activated}, drawableExpandLess);
-            stateListDrawable.addState(new int[]{}, drawableAdd);
-
-            fab.setImageDrawable(stateListDrawable);
-        }
-
         fabBackgroundToActivated = BackgroundTintListAnimator.create(this, fab, R.color.colorAccent, R.color.colorPrimaryMediumLight, fabAnimationDuration);
         fabBackgroundToNotActivated = BackgroundTintListAnimator.create(this, fab, R.color.colorPrimaryMediumLight, R.color.colorAccent, fabAnimationDuration);
 
