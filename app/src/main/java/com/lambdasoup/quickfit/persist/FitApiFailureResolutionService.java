@@ -136,9 +136,7 @@ public class FitApiFailureResolutionService extends Service {
                 .setContentIntent(resultPendingIntent)
                 .setAutoCancel(true);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            notificationBuilder.setCategory(Notification.CATEGORY_ERROR);
-        }
+        notificationBuilder.setCategory(Notification.CATEGORY_ERROR);
 
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(Constants.NOTIFICATION_PLAY_INTERACTION, notificationBuilder.build());
         stopSelfResult(startId);

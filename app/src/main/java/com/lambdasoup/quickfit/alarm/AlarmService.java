@@ -382,9 +382,7 @@ public class AlarmService extends IntentService {
             boolean vibrationOn = preferences.getBoolean(getString(R.string.pref_key_notification_vibrate), true);
             notification.setDefaults((ledOn ? Notification.DEFAULT_LIGHTS : 0) | (vibrationOn ? Notification.DEFAULT_VIBRATE : 0));
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                notification.setCategory(Notification.CATEGORY_ALARM);
-            }
+            notification.setCategory(Notification.CATEGORY_ALARM);
 
             NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             notificationManager.notify(Constants.NOTIFICATION_ALARM, notification.build());
