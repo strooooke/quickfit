@@ -17,16 +17,16 @@
 package com.lambdasoup.quickfit.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.preference.RingtonePreference;
 import android.provider.Settings;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Toast;
 
@@ -36,66 +36,134 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
 import com.lambdasoup.quickfit.R;
 
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 import timber.log.Timber;
 
 public class SettingsActivity extends AppCompatActivity {
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Display the fragment as the main content.
-        getFragmentManager().beginTransaction()
+        getSupportFragmentManager()
+                .beginTransaction()
                 .replace(android.R.id.content, new SettingsFragment())
                 .commit();
-
     }
 
-    public static class SettingsFragment extends PreferenceFragment {
+    public static class SettingsFragment extends PreferenceFragmentCompat {
+        private static final int REQUEST_CODE_ALERT_RINGTONE = 1;
 
-        private static final String TAG = SettingsFragment.class.getSimpleName();
         private Preference disconnectGoogleFitPref;
-        private RingtonePreference notificationRingtonePref;
+        private Preference notificationRingtonePref;
         private GoogleApiClient googleApiClient;
 
+        @Override
+        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+            setPreferencesFromResource(R.xml.preferences, rootKey);
+        }
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.preferences);
 
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+            disconnectGoogleFitPref =  findPreference(getString(R.string.pref_key_disconnect_g_fit));
 
-            String keyNotificationRingtone = getString(R.string.pref_key_notification_ringtone);
-            notificationRingtonePref = (RingtonePreference) findPreference(keyNotificationRingtone);
-            disconnectGoogleFitPref = findPreference(getString(R.string.pref_key_disconnect_g_fit));
-
-
-            updateRingtoneSummary(notificationRingtonePref, prefs.getString(keyNotificationRingtone, Settings.System.NOTIFICATION_SOUND));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                findPreference(getString(R.string.pref_key_notifications)).setVisible(false);
+            } else {
+                String keyNotificationRingtone = getString(R.string.pref_key_notification_ringtone);
+                notificationRingtonePref = findPreference(keyNotificationRingtone);
+                updateRingtoneSummary(notificationRingtonePref, getRingtonePreferenceValue(Settings.System.NOTIFICATION_SOUND));
+            }
         }
 
         @Override
         public void onStart() {
             super.onStart();
-            notificationRingtonePref.setOnPreferenceChangeListener((preference, newValue) -> {
-                updateRingtoneSummary(preference, (String) newValue);
-                return true;
-            });
+            if (notificationRingtonePref != null) {
+                notificationRingtonePref.setOnPreferenceClickListener(preference -> {
+                    Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
+                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
+                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, Settings.System.DEFAULT_NOTIFICATION_URI);
+
+                    String existingValue = getRingtonePreferenceValue(null);
+                    if (existingValue != null) {
+                        if (existingValue.length() == 0) {
+                            // Select "Silent"
+                            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, (Uri) null);
+                        } else {
+                            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(existingValue));
+                        }
+                    } else {
+                        // No ringtone has been selected, set to the default
+                        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Settings.System.DEFAULT_NOTIFICATION_URI);
+                    }
+
+                    startActivityForResult(intent, REQUEST_CODE_ALERT_RINGTONE);
+                    return true;
+                });
+
+                notificationRingtonePref.setOnPreferenceChangeListener((preference, newValue) -> {
+                    updateRingtoneSummary(preference, (String) newValue);
+                    return true;
+                });
+            }
 
             disconnectGoogleFitPref.setOnPreferenceClickListener(preference -> {
                 disconnectGoogleFit();
                 return true;
             });
-
         }
 
         @Override
         public void onStop() {
             super.onStop();
-            notificationRingtonePref.setOnPreferenceChangeListener(null);
+            if (notificationRingtonePref != null) {
+                notificationRingtonePref.setOnPreferenceChangeListener(null);
+                notificationRingtonePref.setOnPreferenceClickListener(null);
+            }
             disconnectGoogleFitPref.setOnPreferenceClickListener(null);
         }
 
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            switch (requestCode) {
+                case REQUEST_CODE_ALERT_RINGTONE: {
+                    if (data != null) {
+                        Uri ringtone = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+                        String ringtonePrefValue;
+                        if (ringtone != null) {
+                            ringtonePrefValue = ringtone.toString();
+                        } else {
+                            // "Silent" was selected
+                            ringtonePrefValue = "";
+                        }
+                        setRingtonPreferenceValue(ringtonePrefValue);
+                        updateRingtoneSummary(notificationRingtonePref, ringtonePrefValue);
+                    }
+                    break;
+                }
+                default:
+                    super.onActivityResult(requestCode, resultCode, data);
+            }
+        }
+
+        private String getRingtonePreferenceValue(@Nullable String defaultValue) {
+            String keyNotificationRingtone = getString(R.string.pref_key_notification_ringtone);
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireActivity().getApplicationContext());
+            return prefs.getString(keyNotificationRingtone, defaultValue);
+        }
+
+        private void setRingtonPreferenceValue(String newValue) {
+            String keyNotificationRingtone = getString(R.string.pref_key_notification_ringtone);
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireActivity().getApplicationContext());
+            prefs.edit().putString(keyNotificationRingtone, newValue).apply();
+        }
 
         private void updateRingtoneSummary(Preference preference, String strUri) {
             String name;
@@ -109,13 +177,13 @@ public class SettingsActivity extends AppCompatActivity {
             preference.setSummary(name);
         }
 
-
         private void disconnectGoogleFit() {
             if (googleApiClient != null && (googleApiClient.isConnecting() || googleApiClient.isConnected())) {
                 // disconnect already in progress
                 return;
             }
-            Context context = getActivity().getApplicationContext();
+            Context context = requireActivity().getApplicationContext();
+
             //noinspection CodeBlock2Expr,CodeBlock2Expr
             googleApiClient = new GoogleApiClient.Builder(context)
                     .addApi(Fitness.CONFIG_API)

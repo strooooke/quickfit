@@ -29,6 +29,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.AudioAttributes;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -39,6 +40,8 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.InboxStyle;
 import androidx.core.content.ContextCompat;
 import androidx.legacy.content.WakefulBroadcastReceiver;
+
+import android.provider.Settings;
 import android.text.format.DateUtils;
 
 import com.lambdasoup.quickfit.Constants;
@@ -95,6 +98,24 @@ public class AlarmService extends IntentService {
                     context.getString(R.string.notification_channel_alarm_name),
                     NotificationManager.IMPORTANCE_DEFAULT
             );
+
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            String ringtoneUriStr = preferences.getString(context.getString(R.string.pref_key_notification_ringtone), null);
+            if (ringtoneUriStr == null) {
+                channel.setSound(
+                        Settings.System.DEFAULT_NOTIFICATION_URI,
+                        new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT).build()
+                );
+            } else if (ringtoneUriStr.isEmpty()) {
+                channel.setSound(null, null);
+            } else {
+                channel.setSound(
+                        Uri.parse(ringtoneUriStr),
+                        new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT).build()
+                );
+            }
+            channel.enableLights(preferences.getBoolean(context.getString(R.string.pref_key_notification_led), true));
+            channel.enableVibration(preferences.getBoolean(context.getString(R.string.pref_key_notification_vibrate), true));
 
             context.getSystemService(NotificationManager.class).createNotificationChannel(channel);
         }
@@ -371,16 +392,19 @@ public class AlarmService extends IntentService {
             notification.setSmallIcon(R.drawable.ic_stat_quickfit_icon);
             notification.setColor(ContextCompat.getColor(this, R.color.colorPrimary));
 
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            String ringtoneUriStr = preferences.getString(getString(R.string.pref_key_notification_ringtone), null);
-            if (ringtoneUriStr == null) {
-                notification.setSound(RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_NOTIFICATION));
-            } else if (!ringtoneUriStr.isEmpty()) {
-                notification.setSound(Uri.parse(ringtoneUriStr));
+            // Starting with O, those properties are set on the notification channel
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+                String ringtoneUriStr = preferences.getString(getString(R.string.pref_key_notification_ringtone), null);
+                if (ringtoneUriStr == null) {
+                    notification.setSound(RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_NOTIFICATION));
+                } else if (!ringtoneUriStr.isEmpty()) {
+                    notification.setSound(Uri.parse(ringtoneUriStr));
+                }
+                boolean ledOn = preferences.getBoolean(getString(R.string.pref_key_notification_led), true);
+                boolean vibrationOn = preferences.getBoolean(getString(R.string.pref_key_notification_vibrate), true);
+                notification.setDefaults((ledOn ? Notification.DEFAULT_LIGHTS : 0) | (vibrationOn ? Notification.DEFAULT_VIBRATE : 0));
             }
-            boolean ledOn = preferences.getBoolean(getString(R.string.pref_key_notification_led), true);
-            boolean vibrationOn = preferences.getBoolean(getString(R.string.pref_key_notification_vibrate), true);
-            notification.setDefaults((ledOn ? Notification.DEFAULT_LIGHTS : 0) | (vibrationOn ? Notification.DEFAULT_VIBRATE : 0));
 
             notification.setCategory(Notification.CATEGORY_ALARM);
 
