@@ -131,6 +131,24 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
             addItemDecoration(DividerItemDecoration(this@WorkoutListActivity, false))
         }
 
+        // Theoretically, setting fitsSystemWindows on the CoordinatorLayout and appropriate children should work.
+        // In practice, it does not apply correctly to its RecyclerView children, breaking the scrolling AppBar behavior too.
+        // So we do things by hand.
+        root.setOnApplyWindowInsetsListener { v, windowInsets ->
+            v.setOnApplyWindowInsetsListener(null)
+
+            val systemWindowInsetsRelative = windowInsets.systemWindowInsetsRelative(v)
+
+            toolbar.updatePadding { oldPadding -> oldPadding + systemWindowInsetsRelative.copy(bottom = 0) }
+            toolbar.updateHeight { oldHeight -> oldHeight + windowInsets.systemWindowInsetTop }
+
+            fab.updateMargins { oldMargins -> oldMargins + systemWindowInsetsRelative.copy(top = 0) }
+
+            workout_list.updatePadding { oldPadding -> oldPadding + systemWindowInsetsRelative.copy(top = 0) }
+
+            windowInsets
+        }
+
         readIntentExtras()
 
         if (savedInstanceState != null) {

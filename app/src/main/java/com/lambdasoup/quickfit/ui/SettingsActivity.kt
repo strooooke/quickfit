@@ -41,12 +41,25 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                        // Tells the system that the window wishes the content to
+                        // be laid out as if the navigation bar was hidden
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
 
         // Display the fragment as the main content.
         supportFragmentManager
                 .beginTransaction()
                 .replace(android.R.id.content, SettingsFragment())
                 .commit()
+
+        findViewById<View>(android.R.id.content).setOnApplyWindowInsetsListener { v, insets ->
+            //v.setOnApplyWindowInsetsListener(null)
+            Timber.d("got insets: ${insets.systemWindowInsetsRelative(v)} raw Right=${insets.systemWindowInsetRight}")
+            v.updatePadding { oldPadding -> oldPadding + insets.systemWindowInsetsRelative(v) }
+
+            insets
+        }
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {

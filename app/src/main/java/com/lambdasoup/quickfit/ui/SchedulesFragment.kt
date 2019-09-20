@@ -68,6 +68,20 @@ class SchedulesFragment : Fragment(),
         return schedulesBinding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        view.setOnApplyWindowInsetsListener { v, windowInsets ->
+            v.setOnApplyWindowInsetsListener(null)
+
+            schedulesBinding.scheduleList.updatePadding {
+                oldPadding -> oldPadding + windowInsets.systemWindowInsetsRelative(v).copy(top = 0)
+            }
+
+            windowInsets
+        }
+
+        view.requestApplyInsets()
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         Timber.d("activity created, initializing view binding")

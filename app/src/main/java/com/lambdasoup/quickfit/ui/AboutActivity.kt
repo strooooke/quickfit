@@ -33,6 +33,19 @@ class AboutActivity : AppCompatActivity() {
         val webView = WebView(this)
         setContentView(webView)
 
+        window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                // Tells the system that the window wishes the content to
+                // be laid out as if the navigation bar was hidden
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+
         webView.loadUrl("file:///android_asset/html/about.html")
+        webView.setOnApplyWindowInsetsListener { v, insets ->
+            v.setOnApplyWindowInsetsListener(null)
+            v.updateMargins { oldMargins ->
+                oldMargins + insets.systemWindowInsetsRelative(v)
+            }
+            insets
+        }
     }
 }

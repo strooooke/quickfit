@@ -14,7 +14,8 @@
   ~    limitations under the License.
   -->
 
-<com.lambdasoup.quickfit.util.ui.MasterDetailLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.lambdasoup.quickfit.util.ui.MasterDetailLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/two_panes"
@@ -30,12 +31,12 @@
     tools:context="com.lambdasoup.quickfit.ui.WorkoutListActivity"
     tools:ignore="MissingDefaultResource">
 
-
     <FrameLayout
         android:id="@+id/list_pane"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        >
+        android:clipToPadding="false"
+        android:clipChildren="false">
 
         <TextView
             android:id="@+id/workout_list_empty"
@@ -58,8 +59,7 @@
     <FrameLayout
         android:id="@+id/detail_pane"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/schedule_list_empty"
@@ -72,7 +72,7 @@
         <FrameLayout
             android:id="@+id/schedules_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"/>
     </FrameLayout>
 
 </com.lambdasoup.quickfit.util.ui.MasterDetailLayout>

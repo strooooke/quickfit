@@ -14,25 +14,23 @@
   ~    limitations under the License.
   -->
 <layout>
-
     <data>
-
         <variable
             name="workout"
             type="com.lambdasoup.quickfit.viewmodel.WorkoutItem" />
     </data>
 
-
-    <com.lambdasoup.quickfit.util.ui.EmptyRecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+    <com.lambdasoup.quickfit.util.ui.EmptyRecyclerView
+        xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/schedule_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:clipChildren="false"
         android:background="?android:colorBackground"
         app:layoutManager="LinearLayoutManager"
         tools:context="com.lambdasoup.quickfit.ui.SchedulesFragment"
         tools:listitem="@layout/schedule_list_content" />
-
-
 </layout>

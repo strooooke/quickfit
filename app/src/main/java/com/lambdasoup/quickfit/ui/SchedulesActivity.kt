@@ -54,6 +54,12 @@ class SchedulesActivity : FitFailureResolutionActivity(),
 
         workoutBinding = DataBindingUtil.setContentView(this, R.layout.activity_schedules)
 
+        window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                // Tells the system that the window wishes the content to
+                // be laid out as if the navigation bar was hidden
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+
         if (intent.hasExtra(EXTRA_WORKOUT_ID)) {
             workoutId = intent.getLongExtra(EXTRA_WORKOUT_ID, -1)
         } else {
@@ -72,6 +78,24 @@ class SchedulesActivity : FitFailureResolutionActivity(),
         workoutBinding.fab.setOnClickListener { this.schedulesFragment.onAddNewSchedule() }
 
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+
+        workoutBinding.root.setOnApplyWindowInsetsListener { view, windowInsets ->
+            view.setOnApplyWindowInsetsListener(null)
+            val relativeSystemWindowInsets = windowInsets.systemWindowInsetsRelative(view)
+
+            with(workoutBinding.appBar) {
+                updatePadding { oldPadding ->
+                    oldPadding + relativeSystemWindowInsets.copy(bottom = 0)
+                }
+                updateHeight { oldHeight -> oldHeight + windowInsets.systemWindowInsetTop }
+            }
+
+            workoutBinding.fab.updateMargins { oldMargins ->
+                oldMargins.copy(end = oldMargins.end + relativeSystemWindowInsets.end)
+            }
+
+            windowInsets
+        }
 
         loaderManager.initLoader(LOADER_WORKOUT, null, this)
     }
