@@ -98,6 +98,7 @@ public class MasterDetailLayout extends LinearLayout {
                 }
             }
         });
+
     }
 
     @Override

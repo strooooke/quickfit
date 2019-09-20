@@ -114,7 +114,6 @@ public class EmptyRecyclerView extends RecyclerView {
         checkIfEmpty();
     }
 
-
     public boolean isEmpty() {
         return isEmpty;
     }
