@@ -8,6 +8,7 @@
 .idea/*
 !.idea/copyright/
 !.idea/codeStyleSettings.xml
+captures/*
 
 # gradle
 /local.properties
