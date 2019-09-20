@@ -24,6 +24,8 @@ import android.graphics.drawable.Drawable
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.view.View
+import androidx.recyclerview.widget.RecyclerView.NO_ID
+import androidx.recyclerview.widget.RecyclerView.NO_POSITION
 
 /**
  * See https://gist.github.com/alexfu/0f464fc3742f134ccd1e
@@ -55,8 +57,14 @@ class DividerItemDecoration(context: Context, private val drawAtEnd: Boolean) : 
         val right = parent.width - parent.paddingRight
 
         val lastDecoratedChild = getLastDecoratedChild(parent)
-        for (i in 0 until lastDecoratedChild) {
+        for (i in 0 until parent.childCount) {
             val child = parent.getChildAt(i)
+            val pos = parent.getChildAdapterPosition(child)
+
+            if (pos == NO_POSITION || pos > lastDecoratedChild) {
+                continue
+            }
+
             val ty = (child.translationY + 0.5f).toInt()
             val tx = (child.translationX + 0.5f).toInt()
             val bottom = manager!!.getDecoratedBottom(child) + ty
@@ -72,8 +80,14 @@ class DividerItemDecoration(context: Context, private val drawAtEnd: Boolean) : 
         val bottom = parent.height - parent.paddingBottom
 
         val lastDecoratedChild = getLastDecoratedChild(parent)
-        for (i in 0 until lastDecoratedChild) {
+        for (i in 0 until parent.childCount) {
             val child = parent.getChildAt(i)
+            val pos = parent.getChildAdapterPosition(child)
+
+            if (pos == NO_POSITION || pos > lastDecoratedChild) {
+                continue
+            }
+
             val ty = (child.translationY + 0.5f).toInt()
             val tx = (child.translationX + 0.5f).toInt()
             val right = manager!!.getDecoratedRight(child) + tx
@@ -84,18 +98,19 @@ class DividerItemDecoration(context: Context, private val drawAtEnd: Boolean) : 
     }
 
     private fun getLastDecoratedChild(parent: RecyclerView): Int {
-        return parent.childCount - if (drawAtEnd) 0 else 1
+        return parent.adapter!!.itemCount - 1 - if (drawAtEnd) 0 else 1
     }
 
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-        if (parent.getChildAdapterPosition(view) <= getLastDecoratedChild(parent)) {
+        super.getItemOffsets(outRect, view, parent, state)
+        val pos = parent.getChildAdapterPosition(view)
+
+        if (pos != NO_POSITION) {
             if (getOrientation(parent) == LinearLayoutManager.VERTICAL) {
-                outRect.set(0, 0, 0, divider.intrinsicHeight)
+                outRect.bottom = divider.intrinsicHeight
             } else {
-                outRect.set(0, 0, divider.intrinsicWidth, 0)
+                outRect.right = divider.intrinsicWidth
             }
-        } else {
-            outRect.set(0, 0, 0, 0)
         }
     }
 
