@@ -17,14 +17,16 @@
 
 <resources>
 
-    <style name="AppThemeBase" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+    <style name="AppThemeBase" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <item name="android:navigationBarColor">@color/scrimOnLight</item>
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="AppThemeBase">
-        <!-- Customize your theme here. -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -37,15 +39,15 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
 
     <style name="borderlessButton">
         <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
     </style>
 
-    <style name="dialog" parent="Base.Theme.AppCompat.Light.Dialog.Alert">
+    <style name="dialog" parent="Theme.MaterialComponents.Light.Dialog.Alert">
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 

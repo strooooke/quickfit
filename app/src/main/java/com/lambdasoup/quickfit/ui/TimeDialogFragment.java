@@ -83,7 +83,7 @@ public class TimeDialogFragment extends DialogFragment implements TimePickerDial
         OnFragmentInteractionListener getOnTimeDialogFragmentInteractionListener();
     }
 
-    interface OnFragmentInteractionListener {
+    public interface OnFragmentInteractionListener {
         void onTimeChanged(long scheduleId, int newHour, int newMinute);
     }
 

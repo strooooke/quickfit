@@ -17,19 +17,21 @@
 <layout>
 
     <data>
-
         <variable
             name="workout"
             type="com.lambdasoup.quickfit.viewmodel.WorkoutItem" />
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                         xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                         xmlns:tools="http://schemas.android.com/tools"
-                                                         android:layout_width="match_parent"
-                                                         android:layout_height="match_parent"
-                                                         tools:context=".ui.SchedulesActivity">
-      <TextView
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.SchedulesActivity">
+
+        <TextView
             android:id="@+id/schedule_list_empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -37,14 +39,11 @@
             android:text="@string/schedule_list_empty"
             android:textAlignment="center" />
 
-        <androidx.core.widget.NestedScrollView
+        <FrameLayout
             android:id="@+id/schedules_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fillViewport="true"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            />
-
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/app_bar"
@@ -58,16 +57,16 @@
                 android:layout_height="match_parent"
                 app:contentScrim="?attr/colorPrimary"
                 app:expandedTitleGravity="bottom|start"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed">
+                app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|start"
-                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
                     android:layout_marginStart="32dp"
                     android:layout_marginTop="56dp"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
                     android:orientation="vertical"
                     app:layout_collapseMode="none">
 
@@ -109,9 +108,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@drawable/ic_add_white_fat_24dp"
             app:layout_anchor="@id/app_bar"
-            app:layout_anchorGravity="bottom|end" />
+            app:layout_anchorGravity="bottom|end"
+            app:srcCompat="@drawable/ic_add_white_fat_24dp" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 </layout>

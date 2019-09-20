@@ -54,6 +54,7 @@ public class WorkoutItem {
         return new WorkoutItem(id, null, 0, 0, "", "");
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "WorkoutItem{" + "id=" + id +

@@ -15,19 +15,22 @@
  */
 
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 def version_major = 1
 def version_minor = 3
 def version_patch = 0
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
 
     defaultConfig {
         applicationId "com.lambdasoup.quickfit"
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode version_major * 10000 + version_minor * 100 + version_patch * 1
         versionName "$version_major.$version_minor.$version_patch"
 
@@ -80,7 +83,10 @@ dependencies {
     androidTestImplementation 'tools.fastlane:screengrab:0.3.0'
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
 
-    implementation "com.github.strooooke:appbarsyncedfab:v0.4"
+    kapt "com.android.databinding:compiler:$android_gradle_version"
+    implementation "androidx.core:core-ktx:1.1.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "com.github.strooooke:appbarsyncedfab:v0.5"
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'com.google.android.material:material:1.0.0'

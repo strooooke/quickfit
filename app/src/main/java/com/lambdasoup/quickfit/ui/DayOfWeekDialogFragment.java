@@ -105,7 +105,7 @@ public class DayOfWeekDialogFragment extends DialogFragment implements DialogInt
         OnFragmentInteractionListener getOnDayOfWeekDialogFragmentInteractionListener();
     }
 
-    interface OnFragmentInteractionListener {
+    public interface OnFragmentInteractionListener {
         void onListItemChanged(long objectId, DayOfWeek newValue);
     }
 }
