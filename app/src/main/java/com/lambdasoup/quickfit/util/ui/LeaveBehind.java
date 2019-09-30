@@ -23,6 +23,11 @@ public abstract class LeaveBehind extends ItemTouchHelper.SimpleCallback {
 
     @Override
     public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+        if (!isCurrentlyActive && recyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
+            // Do not initiate swipe while scroll is in progress
+            return;
+        }
+
         LeaveBehindViewHolder leaveBehindViewHolder = (LeaveBehindViewHolder) viewHolder;
         final boolean rtl = ViewCompat.getLayoutDirection(recyclerView) == ViewCompat.LAYOUT_DIRECTION_RTL;
         final boolean start = dX < 0 == rtl;
