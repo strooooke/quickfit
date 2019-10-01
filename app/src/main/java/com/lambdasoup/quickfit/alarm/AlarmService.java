@@ -257,7 +257,7 @@ public class AlarmService extends IntentService {
     @WorkerThread
     private void handleOnDidIt(long scheduleId, long workoutId) {
         Timber.d("Handling onDidIt");
-        FitActivityService.enqueueInsertSession(getApplicationContext(), workoutId);
+        FitActivityService.Companion.enqueueInsertSession(getApplicationContext(), workoutId);
         setDontShowNotificationForIds(new long[]{scheduleId});
         refreshNotificationDisplay();
     }
