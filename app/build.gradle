@@ -97,4 +97,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-fitness:18.0.0"
     implementation "com.jakewharton.timber:timber:4.7.1"
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
+    implementation "androidx.work:work-runtime:2.2.0"
+    implementation "androidx.concurrent:concurrent-futures:1.0.0-rc01"
+
 }

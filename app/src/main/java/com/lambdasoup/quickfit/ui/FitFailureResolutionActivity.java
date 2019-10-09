@@ -134,7 +134,7 @@ public abstract class FitFailureResolutionActivity extends DialogActivity implem
             failureResolutionInProgress = false;
             getIntent().removeExtra(EXTRA_PLAY_API_CONNECT_RESULT);
             if (resultCode == RESULT_OK) {
-                FitActivityService.enqueueSyncSession(getApplicationContext());
+                FitActivityService.Companion.enqueueSyncSession(getApplicationContext());
             }
         }
     }
