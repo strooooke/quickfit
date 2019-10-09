@@ -26,79 +26,167 @@ import android.os.RemoteException
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.Scope
 import com.google.android.gms.fitness.Fitness
+import com.google.android.gms.fitness.FitnessOptions
+import com.google.android.gms.fitness.SessionsClient
 import com.google.android.gms.fitness.data.*
 import com.google.android.gms.fitness.request.SessionInsertRequest
+import com.google.android.gms.tasks.Continuation
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.android.gms.tasks.SuccessContinuation
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.google.common.util.concurrent.ListenableFuture
 import timber.log.Timber
+import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
+private val SYNC_EXECUTOR = Executors.newSingleThreadExecutor { r -> Thread(r, "sync worker thread") }
+private val STATUS_TRANSMITTED = ContentValues().apply {
+    put(QuickFitContract.SessionEntry.STATUS, QuickFitContract.SessionEntry.SessionStatus.SYNCED.name)
+}
+
 class SyncWorker(private val appContext: Context, workerParams: WorkerParameters) : ListenableWorker(appContext, workerParams) {
 
-    private var contentResolver: ContentResolver = appContext.contentResolver
-    private var googleApiClient: GoogleApiClient? = null
+    private val contentResolver: ContentResolver by lazy { appContext.contentResolver }
 
-    override fun startWork(): ListenableFuture<Result> =
-            CallbackToFutureAdapter.getFuture { completer ->
-                val connectionCallbacks = object : GoogleApiClient.ConnectionCallbacks {
-                    override fun onConnected(bundle: Bundle?) {
-                        try {
-                            val sessionsCursor = contentResolver.query(
-                                    QuickFitContentProvider.getUriSessionsList(),
-                                    QuickFitContract.SessionEntry.COLUMNS,
-                                    QuickFitContract.SessionEntry.STATUS + "=?",
-                                    arrayOf(QuickFitContract.SessionEntry.SessionStatus.NEW.name),
-                                    null
-                            )
-                            Timber.d("Found %s sessions to sync", sessionsCursor?.count ?: "no")
-                            insertNextSession(sessionsCursor, completer, SyncStatus(hasFailedInsertions = false))
-                        } catch (e: RemoteException) {
-                            completer.set(Result.retry())
-                        }
+    // Exactly one worker gets instantiated per unit of work, so we use the instance to keep our state around.
+    // Does not apply to cursor, because that is nullable...
+    private lateinit var sessionsClient: SessionsClient
+    private lateinit var cursor: Cursor
+    private var hasFailedInsertions = false
+
+    override fun startWork(): ListenableFuture<Result> = CallbackToFutureAdapter.getFuture { completer ->
+        val fitnessOptions = FitnessOptions.builder()
+                .addDataType(DataType.TYPE_ACTIVITY_SEGMENT, FitnessOptions.ACCESS_WRITE)
+                .addDataType(DataType.TYPE_CALORIES_EXPENDED, FitnessOptions.ACCESS_WRITE)
+                .build()
+
+        fun onFailure() {
+            Timber.d("Sign-in required, getting intent")
+            val signInIntent = GoogleSignIn.getClient(
+                    appContext,
+                    GoogleSignInOptions.Builder().addExtension(fitnessOptions).build()
+            ).signInIntent
+
+            // TODO: cannot start service from background. there goes the architecture.
+            Timber.d("I'd like to get this intent resolved appropriately, but I can't yet. ${signInIntent}")
+            //appContext.startService(FitApiFailureResolutionService.getFailureResolutionIntent(appContext, signInIntent))
+            completer.set(Result.failure()) // TODO or retry?
+        }
+
+        val account = GoogleSignIn.getLastSignedInAccount(appContext) ?: run {
+            onFailure()
+            return@getFuture "Sign-in required immediately"
+        }
+
+        sessionsClient = Fitness.getSessionsClient(appContext, account)
+
+        Tasks.call(SYNC_EXECUTOR, Callable {
+                    val sessionsCursor = contentResolver.query(
+                            QuickFitContentProvider.getUriSessionsList(),
+                            QuickFitContract.SessionEntry.COLUMNS,
+                            QuickFitContract.SessionEntry.STATUS + "=?",
+                            arrayOf(QuickFitContract.SessionEntry.SessionStatus.NEW.name),
+                            null
+                    )
+                    Timber.d("Found %s sessions to sync", sessionsCursor?.count ?: "no")
+                    sessionsCursor
+                })
+                .onSuccessTask (SYNC_EXECUTOR, SuccessContinuation<Cursor?, Void> { sessionsCursor ->
+                    if (sessionsCursor == null) {
+                        Tasks.forResult(null)
+                    } else {
+                        cursor = sessionsCursor
+                        insertNextSession()
                     }
+                })
+                .addOnCanceledListener { Timber.d("work got cancelled") }
+                .addOnCompleteListener(SYNC_EXECUTOR, OnCompleteListener {
+                    completer.set(
+                            it.exception.let { t ->
+                                if (t == null) {
+                                    // task is successful.
+                                    Timber.d("Sync complete")
+                                    if (hasFailedInsertions) {
+                                        Result.retry()
+                                    } else {
+                                        Result.success()
+                                    }
+                                } else {
+                                    completer.setException(t)
+                                    Result.failure() // TODO: or retry? depend on exception? might need to do the signIn thing?
+                                }
+                            }
+                    )
+                })
+        // TODO completer.addCancellationListener(Runnable {  })
+    }
 
-                    override fun onConnectionSuspended(cause: Int) {
-                        Timber.d("connection suspended")
-                        if (cause == GoogleApiClient.ConnectionCallbacks.CAUSE_NETWORK_LOST) {
-                            Timber.d("Connection lost.  Cause: Network Lost.")
-                        } else if (cause == GoogleApiClient.ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
-                            Timber.d("Connection lost.  Reason: Service Disconnected")
-                        }
-                        completer.set(Result.retry())
-                    }
-                }
+//    override fun startWork(): ListenableFuture<Result> =
+//            CallbackToFutureAdapter.getFuture { completer ->
+//                val connectionCallbacks = object : GoogleApiClient.ConnectionCallbacks {
+//                    override fun onConnected(bundle: Bundle?) {
+//                        try {
+//                            val sessionsCursor = contentResolver.query(
+//                                    QuickFitContentProvider.getUriSessionsList(),
+//                                    QuickFitContract.SessionEntry.COLUMNS,
+//                                    QuickFitContract.SessionEntry.STATUS + "=?",
+//                                    arrayOf(QuickFitContract.SessionEntry.SessionStatus.NEW.name),
+//                                    null
+//                            )
+//                            Timber.d("Found %s sessions to sync", sessionsCursor?.count ?: "no")
+//                            insertNextSession(sessionsCursor, completer, SyncStatus(hasFailedInsertions = false))
+//                        } catch (e: RemoteException) {
+//                            completer.set(Result.retry())
+//                        }
+//                    }
+//
+//                    override fun onConnectionSuspended(cause: Int) {
+//                        Timber.d("connection suspended")
+//                        if (cause == GoogleApiClient.ConnectionCallbacks.CAUSE_NETWORK_LOST) {
+//                            Timber.d("Connection lost.  Cause: Network Lost.")
+//                        } else if (cause == GoogleApiClient.ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
+//                            Timber.d("Connection lost.  Reason: Service Disconnected")
+//                        }
+//                        completer.set(Result.retry())
+//                    }
+//                }
+//
+//                val failureCallback = GoogleApiClient.OnConnectionFailedListener { result ->
+//                    Timber.d("connection failed: %s", result.errorMessage)
+//                    appContext.startService(FitApiFailureResolutionService.getFailureResolutionIntent(appContext, result))
+//                    completer.set(Result.failure())
+//                }
+//
+//                googleApiClient = GoogleApiClient.Builder(appContext)
+//                        .addApi(Fitness.SESSIONS_API)
+//                        .addScope(Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
+//                        .addConnectionCallbacks(connectionCallbacks)
+//                        .addOnConnectionFailedListener(failureCallback)
+//                        .build()
+//
+//                completer.addCancellationListener(Runnable { googleApiClient?.disconnect() }, Executors.newSingleThreadExecutor())
+//
+//                Timber.d("starting sync work")
+//                googleApiClient!!.connect()
+//            }
 
-                val failureCallback = GoogleApiClient.OnConnectionFailedListener { result ->
-                    Timber.d("connection failed: %s", result.errorMessage)
-                    appContext.startService(FitApiFailureResolutionService.getFailureResolutionIntent(appContext, result))
-                    completer.set(Result.failure())
-                }
-
-                googleApiClient = GoogleApiClient.Builder(appContext)
-                        .addApi(Fitness.SESSIONS_API)
-                        .addScope(Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
-                        .addConnectionCallbacks(connectionCallbacks)
-                        .addOnConnectionFailedListener(failureCallback)
-                        .build()
-
-                completer.addCancellationListener(Runnable { googleApiClient?.disconnect() }, Executors.newSingleThreadExecutor())
-
-                Timber.d("starting sync work")
-                googleApiClient!!.connect()
-            }
-
-    private fun insertNextSession(cursor: Cursor?, completer: CallbackToFutureAdapter.Completer<Result>, syncStatus: SyncStatus) {
-        if (cursor == null || !cursor.moveToNext()) {
+    private fun insertNextSession(): Task<Void> {
+        if (!cursor.moveToNext()) {
             // done with sessions
             Timber.d("Done; disconnecting.")
-            googleApiClient!!.disconnect()
+            // TODO googleApiClient!!.disconnect()
             // sync finished
-            completer.set(if (syncStatus.hasFailedInsertions) Result.retry() else Result.success())
-            return
+            return Tasks.forResult(null)
         }
 
         val startTime = cursor.getLong(cursor.getColumnIndex(QuickFitContract.SessionEntry.START_TIME))
@@ -124,34 +212,26 @@ class SyncWorker(private val appContext: Context, workerParams: WorkerParameters
                     .build()
 
             insertRequest.addAggregateDataPoint(
-                    DataPoint.create(datasource)
+                    DataPoint.builder(datasource)
                             .setTimestamp(startTime, TimeUnit.MILLISECONDS)
                             .setFloatValues(cursor.getInt(cursor.getColumnIndex(QuickFitContract.SessionEntry.CALORIES)).toFloat())
-                            .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS))
+                            .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS)
+                            .build()
+            )
         }
 
-        val res = Fitness.SessionsApi.insertSession(googleApiClient, insertRequest.build())
-        res.setResultCallback { status ->
-            if (status.isSuccess) {
-                contentResolver.update(
-                        QuickFitContentProvider.getUriSessionsId(cursor.getLong(cursor.getColumnIndex(QuickFitContract.SessionEntry._ID))),
-                        STATUS_TRANSMITTED, null, null
-                )
-                Timber.d("insertion successful")
-            } else {
-                Timber.d("insertion failed: %s", status.statusMessage)
-                syncStatus.hasFailedInsertions = true
-            }
-            Timber.d("Looking at the next session")
-            insertNextSession(cursor, completer, syncStatus)
-        }
-    }
-
-    companion object {
-        private val STATUS_TRANSMITTED = ContentValues().apply {
-            put(QuickFitContract.SessionEntry.STATUS, QuickFitContract.SessionEntry.SessionStatus.SYNCED.name)
-        }
+        return sessionsClient.insertSession(insertRequest.build())
+                .addOnSuccessListener(SYNC_EXECUTOR, OnSuccessListener {
+                    contentResolver.update(
+                            QuickFitContentProvider.getUriSessionsId(cursor.getLong(cursor.getColumnIndex(QuickFitContract.SessionEntry._ID))),
+                            STATUS_TRANSMITTED, null, null
+                    )
+                    Timber.d("insertion successful")
+                })
+                .addOnFailureListener(SYNC_EXECUTOR, OnFailureListener { e ->
+                    Timber.w(e, "insertion failed")
+                    //syncStatus.hasFailedInsertion = true
+                })
+                .continueWithTask(SYNC_EXECUTOR, Continuation { insertNextSession() })
     }
 }
-
-private data class SyncStatus(var hasFailedInsertions: Boolean)

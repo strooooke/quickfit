@@ -45,6 +45,8 @@ import static com.lambdasoup.quickfit.Constants.NOTIFICATION_CHANNEL_ID_PLAY_INT
  */
 public class FitApiFailureResolutionService extends Service {
     private static final String EXTRA_FAILURE_RESULT = "com.lambdasoup.quickfit.persist.EXTRA_FAILURE_RESULT";
+    private static final String EXTRA_SIGNIN_INTENT = "com.lambdasoup.quickfit.persist.EXTRA_SIGNIN_INTENT";
+
 
     private final Binder binder = new Binder();
     private FitApiFailureResolver currentForegroundResolver = null;
@@ -71,8 +73,22 @@ public class FitApiFailureResolutionService extends Service {
         return failureResultIntent;
     }
 
+    public static Intent getFailureResolutionIntent(Context context, Intent signInIntent) {
+        Intent failureResultIntent = new Intent(context, FitApiFailureResolutionService.class);
+        failureResultIntent.putExtra(EXTRA_SIGNIN_INTENT, signInIntent);
+        return failureResultIntent;
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        // TODO
+        if (intent.hasExtra(EXTRA_SIGNIN_INTENT)) {
+            Intent signInIntent = intent.getParcelableExtra(EXTRA_SIGNIN_INTENT);
+            Timber.d("Can't do so yet, but got a signIn intent to launch: %s", signInIntent);
+            return START_REDELIVER_INTENT;
+        }
+
+
         if (!intent.hasExtra(EXTRA_FAILURE_RESULT)) {
             throw new IllegalArgumentException("Required extra " + EXTRA_FAILURE_RESULT + " missing.");
         }
