@@ -20,7 +20,7 @@ package com.lambdasoup.quickfit
 import android.app.Application
 
 import com.lambdasoup.quickfit.alarm.AlarmService
-import com.lambdasoup.quickfit.persist.FitApiFailureResolutionService
+import com.lambdasoup.quickfit.persist.FitApiFailureResolution
 
 import timber.log.Timber
 
@@ -36,7 +36,7 @@ class QuickFit : Application() {
         }
 
         AlarmService.initNotificationChannels(this)
-        FitApiFailureResolutionService.initNotificationChannels(this)
+        FitApiFailureResolution.initNotificationChannels(this)
 
         // ensure that our we sync periodically, to catch any problems with
         // missing manual sync requests eventually
