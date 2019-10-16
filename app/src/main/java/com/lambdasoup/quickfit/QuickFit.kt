@@ -18,6 +18,7 @@
 package com.lambdasoup.quickfit
 
 import android.app.Application
+import com.lambdasoup.quickfit.alarm.AlarmReceiver
 
 import com.lambdasoup.quickfit.alarm.AlarmService
 import com.lambdasoup.quickfit.persist.FitApiFailureResolution
@@ -35,6 +36,7 @@ class QuickFit : Application() {
             Timber.plant(Timber.DebugTree())
         }
 
+        AlarmReceiver.initNotificationChannels(this)
         AlarmService.initNotificationChannels(this)
         FitApiFailureResolution.initNotificationChannels(this)
 

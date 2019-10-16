@@ -14,14 +14,15 @@
   ~    limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="com.lambdasoup.quickfit">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.lambdasoup.quickfit">
 
     <!-- normal -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
         android:name=".QuickFit"
@@ -76,31 +77,31 @@
             android:parentActivityName=".ui.WorkoutListActivity" />
 
         <service
-            android:name=".alarm.AlarmService"
-            android:exported="false" />
-        <service
             android:name=".FitActivityService"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <service
+            android:name=".alarm.AlarmService"
+            android:exported="false" />
 
         <receiver
             android:name=".alarm.AlarmReceiver"
             android:enabled="true"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
-                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" /> <!-- see http://stackoverflow.com/a/14866346/1428514 -->
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
         </receiver>
+
         <receiver
-            android:name=".alarm.TimeChangeReceiver"
+            android:name=".alarm.ResetAlarmsReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.TIME_SET" />
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" /> <!-- see http://stackoverflow.com/a/14866346/1428514 -->
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

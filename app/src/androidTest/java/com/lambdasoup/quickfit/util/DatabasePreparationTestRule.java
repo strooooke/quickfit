@@ -86,7 +86,7 @@ public class DatabasePreparationTestRule implements TestRule {
         s11.put(ScheduleEntry.COL_HOUR, 18);
         s11.put(ScheduleEntry.COL_MINUTE, 30);
         s11.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, NEXT_ALARM_MILLIS_FUTURE);
-        s11.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
+        s11.put(ScheduleEntry.COL_CURRENT_STATE, ScheduleEntry.CURRENT_STATE_ACKNOWLEDGED);
 
         s12.put(ScheduleEntry.COL_ID, 5L);
         s12.put(ScheduleEntry.COL_WORKOUT_ID, 1L);
@@ -94,7 +94,7 @@ public class DatabasePreparationTestRule implements TestRule {
         s12.put(ScheduleEntry.COL_HOUR, 15);
         s12.put(ScheduleEntry.COL_MINUTE, 0);
         s12.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, NEXT_ALARM_MILLIS_FUTURE);
-        s12.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
+        s12.put(ScheduleEntry.COL_CURRENT_STATE, ScheduleEntry.CURRENT_STATE_ACKNOWLEDGED);
 
         s21.put(ScheduleEntry.COL_ID, 2L);
         s21.put(ScheduleEntry.COL_WORKOUT_ID, 2L);
@@ -102,7 +102,7 @@ public class DatabasePreparationTestRule implements TestRule {
         s21.put(ScheduleEntry.COL_HOUR, 12);
         s21.put(ScheduleEntry.COL_MINUTE, 0);
         s21.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, NEXT_ALARM_MILLIS_FUTURE);
-        s21.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
+        s21.put(ScheduleEntry.COL_CURRENT_STATE, ScheduleEntry.CURRENT_STATE_ACKNOWLEDGED);
 
         s22.put(ScheduleEntry.COL_ID, 3L);
         s22.put(ScheduleEntry.COL_WORKOUT_ID, 2L);
@@ -110,7 +110,7 @@ public class DatabasePreparationTestRule implements TestRule {
         s22.put(ScheduleEntry.COL_HOUR, 13);
         s22.put(ScheduleEntry.COL_MINUTE, 0);
         s22.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, NEXT_ALARM_MILLIS_FUTURE);
-        s22.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
+        s22.put(ScheduleEntry.COL_CURRENT_STATE, ScheduleEntry.CURRENT_STATE_ACKNOWLEDGED);
 
         s23.put(ScheduleEntry.COL_ID, 4L);
         s23.put(ScheduleEntry.COL_WORKOUT_ID, 2L);
@@ -118,7 +118,7 @@ public class DatabasePreparationTestRule implements TestRule {
         s23.put(ScheduleEntry.COL_HOUR, 17);
         s23.put(ScheduleEntry.COL_MINUTE, 0);
         s23.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, NEXT_ALARM_MILLIS_FUTURE);
-        s23.put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO);
+        s23.put(ScheduleEntry.COL_CURRENT_STATE, ScheduleEntry.CURRENT_STATE_ACKNOWLEDGED);
     }
 
     private final QuickFitDbHelper dbHelper;

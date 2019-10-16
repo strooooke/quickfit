@@ -41,7 +41,7 @@ public class QuickFitContract {
         public static final String HOUR = "schedule_hour";
         public static final String MINUTE = "schedule_minute";
         public static final String NEXT_ALARM_MILLIS = "schedule_next_alarm_millis";
-        public static final String SHOW_NOTIFICATION = "schedule_show_notification";
+        public static final String CURRENT_STATE = "schedule_current_state";
         public static final String[] COLUMNS_FULL = {WORKOUT_ID, SCHEDULE_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES, DAY_OF_WEEK, HOUR, MINUTE};
         public static final String[] COLUMNS_WORKOUT_ONLY = {WORKOUT_ID, ACTIVITY_TYPE, DURATION_MINUTES, LABEL, CALORIES};
         public static final String[] COLUMNS_SCHEDULE_ONLY = {WORKOUT_ID, SCHEDULE_ID, DAY_OF_WEEK, HOUR, MINUTE};
@@ -68,7 +68,7 @@ public class QuickFitContract {
                 case HOUR:
                 case MINUTE:
                 case NEXT_ALARM_MILLIS:
-                case SHOW_NOTIFICATION:
+                case CURRENT_STATE:
                     aliased.append(ScheduleEntry.TABLE_NAME);
                     table = ScheduleEntry.TABLE_NAME;
                     break;
@@ -104,8 +104,8 @@ public class QuickFitContract {
                 case NEXT_ALARM_MILLIS:
                     aliased.append(ScheduleEntry.COL_NEXT_ALARM_MILLIS);
                     break;
-                case SHOW_NOTIFICATION:
-                    aliased.append(ScheduleEntry.COL_SHOW_NOTIFICATION);
+                case CURRENT_STATE:
+                    aliased.append(ScheduleEntry.COL_CURRENT_STATE);
                     break;
             }
             aliased.append(" as ");
@@ -163,11 +163,15 @@ public class QuickFitContract {
         public static final String COL_HOUR = "hour";
         public static final String COL_MINUTE = "minute";
         public static final String COL_NEXT_ALARM_MILLIS = "next_alarm_millis";
-        public static final String COL_SHOW_NOTIFICATION = "show_notification";
-        public static final String[] COLUMNS = {COL_ID, COL_WORKOUT_ID, COL_DAY_OF_WEEK, COL_HOUR, COL_MINUTE, COL_NEXT_ALARM_MILLIS, COL_SHOW_NOTIFICATION};
+        public static final String COL_CURRENT_STATE = "current_state";
+        public static final String[] COLUMNS = {COL_ID, COL_WORKOUT_ID, COL_DAY_OF_WEEK, COL_HOUR, COL_MINUTE, COL_NEXT_ALARM_MILLIS, COL_CURRENT_STATE};
 
         public static final int SHOW_NOTIFICATION_NO = 0;
         public static final int SHOW_NOTIFICATION_YES = 1;
+
+        public static final String CURRENT_STATE_ACKNOWLEDGED = "acknowledged";
+        public static final String CURRENT_STATE_DISPLAYING = "displaying";
+        public static final String CURRENT_STATE_SNOOZED = "snoozed";
 
         private ScheduleEntry() {
             // do not instantiate
