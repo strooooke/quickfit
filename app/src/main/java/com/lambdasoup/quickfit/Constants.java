@@ -21,10 +21,13 @@ public class Constants {
     public static final String NOTIFICATION_CHANNEL_ID_PLAY_INTERACTION = "play_interaction";
     public static final int NOTIFICATION_ALARM = 1;
     public static final String NOTIFICATION_CHANNEL_ID_ALARM = "alarm";
+    public static final int NOTIFICATION_ALARM_BG_IO_WORK = 2;
+    public static final String NOTIFICATION_CHANNEL_ID_BG_IO = "bg_io";
     public static final int PENDING_INTENT_ALARM_RECEIVER = 0;
     public static final int PENDING_INTENT_WORKOUT_LIST = 1;
     public static final int PENDING_INTENT_DID_IT = 2;
     public static final int PENDING_INTENT_SNOOZE = 3;
+    public static final int PENDING_INTENT_DISMISS_ALARM = 4;
     public static final int JOB_ID_FIT_ACTIVITY_SERVICE = 100;
 
 

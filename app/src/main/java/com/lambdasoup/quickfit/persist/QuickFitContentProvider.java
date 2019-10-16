@@ -25,8 +25,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.lambdasoup.quickfit.persist.QuickFitContract.ScheduleEntry;
@@ -38,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import timber.log.Timber;
 
 
@@ -73,6 +73,41 @@ public class QuickFitContentProvider extends ContentProvider {
     }
 
     private QuickFitDbHelper database;
+
+    public static long getWorkoutIdFromUriOrThrow(Uri uri) {
+        int type = uriMatcher.match(uri);
+        switch (type) {
+            case TYPE_WORKOUT_ID:
+            case TYPE_WORKOUT_ID_SCHEDULE_ID:
+            case TYPE_WORKOUT_ID_SCHEDULES:
+                return Long.parseLong(uri.getPathSegments().get(1));
+            default:
+                throw new IllegalArgumentException("Not a QuickFit content uri with workoutId: " + uri);
+        }
+    }
+
+    public static long getScheduleIdFromUriOrThrow(Uri uri) {
+        int type = uriMatcher.match(uri);
+        switch (type) {
+            case TYPE_SCHEDULE_ID:
+                return Long.parseLong(uri.getPathSegments().get(1));
+            case TYPE_WORKOUT_ID_SCHEDULE_ID:
+                return Long.parseLong(uri.getPathSegments().get(3));
+            default:
+                throw new IllegalArgumentException("Not a QuickFit content uri with scheduleId: " + uri);
+        }
+    }
+
+    public static long getSessionIdFromUriOrThrow(Uri uri) {
+        int type = uriMatcher.match(uri);
+        //noinspection SwitchStatementWithTooFewBranches
+        switch (type) {
+            case TYPE_SESSION_ID:
+                return Long.parseLong(uri.getPathSegments().get(1));
+            default:
+                throw new IllegalArgumentException("Not a QuickFit content uri with sessionId: " + uri);
+        }
+    }
 
     public static Uri getUriWorkoutsList() {
         return URI_WORKOUTS;
@@ -136,11 +171,11 @@ public class QuickFitContentProvider extends ContentProvider {
                         } else {
                             queryBuilder.appendWhere(ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_WORKOUT_ID + "=?");
                         }
-                        moreSelectionArgs.add(uri.getPathSegments().get(1));
+                        moreSelectionArgs.add(Long.toString(getWorkoutIdFromUriOrThrow(uri)));
                         break;
                     case TYPE_WORKOUT_ID_SCHEDULE_ID:
                         queryBuilder.appendWhere(ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_ID + "=?");
-                        moreSelectionArgs.add(uri.getLastPathSegment());
+                        moreSelectionArgs.add(Long.toString(getScheduleIdFromUriOrThrow(uri)));
                         break;
                     case TYPE_WORKOUTS:
                         break;
@@ -148,13 +183,13 @@ public class QuickFitContentProvider extends ContentProvider {
                 break;
             case TYPE_SCHEDULE_ID:
                 queryBuilder.appendWhere(ScheduleEntry.COL_ID + "=?");
-                moreSelectionArgs.add(uri.getLastPathSegment());
+                moreSelectionArgs.add(Long.toString(getScheduleIdFromUriOrThrow(uri)));
             case TYPE_SCHEDULES:
                 queryBuilder.setTables(ScheduleEntry.TABLE_NAME);
                 break;
             case TYPE_SESSION_ID:
                 queryBuilder.appendWhere(SessionEntry._ID + "=?");
-                moreSelectionArgs.add(uri.getLastPathSegment());
+                moreSelectionArgs.add(Long.toString(getSessionIdFromUriOrThrow(uri)));
             case TYPE_SESSIONS:
                 queryBuilder.setTables(SessionEntry.TABLE_NAME);
                 break;
@@ -209,7 +244,7 @@ public class QuickFitContentProvider extends ContentProvider {
                 break;
             case TYPE_WORKOUT_ID_SCHEDULES:
                 ContentValues expandedValues = new ContentValues(values);
-                expandedValues.put(ScheduleEntry.COL_WORKOUT_ID, uri.getPathSegments().get(1));
+                expandedValues.put(ScheduleEntry.COL_WORKOUT_ID, Long.toString(getWorkoutIdFromUriOrThrow(uri)));
                 id = sqlDB.insert(ScheduleEntry.TABLE_NAME, null, expandedValues);
                 break;
             case TYPE_SCHEDULES:
@@ -238,11 +273,11 @@ public class QuickFitContentProvider extends ContentProvider {
                 if (TextUtils.isEmpty(selection)) {
                     rowsDeleted = sqlDB.delete(WorkoutEntry.TABLE_NAME,
                             WorkoutEntry.COL_ID + "=?",
-                            new String[]{uri.getLastPathSegment()});
+                            new String[]{Long.toString(getWorkoutIdFromUriOrThrow(uri))});
                 } else {
                     rowsDeleted = sqlDB.delete(WorkoutEntry.TABLE_NAME,
                             WorkoutEntry.COL_ID + "=? and " + selection,
-                            expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
+                            expandSelectionArgs(selectionArgs, Collections.singletonList(Long.toString(getWorkoutIdFromUriOrThrow(uri)))));
                 }
                 break;
             }
@@ -255,11 +290,11 @@ public class QuickFitContentProvider extends ContentProvider {
                 if (TextUtils.isEmpty(selection)) {
                     rowsDeleted = sqlDB.delete(SessionEntry.TABLE_NAME,
                             SessionEntry._ID + "=?",
-                            new String[]{uri.getLastPathSegment()});
+                            new String[]{Long.toString(getSessionIdFromUriOrThrow(uri))});
                 } else {
                     rowsDeleted = sqlDB.delete(SessionEntry.TABLE_NAME,
                             SessionEntry._ID + "=? and " + selection,
-                            expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
+                            expandSelectionArgs(selectionArgs, Collections.singletonList(Long.toString(getSessionIdFromUriOrThrow(uri)))));
                 }
                 break;
             }
@@ -273,11 +308,11 @@ public class QuickFitContentProvider extends ContentProvider {
                 if (TextUtils.isEmpty(selection)) {
                     rowsDeleted = sqlDB.delete(ScheduleEntry.TABLE_NAME,
                             ScheduleEntry.COL_ID + "=?",
-                            new String[]{uri.getLastPathSegment()});
+                            new String[]{Long.toString(getScheduleIdFromUriOrThrow(uri))});
                 } else {
                     rowsDeleted = sqlDB.delete(ScheduleEntry.TABLE_NAME,
                             ScheduleEntry.COL_ID + "=? and " + selection,
-                            expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
+                            expandSelectionArgs(selectionArgs, Collections.singletonList(Long.toString(getScheduleIdFromUriOrThrow(uri)))));
                 }
                 break;
             }
@@ -306,12 +341,12 @@ public class QuickFitContentProvider extends ContentProvider {
                     rowsUpdated = sqlDB.update(WorkoutEntry.TABLE_NAME,
                             values,
                             WorkoutEntry.COL_ID + "=?",
-                            new String[]{uri.getLastPathSegment()});
+                            new String[]{Long.toString(getWorkoutIdFromUriOrThrow(uri))});
                 } else {
                     rowsUpdated = sqlDB.update(WorkoutEntry.TABLE_NAME,
                             values,
                             WorkoutEntry.COL_ID + "=? and " + selection,
-                            expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
+                            expandSelectionArgs(selectionArgs, Collections.singletonList(Long.toString(getWorkoutIdFromUriOrThrow(uri)))));
                 }
                 break;
             case TYPE_SESSIONS:
@@ -325,12 +360,12 @@ public class QuickFitContentProvider extends ContentProvider {
                     rowsUpdated = sqlDB.update(SessionEntry.TABLE_NAME,
                             values,
                             SessionEntry._ID + "=?",
-                            new String[]{uri.getLastPathSegment()});
+                            new String[]{Long.toString(getSessionIdFromUriOrThrow(uri))});
                 } else {
                     rowsUpdated = sqlDB.update(SessionEntry.TABLE_NAME,
                             values,
                             SessionEntry._ID + "=? and " + selection,
-                            expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
+                            expandSelectionArgs(selectionArgs, Collections.singletonList(Long.toString(getSessionIdFromUriOrThrow(uri)))));
                 }
                 break;
             case TYPE_SCHEDULES:
@@ -343,12 +378,12 @@ public class QuickFitContentProvider extends ContentProvider {
                     rowsUpdated = sqlDB.update(ScheduleEntry.TABLE_NAME,
                             values,
                             ScheduleEntry.COL_ID + "=?",
-                            new String[]{uri.getLastPathSegment()});
+                            new String[]{Long.toString(getScheduleIdFromUriOrThrow(uri))});
                 } else {
                     rowsUpdated = sqlDB.update(ScheduleEntry.TABLE_NAME,
                             values,
                             ScheduleEntry.COL_ID + "=? and " + selection,
-                            expandSelectionArgs(selectionArgs, Collections.singletonList(uri.getLastPathSegment())));
+                            expandSelectionArgs(selectionArgs, Collections.singletonList(Long.toString(getScheduleIdFromUriOrThrow(uri)))));
                 }
                 break;
             default:

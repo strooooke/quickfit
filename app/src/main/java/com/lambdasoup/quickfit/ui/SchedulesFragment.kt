@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.Loader
@@ -32,7 +33,6 @@ import com.lambdasoup.quickfit.databinding.FragmentSchedulesBinding
 import com.lambdasoup.quickfit.model.DayOfWeek
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider
 import com.lambdasoup.quickfit.persist.QuickFitContract.ScheduleEntry
-import com.lambdasoup.quickfit.util.DateTimes
 import com.lambdasoup.quickfit.util.ui.DividerItemDecoration
 import com.lambdasoup.quickfit.util.ui.LeaveBehind
 import com.lambdasoup.quickfit.util.ui.systemWindowInsetsRelative
@@ -140,26 +140,22 @@ class SchedulesFragment : Fragment(),
     }
 
     override fun onListItemChanged(scheduleId: Long, newDayOfWeek: DayOfWeek) {
-        val oldScheduleItem = schedulesAdapter.getById(scheduleId)
-        val nextAlarmMillis = DateTimes.getNextOccurrence(
-                System.currentTimeMillis(),
-                newDayOfWeek,
-                oldScheduleItem.hour,
-                oldScheduleItem.minute
-        )
-
         requireContext().contentResolver.update(
                 QuickFitContentProvider.getUriWorkoutsIdSchedulesId(workoutId, scheduleId),
-                ContentValues(3).apply {
+                ContentValues(1).apply {
                     put(ScheduleEntry.COL_DAY_OF_WEEK, newDayOfWeek.name)
-                    put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, nextAlarmMillis)
-                    put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO)
                 },
                 null,
                 null
         )
 
-        refreshAlarm()
+        ContextCompat.startForegroundService(
+                requireContext(),
+                AlarmService.getOnScheduleChangedIntent(
+                        requireContext(),
+                        scheduleId
+                )
+        )
     }
 
 
@@ -168,22 +164,23 @@ class SchedulesFragment : Fragment(),
     }
 
     override fun onTimeChanged(scheduleId: Long, newHour: Int, newMinute: Int) {
-        val oldScheduleItem = schedulesAdapter.getById(scheduleId)
-        val nextAlarmMillis = DateTimes.getNextOccurrence(System.currentTimeMillis(), oldScheduleItem.dayOfWeek, newHour, newMinute)
-
         requireContext().contentResolver.update(
                 QuickFitContentProvider.getUriWorkoutsIdSchedulesId(workoutId, scheduleId),
-                ContentValues(4).apply {
+                ContentValues(2).apply {
                     put(ScheduleEntry.COL_HOUR, newHour)
                     put(ScheduleEntry.COL_MINUTE, newMinute)
-                    put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, nextAlarmMillis)
-                    put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO)
                 },
                 null,
                 null
         )
 
-        refreshAlarm()
+        ContextCompat.startForegroundService(
+                requireContext(),
+                AlarmService.getOnScheduleChangedIntent(
+                        requireContext(),
+                        scheduleId
+                )
+        )
     }
 
     internal fun onAddNewSchedule() {
@@ -192,24 +189,23 @@ class SchedulesFragment : Fragment(),
         val dayOfWeek = DayOfWeek.getByCalendarConst(calendar.get(Calendar.DAY_OF_WEEK))
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
         val minute = calendar.get(Calendar.MINUTE)
-        val nextAlarmMillis = DateTimes.getNextOccurrence(System.currentTimeMillis(), dayOfWeek, hour, minute)
 
-        requireContext().contentResolver.insert(
+        val scheduleUri = requireContext().contentResolver.insert(
                 QuickFitContentProvider.getUriWorkoutsIdSchedules(workoutId),
-                ContentValues(5).apply {
+                ContentValues(3).apply {
                     put(ScheduleEntry.COL_DAY_OF_WEEK, dayOfWeek.name)
                     put(ScheduleEntry.COL_HOUR, hour)
                     put(ScheduleEntry.COL_MINUTE, minute)
-                    put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, nextAlarmMillis)
-                    put(ScheduleEntry.COL_SHOW_NOTIFICATION, ScheduleEntry.SHOW_NOTIFICATION_NO)
                 }
         )
 
-        refreshAlarm()
-    }
-
-    private fun refreshAlarm() {
-        requireContext().startService(AlarmService.getIntentOnNextOccChanged(context))
+        ContextCompat.startForegroundService(
+                requireContext(),
+                AlarmService.getOnScheduleChangedIntent(
+                        requireContext(),
+                        QuickFitContentProvider.getScheduleIdFromUriOrThrow(scheduleUri)
+                )
+        )
     }
 
     private fun onRemoveSchedule(scheduleId: Long) {
@@ -218,6 +214,8 @@ class SchedulesFragment : Fragment(),
                 null,
                 null
         )
+
+        ContextCompat.startForegroundService(requireContext(), AlarmService.getOnScheduleDeletedIntent(requireContext(), scheduleId))
     }
 
     companion object {
