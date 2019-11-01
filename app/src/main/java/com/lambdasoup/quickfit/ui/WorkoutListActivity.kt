@@ -149,8 +149,6 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
             windowInsets
         }
 
-        readIntentExtras()
-
         if (savedInstanceState != null) {
             idToSelect = savedInstanceState.getLong(KEY_SHOW_WORKOUT_ID, NO_ID)
             if (idToSelect == NO_ID) {
@@ -160,6 +158,8 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
             idToSelect = FIRST_ITEM_IF_EXISTS
         }
 
+        applyIntentContents()
+
         loaderManager.initLoader(0, null, this)
         Timber.d("onCreate finished")
     }
@@ -167,13 +167,26 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        readIntentExtras()
+        applyIntentContents()
+        Timber.d("onNewIntent: intent read, idToSelect=$idToSelect")
     }
 
-    private fun readIntentExtras() {
-        if (intent.hasExtra(EXTRA_SHOW_WORKOUT_ID)) {
-            idToSelect = intent.getLongExtra(EXTRA_SHOW_WORKOUT_ID, NO_ID)
+    private fun Intent.idToSelect(): Long? =
+            data?.let {
+                try {
+                    QuickFitContentProvider.getWorkoutIdFromUriOrThrow(it)
+                } catch (e: IllegalArgumentException) {
+                    null
+                }
+            }
+
+    private fun applyIntentContents() {
+        intent.idToSelect().let { idFromIntent ->
+            if (idFromIntent != null) {
+                idToSelect = idFromIntent
+            }
         }
+
         if (intent.hasExtra(EXTRA_NOTIFICATIONS_CANCEL_INTENT)) {
             val cancelIntent = intent.getParcelableExtra<PendingIntent>(EXTRA_NOTIFICATIONS_CANCEL_INTENT)
             try {
@@ -226,7 +239,7 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
     }
 
     override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor?) {
-        Timber.d("onLoadFinished, data size=%d", data?.count ?: 0)
+        Timber.d("onLoadFinished, idToSelect=$idToSelect")
         workoutsAdapter.swapCursor(data)
 
         if (idToSelect == FIRST_ITEM_IF_EXISTS) {
@@ -237,6 +250,7 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
             val pos = workoutsAdapter.getPosition(idToSelect)
             if (pos != SortedList.INVALID_POSITION) {
                 workoutsAdapter.selectedItemId = idToSelect
+                Timber.d("going to scroll to pos $pos - recyclerView.paddingBottom = ${workout_list.paddingBottom}")
                 workout_list.smoothScrollToPosition(pos)
                 Timber.d("scrolled")
             }
