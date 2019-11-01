@@ -74,7 +74,7 @@ class SyncWorker(private val appContext: Context, workerParams: WorkerParameters
 
                 val failureCallback = GoogleApiClient.OnConnectionFailedListener { result ->
                     Timber.d("connection failed: %s", result.errorMessage)
-                    appContext.startService(FitApiFailureResolutionService.getFailureResolutionIntent(appContext, result))
+                    FitApiFailureResolution.resolveFailure(appContext, result)
                     completer.set(Result.failure())
                 }
 

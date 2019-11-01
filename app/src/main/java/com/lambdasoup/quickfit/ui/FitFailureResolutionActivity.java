@@ -17,47 +17,34 @@
 package com.lambdasoup.quickfit.ui;
 
 import android.app.Dialog;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.lambdasoup.quickfit.FitActivityService;
-import com.lambdasoup.quickfit.persist.FitApiFailureResolutionService;
+import com.lambdasoup.quickfit.persist.FitApiFailureResolution;
+import com.lambdasoup.quickfit.persist.FitApiFailureResolver;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import timber.log.Timber;
 
 /**
- * Base class for activities that bind to {@link FitApiFailureResolutionService}; which allows to interrupt the
+ * Base class for activities that bind to {@link FitApiFailureResolution}; which allows to interrupt the
  * user with Fit Api connection failure resolution while this activity is in the foreground. Can also be started with an
  * intent with a failure connection result as extra to start the resolution process.
  */
-public abstract class FitFailureResolutionActivity extends DialogActivity implements FitApiFailureResolutionService.FitApiFailureResolver {
+public abstract class FitFailureResolutionActivity extends DialogActivity implements FitApiFailureResolver {
     public static final String EXTRA_PLAY_API_CONNECT_RESULT = "com.lambdasoup.quickfit.play_api_connect_result";
     private static final int REQUEST_FAILURE_RESOLUTION = 0;
     private static final String KEY_FAILURE_RESOLUTION_IN_PROGRESS = "com.lambdasoup.quickfit.failure_resolution_in_progress";
     private static final String TAG_ERROR_DIALOG = "error_dialog";
     private static final String ARG_ERROR_CODE = "com.lambdasoup.quickfit.play_api_error_code";
-    private final ServiceConnection fitApiFailureResolutionServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            FitApiFailureResolutionService.Binder binder = (FitApiFailureResolutionService.Binder) service;
-            binder.registerAsCurrentForeground(FitFailureResolutionActivity.this);
-        }
 
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-        }
-    };
     private boolean failureResolutionInProgress = false;
 
     @Override
@@ -77,20 +64,20 @@ public abstract class FitFailureResolutionActivity extends DialogActivity implem
     @Override
     protected void onStart() {
         super.onStart();
-        bindService(new Intent(this, FitApiFailureResolutionService.class), fitApiFailureResolutionServiceConnection, Context.BIND_AUTO_CREATE);
+        FitApiFailureResolution.INSTANCE.registerAsCurrentForeground(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        unbindService(fitApiFailureResolutionServiceConnection);
+        FitApiFailureResolution.INSTANCE.unregisterAsCurrentForeground(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        // if started from notification (failure occurred while no activity was bound to the FitApiFailureResolutionService)
+        // if started from notification (failure occurred while no activity was bound to FitApiFailureResolution)
         ConnectionResult connectionResult = getIntent().getParcelableExtra(EXTRA_PLAY_API_CONNECT_RESULT);
         if (connectionResult != null) {
             onFitApiFailure(connectionResult);
@@ -98,7 +85,7 @@ public abstract class FitFailureResolutionActivity extends DialogActivity implem
     }
 
     @Override
-    public void onFitApiFailure(ConnectionResult connectionResult) {
+    public void onFitApiFailure(@NonNull ConnectionResult connectionResult) {
         if (failureResolutionInProgress) {
             // nothing to do
             return;

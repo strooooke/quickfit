@@ -22,8 +22,9 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.lambdasoup.quickfit.Constants;
-import com.lambdasoup.quickfit.alarm.AlarmService;
-import com.lambdasoup.quickfit.persist.QuickFitContract.ScheduleEntry;
+import com.lambdasoup.quickfit.alarm.Alarms;
+import com.lambdasoup.quickfit.alarm.WorkoutNotificationData;
+import com.lambdasoup.quickfit.persist.QuickFitContract;
 import com.lambdasoup.quickfit.persist.QuickFitDbHelper;
 import com.lambdasoup.quickfit.ui.WorkoutListActivity;
 import com.lambdasoup.quickfit.util.DatabasePreparationTestRule;
@@ -61,13 +62,19 @@ public class NotificationScreenshotTest {
     public static void setUp() throws Exception {
         deviceInstance = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         Context targetContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        QuickFitDbHelper dbHelper = new QuickFitDbHelper(targetContext);
-        try (SQLiteDatabase conn = dbHelper.getWritableDatabase()) {
-            ContentValues values = new ContentValues();
-            values.put(ScheduleEntry.COL_NEXT_ALARM_MILLIS, DatabasePreparationTestRule.NEXT_ALARM_MILLIS_PAST);
-            conn.update(ScheduleEntry.TABLE_NAME, values, ScheduleEntry.COL_ID + "=" + DatabasePreparationTestRule.s11.get(ScheduleEntry.COL_ID), null);
-        }
-        targetContext.startService(AlarmService.getIntentOnAlarmReceived(targetContext));
+
+        Alarms alarms = new Alarms(targetContext);
+        long scheduleId = DatabasePreparationTestRule.s11.getAsLong(QuickFitContract.ScheduleEntry.COL_ID);
+        WorkoutNotificationData notificationData = new WorkoutNotificationData(
+                DatabasePreparationTestRule.w1.getAsLong(QuickFitContract.WorkoutEntry.COL_ID),
+                DatabasePreparationTestRule.w1.getAsString(QuickFitContract.WorkoutEntry.COL_ACTIVITY_TYPE),
+                DatabasePreparationTestRule.w1.getAsString(QuickFitContract.WorkoutEntry.COL_LABEL),
+                DatabasePreparationTestRule.w1.getAsInteger(QuickFitContract.WorkoutEntry.COL_DURATION_MINUTES)
+        );
+        alarms.notify(
+                scheduleId,
+                notificationData
+        );
         Thread.sleep(500); // wait for intent service to finish processing
         deviceInstance.openNotification();
     }
@@ -75,7 +82,7 @@ public class NotificationScreenshotTest {
     @AfterClass
     public static void tearDown() {
         Context targetContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        ((NotificationManager) targetContext.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(Constants.NOTIFICATION_ALARM);
+        ((NotificationManager) targetContext.getSystemService(Context.NOTIFICATION_SERVICE)).cancelAll();
     }
 
     @Test

@@ -42,7 +42,6 @@
     <string name="delete_button">delete</string>
     <string name="cancel">Cancel</string>
 
-
     <plurals name="duration_mins_format">
         <item quantity="one">%d minute</item>
         <item quantity="other">%d minutes</item>
@@ -65,10 +64,11 @@
     <string name="sunday">Sunday</string>
 
     <string name="weekday_time_format"><xliff:g example="Monday" id="weekday">%1$s</xliff:g>  <xliff:g example="13:45" id="time">%2$s</xliff:g></string>
+    <string name="schedule_list_empty">Workout not yet scheduled.</string>
 
     <string name="notification_channel_play_interaction_name">Permissions needed</string>
     <string name="notification_channel_alarm_name">Scheduled workout reminder</string>
-    <string name="schedule_list_empty">Workout not yet scheduled.</string>
+    <string name="notification_channel_bg_io_name">Others</string>
     <string name="notification_alarm_title_single">Time for <xliff:g example="Aerobics" id="fit_activity_display_name">%1$s</xliff:g>!</string>
     <string name="notification_alarm_content_single"><xliff:g example="25 minutes" id="duration_minutes_formatted">%1$s</xliff:g> <b><xliff:g example="Tango with Frank" id="workout_label">%2$s</xliff:g></b></string>
     <string name="notification_alarm_title_multi">Time for fitness!</string>
@@ -76,6 +76,8 @@
     <string name="notification_alarm_content_line_multi"><b><xliff:g example="Aerobics" id="fit_activity_display_name">%1$s</xliff:g></b> <xliff:g example="25 minutes" id="duration_minutes_formatted">%2$s</xliff:g> <b><xliff:g example="Tango with Frank" id="workout_label">%3$s</xliff:g></b></string>
     <string name="notification_action_did_it">Did it!</string>
     <string name="notification_action_remind_me_later">Snooze</string>
+    <string name="notification_alarm_bg_io_title">Updating reminders</string>
+    <string name="notification_alarm_bg_io_content">Reminders are getting updated…</string>
 
     <string name="title_settings">Settings</string>
     <string name="pref_google_account">Google account</string>
