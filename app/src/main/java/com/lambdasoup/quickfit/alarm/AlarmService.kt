@@ -20,14 +20,10 @@ package com.lambdasoup.quickfit.alarm
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.media.AudioAttributes
-import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
-import android.provider.Settings
 import androidx.core.app.NotificationCompat
-import androidx.preference.PreferenceManager
 import com.lambdasoup.quickfit.Constants
 import com.lambdasoup.quickfit.Constants.PENDING_INTENT_WORKOUT_LIST
 import com.lambdasoup.quickfit.R
@@ -92,7 +88,7 @@ class AlarmService : Service() {
                     ACTION_ON_NOTIFICATION_DISMISSED -> alarms.onNotificationDismissed(getScheduleId())
                     ACTION_ON_SCHEDULE_CHANGED -> alarms.onScheduleChanged(getScheduleId())
                     ACTION_ON_SCHEDULE_DELETED -> alarms.onScheduleDeleted(getScheduleId())
-                    ACTION_ON_BOOT_COMPLETED -> alarms.onBootCompleted()
+                    ACTION_TIME_DISCONTINUITY -> alarms.resetAlarms()
                     else -> throw IllegalArgumentException("Unknown action: ${intent.action}")
                 }
             } catch (e: Throwable) {
@@ -126,7 +122,7 @@ class AlarmService : Service() {
         private const val ACTION_ON_NOTIFICATION_DISMISSED = "com.lambdasoup.quickfit.alarm.ACTION_ON_NOTIFICATION_DISMISSED"
         private const val ACTION_ON_SCHEDULE_CHANGED = "com.lambdasoup.quickfit.alarm.ACTION_ON_SCHEDULE_CHANGED"
         private const val ACTION_ON_SCHEDULE_DELETED = "com.lambdasoup.quickfit.alarm.ACTION_ON_SCHEDULE_DELETED"
-        private const val ACTION_ON_BOOT_COMPLETED = "com.lambdasoup.quickfit.alarm.ACTION_ON_BOOT_COMPLETED"
+        private const val ACTION_TIME_DISCONTINUITY = "com.lambdasoup.quickfit.alarm.ACTION_TIME_DISCONTINUITY"
 
         fun getSnoozeIntent(context: Context, scheduleId: Long) =
                 Intent(context, AlarmService::class.java)
@@ -160,7 +156,7 @@ class AlarmService : Service() {
 
         fun getOnBootCompletedIntent(context: Context) =
                 Intent(context, AlarmService::class.java)
-                        .setAction(ACTION_ON_BOOT_COMPLETED)
+                        .setAction(ACTION_TIME_DISCONTINUITY)
 
         fun initNotificationChannels(context: Context) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
