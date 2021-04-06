@@ -142,6 +142,10 @@ class Alarms(private val context: Context) {
                 // Only effect is on content-click. cancelIntent is not fired, despite the name. Actions need to cancel the notification
                 // themselves.
                 .setAutoCancel(true)
+                // Notification might be re-displayed after device time corrections. No point in re-alerting the user.
+                // If the user does not dismiss the notification for a week, they won't get noisily alerted about the _next_ occurence.
+                // This is acceptable to me.
+                .setOnlyAlertOnce(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setSmallIcon(R.drawable.ic_stat_quickfit_icon)
                 .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
@@ -215,8 +219,9 @@ class Alarms(private val context: Context) {
     }
 
     @WorkerThread
-    fun onBootCompleted() {
+    fun resetAlarms() {
         val now = System.currentTimeMillis()
+        Timber.d("resetAlarms, now=$now")
 
         context.contentResolver.query(
                 QuickFitContentProvider.getUriWorkoutsList(),
@@ -237,7 +242,7 @@ class Alarms(private val context: Context) {
                 null
         ).use { cursor ->
             if (cursor == null) {
-                return@onBootCompleted
+                return@resetAlarms
             }
 
             while (cursor.moveToNext()) {
@@ -247,12 +252,15 @@ class Alarms(private val context: Context) {
                 val currentState = cursor.getString(cursor.getColumnIndexOrThrow(WorkoutEntry.CURRENT_STATE))
                 val workoutNotificationData = WorkoutNotificationData.fromRow(cursor)
                 if (nextAlarmMillis == null) {
+                    Timber.d("not yet scheduled: $scheduleId $workoutNotificationData")
                     // system had no chance yet to compute next alert time, so let's do that now.
                     prepareNextAlert(scheduleId, ScheduleEntry.CURRENT_STATE_ACKNOWLEDGED, this::nextOccurence)
                 } else if (nextAlarmMillis <= now || currentState == ScheduleEntry.CURRENT_STATE_DISPLAYING) {
+                    Timber.d("already past or was displaying: $scheduleId $workoutNotificationData")
                     notify(scheduleId, workoutNotificationData)
                     prepareNextAlert(scheduleId, ScheduleEntry.CURRENT_STATE_DISPLAYING, this::nextOccurence)
                 } else {
+                    Timber.d("re-enqueue: $scheduleId $workoutNotificationData")
                     enqueueWithAlarmManager(scheduleId, nextAlarmMillis, workoutNotificationData)
                 }
             }
@@ -319,6 +327,7 @@ class Alarms(private val context: Context) {
     private fun enqueueWithAlarmManager(scheduleId: Long, nextAlarmMillis: Long, workoutData: WorkoutNotificationData) {
         val alarmReceiverPendingIntent = buildAlarmReceiverPendingIntent(scheduleId, workoutData)
 
+        Timber.d("enqueuing $scheduleId $workoutData at $nextAlarmMillis")
         AlarmManagerCompat.setExactAndAllowWhileIdle(
                 alarmManager,
                 AlarmManager.RTC_WAKEUP,
