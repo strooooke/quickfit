@@ -29,8 +29,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.fitness.Fitness
+import com.lambdasoup.quickfit.Constants.FITNESS_API_OPTIONS
 import com.lambdasoup.quickfit.R
 import com.lambdasoup.quickfit.util.ui.systemWindowInsetsRelative
 import com.lambdasoup.quickfit.util.ui.updateMargins
@@ -154,40 +158,34 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         private fun disconnectGoogleFit() {
-            if (googleApiClient != null && (googleApiClient!!.isConnecting || googleApiClient!!.isConnected)) {
-                // disconnect already in progress
-                return
-            }
-            val context = requireActivity().applicationContext
+            fun showDisconnectSuccess() = Toast.makeText(context, R.string.msg_fit_disconnect_success, Toast.LENGTH_SHORT).show()
 
-            //noinspection CodeBlock2Expr,CodeBlock2Expr
-            googleApiClient = GoogleApiClient.Builder(context)
-                    .addApi(Fitness.CONFIG_API)
-                    .addConnectionCallbacks(
-                            object : GoogleApiClient.ConnectionCallbacks {
-                                override fun onConnected(bundle: Bundle?) {
-                                    val result = Fitness.ConfigApi.disableFit(googleApiClient)
-                                    result.setResultCallback { status ->
-                                        if (status.isSuccess) {
-                                            Toast.makeText(context, R.string.msg_fit_disconnect_success, Toast.LENGTH_SHORT).show()
-                                        } else {
-                                            Toast.makeText(context, R.string.msg_fit_disconnect_failure, Toast.LENGTH_SHORT).show()
-                                        }
-                                        googleApiClient!!.disconnect()
-                                    }
+            fun showDisconnectFailure() = Toast.makeText(context, R.string.msg_fit_disconnect_failure, Toast.LENGTH_SHORT).show()
 
-                                }
-
-                                override fun onConnectionSuspended(i: Int) {
-                                    Timber.d("connection suspended")
-                                }
-                            }
-                    )
-                    .addOnConnectionFailedListener {
-                        Toast.makeText(context, R.string.msg_fit_disconnect_no_connection, Toast.LENGTH_SHORT).show()
+            Fitness.getConfigClient(requireContext(), GoogleSignIn.getAccountForExtension(requireContext(), FITNESS_API_OPTIONS))
+                    .disableFit()
+                    // See https://github.com/android/fit-samples/issues/28 - all this seems necessary to actually properly disconnect
+                    // this app from Google Fit
+                    .continueWithTask {
+                        val signInOptions = GoogleSignInOptions.Builder()
+                                .addExtension(FITNESS_API_OPTIONS)
+                                .build()
+                        GoogleSignIn.getClient(requireContext(), signInOptions)
+                                .revokeAccess()
                     }
-                    .build()
-            googleApiClient!!.connect()
+                    .addOnFailureListener {
+                        if (it is ApiException && it.statusCode == 4) {
+                            // for unclear reasons (see https://github.com/android/fit-samples/issues/28), this is the expected
+                            // result of successfully revoking access.
+                            showDisconnectSuccess()
+                        } else {
+                            Timber.e(it, "Failure disconnecting from Google Fit.")
+                            showDisconnectFailure()
+                        }
+                    }
+                    .addOnSuccessListener {
+                        showDisconnectSuccess()
+                    }
         }
 
         companion object {

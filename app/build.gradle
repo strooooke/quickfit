@@ -97,7 +97,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation "com.bartoszlipinski:viewpropertyobjectanimator:1.4.5"
-    implementation "com.google.android.gms:play-services-fitness:18.0.0"
+    implementation "com.google.android.gms:play-services-fitness:20.0.0"
     implementation "com.jakewharton.timber:timber:4.7.1"
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
     implementation "androidx.work:work-runtime:2.5.0"

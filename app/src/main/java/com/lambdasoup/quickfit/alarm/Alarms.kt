@@ -37,7 +37,13 @@ import androidx.core.app.TaskStackBuilder
 import androidx.core.content.ContextCompat
 import androidx.core.database.getLongOrNull
 import androidx.preference.PreferenceManager
-import com.lambdasoup.quickfit.Constants.*
+import com.lambdasoup.quickfit.Constants.NOTIFICATION_ALARM
+import com.lambdasoup.quickfit.Constants.NOTIFICATION_CHANNEL_ID_ALARM
+import com.lambdasoup.quickfit.Constants.PENDING_INTENT_ALARM_RECEIVER
+import com.lambdasoup.quickfit.Constants.PENDING_INTENT_DID_IT
+import com.lambdasoup.quickfit.Constants.PENDING_INTENT_DISMISS_ALARM
+import com.lambdasoup.quickfit.Constants.PENDING_INTENT_SNOOZE
+import com.lambdasoup.quickfit.Constants.PENDING_INTENT_WORKOUT_LIST
 import com.lambdasoup.quickfit.FitActivityService
 import com.lambdasoup.quickfit.R
 import com.lambdasoup.quickfit.model.DayOfWeek
