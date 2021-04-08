@@ -22,12 +22,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.lambdasoup.quickfit.Constants
 import com.lambdasoup.quickfit.Constants.NOTIFICATION_CHANNEL_ID_PLAY_INTERACTION
 import com.lambdasoup.quickfit.R
-import com.lambdasoup.quickfit.ui.FitFailureResolutionActivity.EXTRA_PLAY_API_CONNECT_RESULT
+import com.lambdasoup.quickfit.ui.FitFailureResolutionActivity.Companion.EXTRA_PLAY_API_SIGNIN_ACCOUNT
 import com.lambdasoup.quickfit.ui.WorkoutListActivity
 import timber.log.Timber
 
@@ -44,21 +43,16 @@ object FitApiFailureResolution {
         }
     }
 
-    fun resolveFailure(context: Context, connectionResult: ConnectionResult) {
+    fun requestFitPermissions(context: Context, account: GoogleSignInAccount) {
         Timber.d("Trying to resolve Fit API error while application in foreground")
-        currentForegroundResolver?.onFitApiFailure(connectionResult) ?: run {
+        currentForegroundResolver?.requestFitPermissions(account) ?: run {
 
             Timber.d("Resolving Fit API error while application in background")
-            if (!connectionResult.hasResolution()) {
-                // Show the localized error notification
-                GoogleApiAvailability.getInstance().showErrorNotification(context, connectionResult.errorCode)
-                return
-            }
             // The failure has a resolution. Resolve it.
             // Called typically when the app is not yet authorized, and an
             // authorization dialog is displayed to the user.
             val resultIntent = Intent(context, WorkoutListActivity::class.java)
-            resultIntent.putExtra(EXTRA_PLAY_API_CONNECT_RESULT, connectionResult)
+            resultIntent.putExtra(EXTRA_PLAY_API_SIGNIN_ACCOUNT, account)
             val stackBuilder = TaskStackBuilder.create(context)
             stackBuilder.addParentStack(WorkoutListActivity::class.java)
             stackBuilder.addNextIntent(resultIntent)
@@ -95,5 +89,5 @@ object FitApiFailureResolution {
 }
 
 interface FitApiFailureResolver {
-    fun onFitApiFailure(connectionResult: ConnectionResult)
+    fun requestFitPermissions(account: GoogleSignInAccount)
 }
