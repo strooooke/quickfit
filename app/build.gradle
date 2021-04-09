@@ -20,7 +20,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 def version_major = 1
-def version_minor = 3
+def version_minor = 4
 def version_patch = 0
 
 android {
