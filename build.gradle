@@ -16,13 +16,13 @@
 
 buildscript {
     ext {
-        kotlin_version = "1.4.32"
-        android_gradle_version = '4.1.3'
+        kotlin_version = '1.9.10'
+        android_gradle_version = '8.1.1'
     }
 
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath "com.android.tools.build:gradle:$android_gradle_version"
@@ -33,13 +33,13 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         maven { url "https://jitpack.io" }
     }
 }
 
 subprojects {
-    project.configurations.all {
+    project.configurations.configureEach {
         resolutionStrategy.eachDependency { details ->
             // Raise all transitive support lib dependencies to final version before jetifying
             if (details.requested.group == 'com.android.support'
@@ -51,6 +51,6 @@ subprojects {
     }
 }
 
-task clean(type: Delete) {
+tasks.register('clean', Delete) {
     delete rootProject.buildDir
 }

@@ -14,8 +14,7 @@
   ~    limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.lambdasoup.quickfit">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- normal -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -39,9 +38,9 @@
 
         <activity
             android:name=".ui.WorkoutListActivity"
-            android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -60,7 +59,8 @@
         <activity
             android:name=".ui.SettingsActivity"
             android:label="@string/title_settings"
-            android:parentActivityName=".ui.WorkoutListActivity">
+            android:parentActivityName=".ui.WorkoutListActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -347,7 +347,7 @@ class Alarms(private val context: Context) {
                     context,
                     PENDING_INTENT_ALARM_RECEIVER, // disambiguation is via Intent data
                     AlarmReceiver.getNotifyIntent(context, scheduleId, workoutData),
-                    PendingIntent.FLAG_UPDATE_CURRENT
+                    PendingIntent.FLAG_IMMUTABLE
             )
 }
 

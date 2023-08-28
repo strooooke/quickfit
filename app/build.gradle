@@ -16,7 +16,6 @@
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 def version_major = 1
@@ -24,17 +23,16 @@ def version_minor = 4
 def version_patch = 0
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion "29.0.3"
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.lambdasoup.quickfit"
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 32
         versionCode version_major * 10000 + version_minor * 100 + version_patch * 1
         versionName "$version_major.$version_minor.$version_patch"
+        resourceConfigurations += ['en', 'de']
 
-        resConfigs "en", "de"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -46,6 +44,10 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 
     flavorDimensions "for_screengrab"
@@ -70,6 +72,7 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    namespace 'com.lambdasoup.quickfit'
 
 }
 
@@ -83,7 +86,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     androidTestImplementation('androidx.test.espresso:espresso-contrib:3.3.0')
     androidTestImplementation 'androidx.annotation:annotation:1.2.0'
-    androidTestImplementation 'tools.fastlane:screengrab:0.3.0'
+    androidTestImplementation 'tools.fastlane:screengrab:2.1.1'
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
 
     kapt "com.android.databinding:compiler:$android_gradle_version"

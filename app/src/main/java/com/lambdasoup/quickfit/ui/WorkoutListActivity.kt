@@ -27,24 +27,25 @@ import android.database.Cursor
 import android.net.Uri.parse
 import android.os.Bundle
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_ID
 import androidx.recyclerview.widget.SortedList
 import com.google.android.gms.fitness.FitnessActivities
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.lambdasoup.quickfit.FitActivityService
 import com.lambdasoup.quickfit.R
+import com.lambdasoup.quickfit.databinding.ActivityWorkoutListBinding
+import com.lambdasoup.quickfit.databinding.WorkoutListTwoPaneBinding
 import com.lambdasoup.quickfit.model.FitActivity
 import com.lambdasoup.quickfit.persist.QuickFitContentProvider
 import com.lambdasoup.quickfit.persist.QuickFitContract.WorkoutEntry
 import com.lambdasoup.quickfit.util.ui.*
-import kotlinx.android.synthetic.main.activity_workout_list.*
-import kotlinx.android.synthetic.main.fab_workout_list.*
-import kotlinx.android.synthetic.main.mini_fabs.*
-import kotlinx.android.synthetic.main.workout_list_two_pane.*
 import timber.log.Timber
 
 
@@ -54,27 +55,37 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
         TimeDialogFragment.OnFragmentInteractionListenerProvider, DayOfWeekDialogFragment.OnFragmentInteractionListenerProvider,
         ActivityTypeDialogFragment.OnFragmentInteractionListener
 {
+    private val binding = ActivityWorkoutListBinding.inflate(LayoutInflater.from(this))
+    private val twoPanes by lazy {
+        findViewById<MasterDetailLayout>(R.id.two_panes)?.let {
+            WorkoutListTwoPaneBinding.bind(it)
+        }
+    }
+    private val workoutList by lazy { findViewById<RecyclerView>(R.id.workout_list) }
+    private val fabAddSchedule by lazy { findViewById<FloatingActionButton>(R.id.fab_add_schedule) }
+    private val fabAddWorkout by lazy { findViewById<FloatingActionButton>(R.id.fab_add_workout) }
+
 
     private val fabAnimationDuration: Int by lazy { resources.getInteger(R.integer.fab_animation_duration) }
     private val fabBackgroundToActivated: ObjectAnimator by lazy {
         BackgroundTintListAnimator.create(
-                this,
-                fab, R.color.colorAccent,
-                R.color.colorPrimaryMediumLight,
-                fabAnimationDuration.toLong()
+            this,
+            binding.fabWorkoutList.fab,
+            R.color.colorAccent,
+            R.color.colorPrimaryMediumLight,
+            fabAnimationDuration.toLong()
         )
     }
     private val fabBackgroundToNotActivated: ObjectAnimator by lazy {
         BackgroundTintListAnimator.create(
-                this,
-                fab,
-                R.color.colorPrimaryMediumLight,
-                R.color.colorAccent,
-                fabAnimationDuration.toLong()
+            this,
+            binding.fabWorkoutList.fab,
+            R.color.colorPrimaryMediumLight,
+            R.color.colorAccent,
+            fabAnimationDuration.toLong()
         )
     }
 
-    private var isTwoPane: Boolean = false
     private var idToSelect = NO_ID
     private var offsetFabAddWorkout: Float = 0f
     private var offsetFabAddSchedule: Float = 0f
@@ -85,7 +96,7 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Timber.d("onCreate before inflate")
-        setContentView(R.layout.activity_workout_list)
+        setContentView(binding.root)
 
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
                 // Tells the system that the window wishes the content to
@@ -95,22 +106,19 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         toolbar.title = title
+        binding.fabWorkoutList.fab.setOnClickListener { addNewWorkout() }
 
-        fab.setOnClickListener { addNewWorkout() }
-
-        if (two_panes != null) {
+        if (twoPanes != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-w900dp).
             // If this view is present, then the
             // activity should be in two-pane mode.
-            isTwoPane = true
-
-            fab_add_schedule!!.setOnClickListener { addNewSchedule() }
-            fab_add_workout!!.setOnClickListener { addNewWorkout() }
+            fabAddSchedule!!.setOnClickListener { addNewSchedule() }
+            fabAddWorkout!!.setOnClickListener { addNewWorkout() }
             setMiniFabOffsets()
 
-            two_panes.setAfterCollapse {
-                fab.layoutParams = (fab.layoutParams as CoordinatorLayout.LayoutParams).apply {
+            twoPanes!!.twoPanes.setAfterCollapse {
+                binding.fabWorkoutList.fab.layoutParams = (binding.fabWorkoutList.fab.layoutParams as CoordinatorLayout.LayoutParams).apply {
                     anchorId = View.NO_ID
                     gravity = Gravity.BOTTOM or Gravity.END
                 }
@@ -122,11 +130,11 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
             }
         }
 
-        workoutsAdapter = WorkoutItemRecyclerViewAdapter(this, isTwoPane).apply {
+        workoutsAdapter = WorkoutItemRecyclerViewAdapter(this, twoPanes != null).apply {
             setOnWorkoutInteractionListener(this@WorkoutListActivity)
         }
 
-        with(workout_list) {
+        with(workoutList) {
             adapter = workoutsAdapter
             addItemDecoration(DividerItemDecoration(this@WorkoutListActivity, false))
         }
@@ -134,7 +142,7 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
         // Theoretically, setting fitsSystemWindows on the CoordinatorLayout and appropriate children should work.
         // In practice, it does not apply correctly to its RecyclerView children, breaking the scrolling AppBar behavior too.
         // So we do things by hand.
-        root.setOnApplyWindowInsetsListener { v, windowInsets ->
+        binding.root.setOnApplyWindowInsetsListener { v, windowInsets ->
             v.setOnApplyWindowInsetsListener(null)
 
             val systemWindowInsetsRelative = windowInsets.systemWindowInsetsRelative(v)
@@ -142,9 +150,9 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
             toolbar.updatePadding { oldPadding -> oldPadding + systemWindowInsetsRelative.copy(bottom = 0) }
             toolbar.updateHeight { oldHeight -> oldHeight + windowInsets.systemWindowInsetTop }
 
-            fab.updateMargins { oldMargins -> oldMargins + systemWindowInsetsRelative.copy(top = 0) }
+            binding.fabWorkoutList.fab.updateMargins { oldMargins -> oldMargins + systemWindowInsetsRelative.copy(top = 0) }
 
-            workout_list.updatePadding { oldPadding -> oldPadding + systemWindowInsetsRelative.copy(top = 0) }
+            workoutList.updatePadding { oldPadding -> oldPadding + systemWindowInsetsRelative.copy(top = 0) }
 
             windowInsets
         }
@@ -233,11 +241,13 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
         Timber.d("creating loader")
         return WorkoutListLoader(this)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor?) {
         Timber.d("onLoadFinished, idToSelect=$idToSelect")
         workoutsAdapter.swapCursor(data)
@@ -250,14 +260,15 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
             val pos = workoutsAdapter.getPosition(idToSelect)
             if (pos != SortedList.INVALID_POSITION) {
                 workoutsAdapter.selectedItemId = idToSelect
-                Timber.d("going to scroll to pos $pos - recyclerView.paddingBottom = ${workout_list.paddingBottom}")
-                workout_list.smoothScrollToPosition(pos)
+                Timber.d("going to scroll to pos $pos - recyclerView.paddingBottom = ${workoutList.paddingBottom}")
+                workoutList.smoothScrollToPosition(pos)
                 Timber.d("scrolled")
             }
             idToSelect = NO_ID
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onLoaderReset(loader: Loader<Cursor>) {
         Timber.d("onLoaderReset")
         workoutsAdapter.swapCursor(null)
@@ -273,55 +284,55 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
     }
 
     private fun showMiniFabs() {
-        if (!isTwoPane) {
+        if (twoPanes == null) {
             return
         }
 
-        if (fab.isActivated) {
+        if (binding.fabWorkoutList.fab.isActivated) {
             Timber.d("fab is already in activated state: ignoring.")
             return
         }
-        fab.isActivated = true
+        binding.fabWorkoutList.fab.isActivated = true
 
-        with(fab_add_schedule) {
+        with(fabAddSchedule) {
             (this as View).visibility = View.VISIBLE
             animate()
                     .setDuration(fabAnimationDuration.toLong())
                     .translationY(-offsetFabAddSchedule)
         }
-        with(fab_add_workout) {
+        with(fabAddWorkout) {
             (this as View).visibility = View.VISIBLE
             animate()
                     .setDuration(fabAnimationDuration.toLong())
                     .translationY(-offsetFabAddWorkout)
         }
         fabBackgroundToActivated.start()
-        fab.setOnClickListener { hideMiniFabs() }
+        binding.fabWorkoutList.fab.setOnClickListener { hideMiniFabs() }
     }
 
 
     private fun hideMiniFabs() {
-        if (!isTwoPane) {
+        if (twoPanes == null) {
             return
         }
 
-        if (!fab.isActivated) {
+        if (!binding.fabWorkoutList.fab.isActivated) {
             Timber.d("fab is already in deactivated state: ignoring.")
             return
         }
 
-        fab.isActivated = false
+        binding.fabWorkoutList.fab.isActivated = false
 
-        fab_add_schedule!!.animate()
+        fabAddSchedule!!.animate()
                 .setDuration(fabAnimationDuration.toLong())
                 .translationY(0f)
-                .withEndAction { (fab_add_schedule!! as View).visibility = View.GONE }
-        fab_add_workout!!.animate()
+                .withEndAction { (fabAddSchedule!! as View).visibility = View.GONE }
+        fabAddWorkout!!.animate()
                 .setDuration(fabAnimationDuration.toLong())
                 .translationY(0f)
-                .withEndAction { (fab_add_workout!! as View).visibility = View.GONE }
+                .withEndAction { (fabAddWorkout!! as View).visibility = View.GONE }
         fabBackgroundToNotActivated.start()
-        fab!!.setOnClickListener { showMiniFabs() }
+        binding.fabWorkoutList.fab.setOnClickListener { showMiniFabs() }
     }
 
     private fun addNewWorkout() {
@@ -347,32 +358,32 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
     }
 
     private fun ensureSchedulesPaneShown(workoutId: Long) {
-        if (!isTwoPane) {
+        if (twoPanes == null) {
             return
         }
 
         Timber.d("ensuring schedules pane is shown for workoutId %d", workoutId)
-        if (!two_panes!!.isShowDetailsPane) {
+        if (!twoPanes!!.twoPanes.isShowDetailsPane) {
             showSchedulesPane(workoutId)
         }
 
     }
 
     private fun showSchedulesPane(workoutId: Long) {
-        if (!isTwoPane) {
+        if (twoPanes == null) {
             Timber.wtf("showSchedulesPane called despite not in two-pane layout mode")
             return
         }
 
-        fab.layoutParams = (fab.layoutParams as CoordinatorLayout.LayoutParams).apply {
+        binding.fabWorkoutList.fab.layoutParams = (binding.fabWorkoutList.fab.layoutParams as CoordinatorLayout.LayoutParams).apply {
             anchorId = R.id.list_pane
             anchorGravity = Gravity.BOTTOM or Gravity.END
             gravity = Gravity.CENTER_HORIZONTAL
         }
 
-        fab.setOnClickListener { showMiniFabs() }
+        binding.fabWorkoutList.fab.setOnClickListener { showMiniFabs() }
 
-        two_panes.requestShowDetail()
+        twoPanes!!.twoPanes.requestShowDetail()
 
         val newFragment = SchedulesFragment.create(workoutId)
         supportFragmentManager
@@ -382,15 +393,15 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
     }
 
     private fun hideSchedulesPane() {
-        if (!isTwoPane) {
+        if (twoPanes == null) {
             Timber.wtf("hideSchedulesPane called despite not in two-pane layout mode")
             return
         }
 
         hideMiniFabs()
-        fab.setOnClickListener { addNewWorkout() }
+        binding.fabWorkoutList.fab.setOnClickListener { addNewWorkout() }
 
-        two_panes.requestHideDetail()
+        twoPanes!!.twoPanes.requestHideDetail()
 
     }
 
@@ -405,7 +416,7 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
     }
 
     private fun updateSchedulesPane(workoutId: Long) {
-        if (!isTwoPane) {
+        if (twoPanes == null) {
             return
         }
         val fragment = supportFragmentManager.findFragmentById(R.id.schedules_container) as SchedulesFragment?
@@ -428,7 +439,7 @@ class WorkoutListActivity : FitFailureResolutionActivity(), LoaderManager.Loader
     }
 
     override fun onSchedulesEditRequested(workoutId: Long) {
-        if (isTwoPane) {
+        if (twoPanes == null) {
             Timber.wtf("onSchedulesEditRequested despite in two-pane layout mode")
             return
         }

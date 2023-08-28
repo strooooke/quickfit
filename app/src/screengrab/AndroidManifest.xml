@@ -13,8 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~    limitations under the License.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.lambdasoup.quickfit">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- screengrab: https://github.com/fastlane/fastlane/tree/master/screengrab#readme -->
     <!-- Allows unlocking your device and activating its screen so UI tests can succeed -->

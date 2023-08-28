@@ -58,7 +58,6 @@ object WakefulIntents {
                 context.startService(intent)
             }
 
-            @Suppress("FoldInitializerAndIfToElvis")
             if (componentName == null) {
                 return
             }

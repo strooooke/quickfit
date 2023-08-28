@@ -38,10 +38,13 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <include layout="@layout/workout_list" />
+    <include layout="@layout/workout_list"
+        android:id="@+id/workout_list"/>
 
-    <include layout="@layout/mini_fabs" />
+    <include layout="@layout/mini_fabs"
+        android:id="@+id/mini_fabs"/>
 
-    <include layout="@layout/fab_workout_list" />
+    <include layout="@layout/fab_workout_list"
+        android:id="@+id/fab_workout_list"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

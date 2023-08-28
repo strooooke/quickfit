@@ -108,6 +108,7 @@ class SchedulesActivity : FitFailureResolutionActivity(),
         return schedulesFragment
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
         when (id) {
             LOADER_WORKOUT -> return WorkoutLoader(this, workoutId)
@@ -115,6 +116,7 @@ class SchedulesActivity : FitFailureResolutionActivity(),
         throw IllegalArgumentException("Not a loader id: $id")
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor) {
         when (loader.id) {
             LOADER_WORKOUT -> {
@@ -125,6 +127,7 @@ class SchedulesActivity : FitFailureResolutionActivity(),
         throw IllegalArgumentException("Not a loader id: " + loader.id)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onLoaderReset(loader: Loader<Cursor>) {
         when (loader.id) {
             LOADER_WORKOUT ->
