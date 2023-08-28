@@ -16,6 +16,7 @@
 
 package com.lambdasoup.quickfit.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
 import androidx.recyclerview.widget.SortedList
@@ -127,6 +128,7 @@ class WorkoutItemRecyclerViewAdapter(
         return dataset.size()
     }
 
+    @SuppressLint("Range")
     fun swapCursor(cursor: Cursor?) {
         if (cursor == null) {
             dataset.clear()

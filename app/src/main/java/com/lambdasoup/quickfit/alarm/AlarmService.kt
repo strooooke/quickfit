@@ -111,7 +111,8 @@ class AlarmService : Service() {
                                     this,
                                     PENDING_INTENT_WORKOUT_LIST,
                                     Intent(this, WorkoutListActivity::class.java),
-                                    PendingIntent.FLAG_UPDATE_CURRENT)
+                                    PendingIntent.FLAG_IMMUTABLE xor PendingIntent.FLAG_UPDATE_CURRENT
+                            )
                     )
                     .build()
 

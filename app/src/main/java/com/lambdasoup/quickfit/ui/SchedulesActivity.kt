@@ -16,6 +16,7 @@
 
 package com.lambdasoup.quickfit.ui
 
+import android.annotation.SuppressLint
 import android.app.LoaderManager
 import android.content.Loader
 import android.database.Cursor
@@ -137,6 +138,7 @@ class SchedulesActivity : FitFailureResolutionActivity(),
         throw IllegalArgumentException("Not a loader id: " + loader.id)
     }
 
+    @SuppressLint("Range")
     private fun bindHeader(cursor: Cursor) {
         cursor.moveToFirst()
 

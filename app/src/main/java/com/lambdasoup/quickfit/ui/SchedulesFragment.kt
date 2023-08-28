@@ -23,6 +23,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import androidx.fragment.app.Fragment
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.Loader
@@ -38,6 +39,7 @@ import com.lambdasoup.quickfit.util.ui.LeaveBehind
 import com.lambdasoup.quickfit.util.ui.systemWindowInsetsRelative
 import com.lambdasoup.quickfit.util.ui.updatePadding
 import timber.log.Timber
+import java.security.Permission
 import java.util.*
 
 
@@ -184,6 +186,8 @@ class SchedulesFragment : Fragment(),
     }
 
     internal fun onAddNewSchedule() {
+        //TODO("ensure notification and schedule_alarm permissions first")
+        PermissionChecker.checkPermission(requireContext(), )
         // initialize with current day and time
         val calendar = Calendar.getInstance()
         val dayOfWeek = DayOfWeek.getByCalendarConst(calendar.get(Calendar.DAY_OF_WEEK))
